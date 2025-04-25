@@ -12,9 +12,13 @@ namespace IPSys
                 "Integrated Security=True;" +
                 "Trust Server Certificate=True";
 
+        public List<DateTime> SchedDatesList = new List<DateTime>();
+        public List<int> SchedDatesNumList = new List<int>();
+
         public bookingsPage()
         {
             InitializeComponent();
+            PopulateSchedDates();
             // LoadDataIntoTable(table1);
         }
 
@@ -50,42 +54,60 @@ namespace IPSys
         //    }
         //}
 
-        private void InitCalendarBadges()
+        public void PopulateSchedDates()
         {
-            string query = "";
+            string query = @"
+                SELECT 
+                    CAST(Date AS DATE) AS BookingDate, 
+                    COUNT(*) AS BookingCount
+                FROM Bookings
+                GROUP BY CAST(Date AS DATE)
+                ORDER BY BookingDate ASC;
+            ";
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        SchedDatesList.Clear();
+                        SchedDatesNumList.Clear();
+
+                        while (reader.Read())
+                        {
+                            SchedDatesList.Add(reader.GetDateTime(0));
+                            SchedDatesNumList.Add(reader.GetInt32(1));
+                        }
+                    }
+                }
+            }
+            if (SchedDatesList.Count == 0)
+            {
+                MessageBox.Show("SchedDatesList is empty!");
+            }
 
 
-            query = @"SELECT 
-                b.date AS [Date],
-            FROM bookings b";
+            v.BadgeAction = dates =>
+            {
+                var datebefore = dates[0];
+                var dateafter = dates[1];
 
+                // Generate DateBadges for each item in SchedDatesList with corresponding counts in SchedDatesNumList
+                return SchedDatesList
+                    .Select((date, index) => new DateBadge(
+                        date.ToString("yyyy-MM-dd"),  // Format as "YYYY-MM-DD"
+                        SchedDatesNumList[index]    // Use the corresponding count from SchedDatesNumList
+                    ))
+                    .ToList();
+            };
+            v.LoadBadge();
 
         }
-
 
         private void calendar1_DateChanged(object sender, DateTimeEventArgs e)
         {
-
-        }
-
-        private void calendar1_DateChanged_1(object sender, DateTimeEventArgs e)
-        {
-            MessageBox.Show(calendar1.Value.ToString());
-
-            calendar1.BadgeAction = dates =>
-            {
-                // The dates parameter is FHIR [], and the array length is fixed at 2. It returns the start and end dates displayed on the UI
-                // DateTime start_date = dates[0], end_date = dates[1];
-
-                var now = dates[0];
-                return new List<AntdUI.DateBadge> {
-        new DateBadge(now.ToString("2025-04-25"),0,Color.FromArgb(112, 237, 58)),
-        new DateBadge(now.AddDays(1).ToString("2025-04-27"),5),
-        new DateBadge(now.AddDays(1).ToString("2025-04-29"),99),
-    };
-            };
-
-
         }
     }
 }
