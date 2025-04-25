@@ -13,62 +13,72 @@ namespace IPSys
                "Integrated Security=True;" +
                "Trust Server Certificate=True";
 
+        public string TableOrder = "";
+
         public dashboardPage()
         {
             InitializeComponent();
             InitializeDashboardCharts();
-            LoadDataIntoTable(table1);
+            LoadDataIntoTable(EventsTable);
         }
 
 
         private void LoadDataIntoTable(AntdUI.Table TableToFill)
         {
+            EventsTable.ColumnBack = Color.White;
             string query = "";
 
-            if (TableToFill == table1)
+            if (sortEventsBtn.SelectedIndex == 0)
+            {
+                TableOrder = "ORDER BY b.event_name ASC";
+            } else
+            { 
+                TableOrder = "ORDER BY b.date DESC";
+            }
+
+            if (TableToFill == EventsTable)
             {
                 query = @"SELECT 
-                e.event_name AS [Event Name],
+                b.event_name AS [Name],
                 b.date AS [Date],
                 b.time AS [Time],
                 b.location AS [Location]
             FROM bookings b
             INNER JOIN events e ON b.event_id = e.event_id
-            ORDER BY b.date ASC";
+            " + TableOrder;
 
             }
-            else if (TableToFill == table2)
+            else if (TableToFill == ClientsTable)
             {
                 query = @"SELECT";
             }
 
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-                    DataTable usersDataTable = new DataTable();
-                    adapter.Fill(usersDataTable);
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
+                DataTable usersDataTable = new DataTable();
+                adapter.Fill(usersDataTable);
 
-                    TableToFill.DataSource = usersDataTable; // This is how you bind it to AntdUI table  
-                }
+                TableToFill.DataSource = usersDataTable; // This is how you bind it to AntdUI table  
+            }
         }
 
         public void InitializeDashboardCharts()
         {
-            clientsChart.Series = new ISeries[]
+            EarningsChart.Series = new ISeries[]
           {
                 new LineSeries<int>
                 {
                     Values = new int[12] {5, 4, 12, 30, 4, 22, 6, 17, 0, 0, 0, 0}
                 }
           };
-            clientsChart.XAxes = new List<Axis>
+            EarningsChart.XAxes = new List<Axis>
             { new() {
                 Labels = new string[12] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" }
-            }
+                }
             };
 
-
-            bookingsChart.Series = new ISeries[]
+            BookingsChart.Series = new ISeries[]
             {
                 new ColumnSeries<int>
                 {
@@ -76,7 +86,7 @@ namespace IPSys
                 }
             };
 
-            bookingsChart.XAxes = new List<Axis>
+            BookingsChart.XAxes = new List<Axis>
             {
                 new()
                 {
@@ -84,19 +94,14 @@ namespace IPSys
                 }
             };
 
-
-
-            clientsChart.BackColor = Color.White;
-            bookingsChart.BackColor = Color.White;
+            EarningsChart.BackColor = Color.White;
+            BookingsChart.BackColor = Color.White;
         }
 
-
-
-
-        public void input1_KeyDown(object sender, EventArgs e)
+        private void sortEventsBtn_SelectedIndexChanged(object sender, AntdUI.IntEventArgs e)
         {
-            //put in the value when enter is pressed on the input bar
+            LoadDataIntoTable(EventsTable);
+            EventsTable.Focus();
         }
-
     }
 }

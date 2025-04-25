@@ -31,16 +31,17 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(dashboardPage));
             gridPanel1 = new AntdUI.GridPanel();
             panel6 = new AntdUI.Panel();
-            table2 = new AntdUI.Table();
+            ClientsTable = new AntdUI.Table();
             label11 = new AntdUI.Label();
             panel5 = new AntdUI.Panel();
-            table1 = new AntdUI.Table();
+            sortEventsBtn = new AntdUI.Select();
+            EventsTable = new AntdUI.Table();
             label10 = new AntdUI.Label();
             panel4 = new AntdUI.Panel();
-            bookingsChart = new LiveChartsCore.SkiaSharpView.WinForms.CartesianChart();
+            BookingsChart = new LiveChartsCore.SkiaSharpView.WinForms.CartesianChart();
             label9 = new AntdUI.Label();
             panel3 = new AntdUI.Panel();
-            clientsChart = new LiveChartsCore.SkiaSharpView.WinForms.CartesianChart();
+            EarningsChart = new LiveChartsCore.SkiaSharpView.WinForms.CartesianChart();
             label8 = new AntdUI.Label();
             panel2 = new AntdUI.Panel();
             label6 = new AntdUI.Label();
@@ -78,31 +79,31 @@
             gridPanel1.Gap = 6;
             gridPanel1.Location = new Point(19, 241);
             gridPanel1.Name = "gridPanel1";
-            gridPanel1.Size = new Size(1046, 459);
+            gridPanel1.Size = new Size(1036, 466);
             gridPanel1.Span = "70% 30%;70% 30%";
             gridPanel1.TabIndex = 8;
             gridPanel1.Text = "gridPanel1";
             // 
             // panel6
             // 
-            panel6.Controls.Add(table2);
+            panel6.Controls.Add(ClientsTable);
             panel6.Controls.Add(label11);
-            panel6.Location = new Point(741, 238);
+            panel6.Location = new Point(734, 242);
             panel6.Name = "panel6";
             panel6.Shadow = 5;
-            panel6.Size = new Size(296, 211);
+            panel6.Size = new Size(293, 215);
             panel6.TabIndex = 3;
             panel6.Text = "panel6";
             // 
-            // table2
+            // ClientsTable
             // 
-            table2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            table2.Empty = false;
-            table2.Location = new Point(24, 51);
-            table2.Name = "table2";
-            table2.Size = new Size(251, 143);
-            table2.TabIndex = 18;
-            table2.Text = "clientReviews";
+            ClientsTable.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            ClientsTable.Empty = false;
+            ClientsTable.Location = new Point(24, 51);
+            ClientsTable.Name = "ClientsTable";
+            ClientsTable.Size = new Size(248, 147);
+            ClientsTable.TabIndex = 18;
+            ClientsTable.Text = "clientReviews";
             // 
             // label11
             // 
@@ -112,28 +113,49 @@
             label11.Name = "label11";
             label11.Size = new Size(219, 29);
             label11.TabIndex = 17;
-            label11.Text = "Client Reviews";
+            label11.Text = "Clients";
             // 
             // panel5
             // 
-            panel5.Controls.Add(table1);
+            panel5.Controls.Add(sortEventsBtn);
+            panel5.Controls.Add(EventsTable);
             panel5.Controls.Add(label10);
-            panel5.Location = new Point(9, 238);
+            panel5.Location = new Point(9, 242);
             panel5.Name = "panel5";
             panel5.Shadow = 5;
-            panel5.Size = new Size(714, 211);
+            panel5.Size = new Size(707, 215);
             panel5.TabIndex = 2;
             panel5.Text = "panel5";
             // 
-            // table1
+            // sortEventsBtn
             // 
-            table1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            table1.Empty = false;
-            table1.Location = new Point(20, 51);
-            table1.Name = "table1";
-            table1.Size = new Size(675, 143);
-            table1.TabIndex = 17;
-            table1.Text = "incomingBookings";
+            sortEventsBtn.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            sortEventsBtn.BorderWidth = 0F;
+            sortEventsBtn.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            sortEventsBtn.HandDragFolder = false;
+            sortEventsBtn.Items.AddRange(new object[] { "Name", "Incoming" });
+            sortEventsBtn.Location = new Point(528, 14);
+            sortEventsBtn.Name = "sortEventsBtn";
+            sortEventsBtn.PlaceholderText = "Sort";
+            sortEventsBtn.Round = true;
+            sortEventsBtn.SelectionColor = Color.Transparent;
+            sortEventsBtn.Size = new Size(163, 31);
+            sortEventsBtn.TabIndex = 19;
+            sortEventsBtn.TextAlign = HorizontalAlignment.Right;
+            sortEventsBtn.SelectedIndexChanged += sortEventsBtn_SelectedIndexChanged;
+            // 
+            // EventsTable
+            // 
+            EventsTable.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            EventsTable.DefaultExpand = true;
+            EventsTable.Empty = false;
+            EventsTable.Font = new Font("Poppins", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            EventsTable.Gap = 20;
+            EventsTable.Location = new Point(20, 51);
+            EventsTable.Name = "EventsTable";
+            EventsTable.Size = new Size(668, 147);
+            EventsTable.TabIndex = 17;
+            EventsTable.Text = "incomingBookings";
             // 
             // label10
             // 
@@ -143,29 +165,29 @@
             label10.Name = "label10";
             label10.Size = new Size(219, 29);
             label10.TabIndex = 16;
-            label10.Text = "Incoming Bookings";
+            label10.Text = "Events";
             // 
             // panel4
             // 
-            panel4.Controls.Add(bookingsChart);
+            panel4.Controls.Add(BookingsChart);
             panel4.Controls.Add(label9);
-            panel4.Location = new Point(741, 9);
+            panel4.Location = new Point(734, 9);
             panel4.Name = "panel4";
             panel4.Shadow = 5;
-            panel4.Size = new Size(296, 211);
+            panel4.Size = new Size(293, 215);
             panel4.TabIndex = 1;
             panel4.Text = "panel4";
             // 
-            // bookingsChart
+            // BookingsChart
             // 
-            bookingsChart.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            bookingsChart.BackColor = Color.Transparent;
-            bookingsChart.BackgroundImageLayout = ImageLayout.None;
-            bookingsChart.Location = new Point(24, 53);
-            bookingsChart.MatchAxesScreenDataRatio = false;
-            bookingsChart.Name = "bookingsChart";
-            bookingsChart.Size = new Size(251, 137);
-            bookingsChart.TabIndex = 17;
+            BookingsChart.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            BookingsChart.BackColor = Color.Transparent;
+            BookingsChart.BackgroundImageLayout = ImageLayout.None;
+            BookingsChart.Location = new Point(24, 53);
+            BookingsChart.MatchAxesScreenDataRatio = false;
+            BookingsChart.Name = "BookingsChart";
+            BookingsChart.Size = new Size(248, 141);
+            BookingsChart.TabIndex = 17;
             // 
             // label9
             // 
@@ -179,25 +201,25 @@
             // 
             // panel3
             // 
-            panel3.Controls.Add(clientsChart);
+            panel3.Controls.Add(EarningsChart);
             panel3.Controls.Add(label8);
             panel3.Location = new Point(9, 9);
             panel3.Name = "panel3";
             panel3.Shadow = 5;
-            panel3.Size = new Size(714, 211);
+            panel3.Size = new Size(707, 215);
             panel3.TabIndex = 0;
-            panel3.Text = "panel3";
+            panel3.Text = "'";
             // 
-            // clientsChart
+            // EarningsChart
             // 
-            clientsChart.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            clientsChart.BackColor = Color.Transparent;
-            clientsChart.BackgroundImageLayout = ImageLayout.None;
-            clientsChart.Location = new Point(20, 53);
-            clientsChart.MatchAxesScreenDataRatio = false;
-            clientsChart.Name = "clientsChart";
-            clientsChart.Size = new Size(675, 137);
-            clientsChart.TabIndex = 16;
+            EarningsChart.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            EarningsChart.BackColor = Color.Transparent;
+            EarningsChart.BackgroundImageLayout = ImageLayout.None;
+            EarningsChart.Location = new Point(20, 53);
+            EarningsChart.MatchAxesScreenDataRatio = false;
+            EarningsChart.Name = "EarningsChart";
+            EarningsChart.Size = new Size(668, 141);
+            EarningsChart.TabIndex = 16;
             // 
             // label8
             // 
@@ -207,7 +229,7 @@
             label8.Name = "label8";
             label8.Size = new Size(219, 29);
             label8.TabIndex = 15;
-            label8.Text = "Clients";
+            label8.Text = "Earnings";
             // 
             // panel2
             // 
@@ -228,7 +250,7 @@
             panel2.Location = new Point(27, 125);
             panel2.Name = "panel2";
             panel2.Shadow = 5;
-            panel2.Size = new Size(1029, 101);
+            panel2.Size = new Size(1019, 101);
             panel2.TabIndex = 7;
             panel2.Text = "panel2";
             // 
@@ -237,7 +259,7 @@
             label6.Anchor = AnchorStyles.None;
             label6.BackColor = Color.Transparent;
             label6.Font = new Font("Poppins ExtraBold", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label6.Location = new Point(793, 46);
+            label6.Location = new Point(788, 46);
             label6.Name = "label6";
             label6.Size = new Size(120, 29);
             label6.TabIndex = 14;
@@ -248,7 +270,7 @@
             label4.Anchor = AnchorStyles.None;
             label4.BackColor = Color.Transparent;
             label4.Font = new Font("Poppins ExtraBold", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label4.Location = new Point(604, 46);
+            label4.Location = new Point(599, 46);
             label4.Name = "label4";
             label4.Size = new Size(120, 29);
             label4.TabIndex = 11;
@@ -259,7 +281,7 @@
             label7.Anchor = AnchorStyles.None;
             label7.BackColor = Color.Transparent;
             label7.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label7.Location = new Point(793, 25);
+            label7.Location = new Point(788, 25);
             label7.Name = "label7";
             label7.Size = new Size(120, 29);
             label7.TabIndex = 12;
@@ -270,7 +292,7 @@
             label2.Anchor = AnchorStyles.None;
             label2.BackColor = Color.Transparent;
             label2.Font = new Font("Poppins ExtraBold", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label2.Location = new Point(392, 46);
+            label2.Location = new Point(387, 46);
             label2.Name = "label2";
             label2.Size = new Size(120, 29);
             label2.TabIndex = 8;
@@ -280,7 +302,7 @@
             // 
             avatar4.Anchor = AnchorStyles.None;
             avatar4.BackColor = Color.IndianRed;
-            avatar4.Location = new Point(730, 25);
+            avatar4.Location = new Point(725, 25);
             avatar4.Name = "avatar4";
             avatar4.Round = true;
             avatar4.Size = new Size(50, 50);
@@ -292,7 +314,7 @@
             label5.Anchor = AnchorStyles.None;
             label5.BackColor = Color.Transparent;
             label5.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label5.Location = new Point(604, 25);
+            label5.Location = new Point(599, 25);
             label5.Name = "label5";
             label5.Size = new Size(120, 29);
             label5.TabIndex = 9;
@@ -303,7 +325,7 @@
             totalClientsLbl.Anchor = AnchorStyles.None;
             totalClientsLbl.BackColor = Color.Transparent;
             totalClientsLbl.Font = new Font("Poppins ExtraBold", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            totalClientsLbl.Location = new Point(212, 46);
+            totalClientsLbl.Location = new Point(207, 46);
             totalClientsLbl.Name = "totalClientsLbl";
             totalClientsLbl.Size = new Size(111, 29);
             totalClientsLbl.TabIndex = 5;
@@ -313,7 +335,7 @@
             // 
             avatar3.Anchor = AnchorStyles.None;
             avatar3.BackColor = Color.IndianRed;
-            avatar3.Location = new Point(541, 25);
+            avatar3.Location = new Point(536, 25);
             avatar3.Name = "avatar3";
             avatar3.Round = true;
             avatar3.Size = new Size(50, 50);
@@ -325,7 +347,7 @@
             label3.Anchor = AnchorStyles.None;
             label3.BackColor = Color.Transparent;
             label3.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label3.Location = new Point(392, 25);
+            label3.Location = new Point(387, 25);
             label3.Name = "label3";
             label3.Size = new Size(139, 29);
             label3.TabIndex = 6;
@@ -336,7 +358,7 @@
             label1.Anchor = AnchorStyles.None;
             label1.BackColor = Color.Transparent;
             label1.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label1.Location = new Point(212, 25);
+            label1.Location = new Point(207, 25);
             label1.Name = "label1";
             label1.Size = new Size(101, 29);
             label1.TabIndex = 4;
@@ -346,7 +368,7 @@
             // 
             avatar2.Anchor = AnchorStyles.None;
             avatar2.BackColor = Color.IndianRed;
-            avatar2.Location = new Point(329, 25);
+            avatar2.Location = new Point(324, 25);
             avatar2.Name = "avatar2";
             avatar2.Round = true;
             avatar2.Size = new Size(50, 50);
@@ -357,7 +379,7 @@
             // 
             avatar1.Anchor = AnchorStyles.None;
             avatar1.BackColor = Color.IndianRed;
-            avatar1.Location = new Point(149, 25);
+            avatar1.Location = new Point(144, 25);
             avatar1.Name = "avatar1";
             avatar1.Round = true;
             avatar1.Size = new Size(50, 50);
@@ -371,7 +393,7 @@
             avatarIcon.BadgeMode = true;
             avatarIcon.Image = Properties.Resources.Treasurer;
             avatarIcon.LoadingProgress = 1F;
-            avatarIcon.Location = new Point(958, 33);
+            avatarIcon.Location = new Point(948, 33);
             avatarIcon.Name = "avatarIcon";
             avatarIcon.Round = true;
             avatarIcon.ShadowOffsetY = 3;
@@ -389,7 +411,7 @@
             searchBar.Prefix = (Image)resources.GetObject("searchBar.Prefix");
             searchBar.Radius = 15;
             searchBar.Round = true;
-            searchBar.Size = new Size(891, 50);
+            searchBar.Size = new Size(881, 50);
             searchBar.TabIndex = 5;
             // 
             // panel1
@@ -401,7 +423,7 @@
             panel1.Name = "panel1";
             panel1.Padding = new Padding(5, 0, 0, 0);
             panel1.Shadow = 5;
-            panel1.Size = new Size(1085, 116);
+            panel1.Size = new Size(1075, 116);
             panel1.TabIndex = 9;
             panel1.Text = "panel1";
             // 
@@ -410,7 +432,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.InactiveBorder;
-            ClientSize = new Size(1094, 712);
+            ClientSize = new Size(1084, 719);
             Controls.Add(gridPanel1);
             Controls.Add(panel2);
             Controls.Add(panel1);
@@ -454,9 +476,10 @@
         private AntdUI.Label label9;
         private AntdUI.Label label11;
         private AntdUI.Label label10;
-        private LiveChartsCore.SkiaSharpView.WinForms.CartesianChart clientsChart;
-        private LiveChartsCore.SkiaSharpView.WinForms.CartesianChart bookingsChart;
-        private AntdUI.Table table1;
-        private AntdUI.Table table2;
+        private LiveChartsCore.SkiaSharpView.WinForms.CartesianChart EarningsChart;
+        private LiveChartsCore.SkiaSharpView.WinForms.CartesianChart BookingsChart;
+        private AntdUI.Table EventsTable;
+        private AntdUI.Table ClientsTable;
+        private AntdUI.Select sortEventsBtn;
     }
 }

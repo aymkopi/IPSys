@@ -12,14 +12,6 @@ namespace IPSys
             TestConnection();
         }
 
-        public static String ConnectionString()
-        {
-            return @"Data Source = DESKTOP-0IG0ARM\SQLEXPRESS;
-                  Initial Catalog 3= owlie;
-                  Integrated Security = True;
-                  Trust Server Certificate = True";
-        }
-
         public static void TestConnection()
         {
             SqlConnection conn = new SqlConnection(
@@ -28,7 +20,6 @@ namespace IPSys
                   Integrated Security = True;
                   Trust Server Certificate = True"
             );
-
             try
             {
                 conn.Open();
@@ -50,6 +41,7 @@ namespace IPSys
             mainPanel.Controls.Add(f);
             mainPanel.Tag = f;
             f.Show();
+            
         }
 
         private void logoutBtn_Click(object sender, EventArgs e)
