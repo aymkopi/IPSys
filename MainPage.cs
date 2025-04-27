@@ -10,6 +10,8 @@ namespace IPSys
             InitializeComponent();
             LoadForm(new dashboardPage());
             TestConnection();
+
+            this.DoubleBuffered = true;
         }
 
         public static void TestConnection()

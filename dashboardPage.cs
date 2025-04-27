@@ -82,7 +82,8 @@ namespace IPSys
             {
                 new ColumnSeries<int>
                 {
-                    Values = new int[7] {12, 9, 3, 0, 4, 15, 1 }
+                    Values = new int[7] {12, 9, 3, 0, 4, 15, 1 },
+                    DataLabelsMaxWidth = 4,
                 }
             };
 

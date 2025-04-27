@@ -30,15 +30,16 @@
         {
             label8 = new AntdUI.Label();
             panel1 = new AntdUI.Panel();
-            v = new AntdUI.Calendar();
+            calendar = new AntdUI.Calendar();
             panel2 = new AntdUI.Panel();
             stackPanel1 = new AntdUI.StackPanel();
             panel3 = new AntdUI.Panel();
+            clientNameBookingLabel1 = new AntdUI.Label();
+            eventNameBookingLabel1 = new AntdUI.Label();
+            eventNameBookingLbl = new AntdUI.Label();
             label1 = new AntdUI.Label();
             divider1 = new AntdUI.Divider();
-            eventNameBookingLbl = new AntdUI.Label();
-            eventNameBookingLabel1 = new AntdUI.Label();
-            clientNameBookingLabel1 = new AntdUI.Label();
+            timeLabel = new AntdUI.Label();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             stackPanel1.SuspendLayout();
@@ -58,7 +59,7 @@
             // panel1
             // 
             panel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            panel1.Controls.Add(v);
+            panel1.Controls.Add(calendar);
             panel1.Location = new Point(27, 94);
             panel1.Name = "panel1";
             panel1.Shadow = 5;
@@ -66,18 +67,18 @@
             panel1.TabIndex = 17;
             panel1.Text = "panel1";
             // 
-            // v
+            // calendar
             // 
-            v.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            v.BadgeSize = 4F;
-            v.Font = new Font("Poppins", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            v.Full = true;
-            v.Location = new Point(25, 21);
-            v.Name = "v";
-            v.Size = new Size(560, 555);
-            v.TabIndex = 0;
-            v.Text = "calendar1";
-            v.DateChanged += calendar1_DateChanged;
+            calendar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            calendar.BadgeSize = 4F;
+            calendar.Font = new Font("Poppins", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            calendar.Full = true;
+            calendar.Location = new Point(25, 21);
+            calendar.Name = "calendar";
+            calendar.Size = new Size(560, 555);
+            calendar.TabIndex = 0;
+            calendar.Text = "calendar1";
+            calendar.DateChanged += calendar1_DateChanged;
             // 
             // panel2
             // 
@@ -107,6 +108,7 @@
             // 
             // panel3
             // 
+            panel3.Controls.Add(timeLabel);
             panel3.Controls.Add(clientNameBookingLabel1);
             panel3.Controls.Add(eventNameBookingLabel1);
             panel3.Controls.Add(eventNameBookingLbl);
@@ -116,6 +118,33 @@
             panel3.Size = new Size(392, 121);
             panel3.TabIndex = 0;
             panel3.Text = "panel3";
+            // 
+            // clientNameBookingLabel1
+            // 
+            clientNameBookingLabel1.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            clientNameBookingLabel1.Location = new Point(23, 42);
+            clientNameBookingLabel1.Name = "clientNameBookingLabel1";
+            clientNameBookingLabel1.Size = new Size(231, 23);
+            clientNameBookingLabel1.TabIndex = 1;
+            clientNameBookingLabel1.Text = "Client";
+            // 
+            // eventNameBookingLabel1
+            // 
+            eventNameBookingLabel1.Font = new Font("Poppins Medium", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            eventNameBookingLabel1.Location = new Point(23, 19);
+            eventNameBookingLabel1.Name = "eventNameBookingLabel1";
+            eventNameBookingLabel1.Size = new Size(329, 23);
+            eventNameBookingLabel1.TabIndex = 0;
+            eventNameBookingLabel1.Text = "Event Name";
+            // 
+            // eventNameBookingLbl
+            // 
+            eventNameBookingLbl.Font = new Font("Poppins Medium", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            eventNameBookingLbl.Location = new Point(23, 19);
+            eventNameBookingLbl.Name = "eventNameBookingLbl";
+            eventNameBookingLbl.Size = new Size(75, 23);
+            eventNameBookingLbl.TabIndex = 0;
+            eventNameBookingLbl.Text = "label2";
             // 
             // label1
             // 
@@ -139,32 +168,15 @@
             divider1.TextPadding = 0F;
             divider1.Thickness = 1.5F;
             // 
-            // eventNameBookingLbl
+            // timeLabel
             // 
-            eventNameBookingLbl.Font = new Font("Poppins Medium", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            eventNameBookingLbl.Location = new Point(23, 19);
-            eventNameBookingLbl.Name = "eventNameBookingLbl";
-            eventNameBookingLbl.Size = new Size(75, 23);
-            eventNameBookingLbl.TabIndex = 0;
-            eventNameBookingLbl.Text = "label2";
-            // 
-            // eventNameBookingLabel1
-            // 
-            eventNameBookingLabel1.Font = new Font("Poppins Medium", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            eventNameBookingLabel1.Location = new Point(23, 19);
-            eventNameBookingLabel1.Name = "eventNameBookingLabel1";
-            eventNameBookingLabel1.Size = new Size(329, 23);
-            eventNameBookingLabel1.TabIndex = 0;
-            eventNameBookingLabel1.Text = "Event Name";
-            // 
-            // clientNameBookingLabel1
-            // 
-            clientNameBookingLabel1.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            clientNameBookingLabel1.Location = new Point(23, 48);
-            clientNameBookingLabel1.Name = "clientNameBookingLabel1";
-            clientNameBookingLabel1.Size = new Size(329, 23);
-            clientNameBookingLabel1.TabIndex = 1;
-            clientNameBookingLabel1.Text = "Client";
+            timeLabel.Font = new Font("Poppins", 9.75F, FontStyle.Italic, GraphicsUnit.Point, 0);
+            timeLabel.Location = new Point(245, 42);
+            timeLabel.Name = "timeLabel";
+            timeLabel.Size = new Size(127, 23);
+            timeLabel.TabIndex = 2;
+            timeLabel.Text = "Client";
+            timeLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
             // bookingsPage
             // 
@@ -189,7 +201,7 @@
 
         private AntdUI.Label label8;
         private AntdUI.Panel panel1;
-        private AntdUI.Calendar v;
+        private AntdUI.Calendar calendar;
         private AntdUI.Panel panel2;
         private AntdUI.Label label1;
         private AntdUI.Divider divider1;
@@ -198,5 +210,6 @@
         private AntdUI.Label eventNameBookingLabel1;
         private AntdUI.Label eventNameBookingLbl;
         private AntdUI.Label clientNameBookingLabel1;
+        private AntdUI.Label timeLabel;
     }
 }
