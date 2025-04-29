@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Windows.Documents;
 using AntdUI;
 using Microsoft.Data.SqlClient;
 
@@ -21,8 +20,8 @@ namespace IPSys
             PopulateSchedDates();
 
             this.DoubleBuffered = true;
-            
-           
+
+
             // LoadDataIntoTable(table1);
         }
 
@@ -103,7 +102,7 @@ namespace IPSys
                     .Select((date, index) => new DateBadge(
                         date.ToString("yyyy-MM-dd"),  // Format as "YYYY-MM-DD"
                         SchedDatesNumList[index]
-                        // Use the corresponding count from SchedDatesNumList
+                    // Use the corresponding count from SchedDatesNumList
                     ))
                     .ToList();
             };
@@ -115,8 +114,7 @@ namespace IPSys
 
         private void calendar1_DateChanged(object sender, DateTimeEventArgs e)
         {
-           GeneratePanelsForSelectedDate(calendar.Value);
-            
+            GeneratePanelsForSelectedDate(calendar.Value);
         }
 
         public void GeneratePanelsForSelectedDate(DateTime selectedDate)
@@ -137,7 +135,8 @@ namespace IPSys
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        // Clear the existing panels in the StackPanel
+                        // Suspend layout updates during panel update
+                        stackPanel1.SuspendLayout();
                         stackPanel1.Controls.Clear();
 
                         int panelIndex = 0;
@@ -150,7 +149,6 @@ namespace IPSys
                                 Size = new Size(392, 121), // Example size, adjust as necessary
                                 BackColor = Color.Transparent,
                                 Shadow = 5,
-                                
                             };
 
                             // Create a label for the event name
@@ -159,9 +157,8 @@ namespace IPSys
                                 Name = $"eventNameBookingLabel{panelIndex}",
                                 Font = new Font("Poppins Medium", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0),
                                 Location = new Point(23, 19),
-                                Size = Size = new Size(75, 23),
+                                Size = new Size(75, 23),
                                 Text = reader.GetString(0), // Get the EventName from the database
-                               
                                 AutoSize = true
                             };
 
@@ -172,41 +169,55 @@ namespace IPSys
                                 Location = new Point(23, 48),
                                 Size = new Size(329, 23),
                                 Text = reader.GetString(1),
-                                
-
                                 AutoSize = true
                             };
 
-
-                            AntdUI.Label timeLabel = new AntdUI.Label
-                            {
-                                Name = $"timeLabel{panelIndex}",
-                                Font = new Font("Poppins", 9.75F, FontStyle.Italic, GraphicsUnit.Point, 0),
-                                Location = new Point(245, 42),
-                                Size = new Size(127, 23),
-                                Text = reader.GetString(2),
-                                TextAlign = ContentAlignment.MiddleRight,
-
-                                AutoSize = true
-
-                            };
+                            //AntdUI.Label timeLabel = new AntdUI.Label
+                            //{
+                            //    Name = $"timeLabel{panelIndex}",
+                            //    Font = new Font("Poppins", 9.75F, FontStyle.Italic, GraphicsUnit.Point, 0),
+                            //    Location = new Point(245, 42),
+                            //    Size = new Size(127, 23),
+                            //    Text = reader.GetString(2),
+                            //    TextAlign = ContentAlignment.MiddleRight,
+                            //    AutoSize = true
+                            //};
 
                             // Add the label to the panel
                             panel.Controls.Add(eventNameLabel);
                             panel.Controls.Add(clientNameLabel);
-                            panel.Controls.Add(timeLabel);
+                            //panel.Controls.Add(timeLabel);
 
                             // Add the panel to the StackPanel
                             stackPanel1.Controls.Add(panel);
 
-                            
-
                             panelIndex++;
                         }
+
+                        // Resume layout updates after panel update
+                        stackPanel1.ResumeLayout();
                     }
                 }
             }
         }
+        private void LoadForm(object Form)
+        {
+            if (this.Controls.Count > 0)
+                this.Controls.RemoveAt(0);
+            Form f = Form as Form;
+            f.TopLevel = false;
+            f.Dock = DockStyle.Fill;
+            this.Controls.Add(f);
+            this.Tag = f;
+            f.Show();
+
+        }
+
+        private void CreateBookingButton_Click(object sender, EventArgs e)
+        {
+            LoadForm(new Form1());
+        }   
+
 
     }
 }

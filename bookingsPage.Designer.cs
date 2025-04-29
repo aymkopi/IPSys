@@ -28,18 +28,20 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(bookingsPage));
             label8 = new AntdUI.Label();
             panel1 = new AntdUI.Panel();
             calendar = new AntdUI.Calendar();
             panel2 = new AntdUI.Panel();
+            CreateBookingButton = new AntdUI.Button();
             stackPanel1 = new AntdUI.StackPanel();
             panel3 = new AntdUI.Panel();
+            timeLabel = new AntdUI.Label();
             clientNameBookingLabel1 = new AntdUI.Label();
             eventNameBookingLabel1 = new AntdUI.Label();
             eventNameBookingLbl = new AntdUI.Label();
             label1 = new AntdUI.Label();
             divider1 = new AntdUI.Divider();
-            timeLabel = new AntdUI.Label();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             stackPanel1.SuspendLayout();
@@ -83,6 +85,7 @@
             // panel2
             // 
             panel2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            panel2.Controls.Add(CreateBookingButton);
             panel2.Controls.Add(stackPanel1);
             panel2.Controls.Add(label1);
             panel2.Controls.Add(divider1);
@@ -93,15 +96,29 @@
             panel2.TabIndex = 18;
             panel2.Text = "panel2";
             // 
+            // CreateBookingButton
+            // 
+            CreateBookingButton.Icon = (Image)resources.GetObject("CreateBookingButton.Icon");
+            CreateBookingButton.IconGap = 0F;
+            CreateBookingButton.IconPosition = AntdUI.TAlignMini.Bottom;
+            CreateBookingButton.IconRatio = 1F;
+            CreateBookingButton.Location = new Point(355, 44);
+            CreateBookingButton.Name = "CreateBookingButton";
+            CreateBookingButton.Shape = AntdUI.TShape.Circle;
+            CreateBookingButton.Size = new Size(67, 57);
+            CreateBookingButton.TabIndex = 22;
+            CreateBookingButton.Type = AntdUI.TTypeMini.Primary;
+            CreateBookingButton.Click += CreateBookingButton_Click;
+            // 
             // stackPanel1
             // 
             stackPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             stackPanel1.BackColor = Color.Transparent;
             stackPanel1.Controls.Add(panel3);
-            stackPanel1.Location = new Point(22, 84);
+            stackPanel1.Location = new Point(22, 90);
             stackPanel1.Name = "stackPanel1";
             stackPanel1.Padding = new Padding(5);
-            stackPanel1.Size = new Size(408, 561);
+            stackPanel1.Size = new Size(408, 555);
             stackPanel1.TabIndex = 21;
             stackPanel1.Text = "stackPanel1";
             stackPanel1.Vertical = true;
@@ -118,6 +135,16 @@
             panel3.Size = new Size(392, 121);
             panel3.TabIndex = 0;
             panel3.Text = "panel3";
+            // 
+            // timeLabel
+            // 
+            timeLabel.Font = new Font("Poppins", 9.75F, FontStyle.Italic, GraphicsUnit.Point, 0);
+            timeLabel.Location = new Point(245, 42);
+            timeLabel.Name = "timeLabel";
+            timeLabel.Size = new Size(127, 23);
+            timeLabel.TabIndex = 2;
+            timeLabel.Text = "Client";
+            timeLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
             // clientNameBookingLabel1
             // 
@@ -150,7 +177,7 @@
             // 
             label1.BackColor = Color.Transparent;
             label1.Font = new Font("Poppins", 15.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(31, 37);
+            label1.Location = new Point(31, 56);
             label1.Name = "label1";
             label1.Size = new Size(220, 28);
             label1.TabIndex = 19;
@@ -159,7 +186,7 @@
             // divider1
             // 
             divider1.BackColor = Color.Transparent;
-            divider1.Location = new Point(31, 68);
+            divider1.Location = new Point(31, 83);
             divider1.Name = "divider1";
             divider1.Orientation = AntdUI.TOrientation.Left;
             divider1.Size = new Size(387, 10);
@@ -167,16 +194,6 @@
             divider1.Text = "";
             divider1.TextPadding = 0F;
             divider1.Thickness = 1.5F;
-            // 
-            // timeLabel
-            // 
-            timeLabel.Font = new Font("Poppins", 9.75F, FontStyle.Italic, GraphicsUnit.Point, 0);
-            timeLabel.Location = new Point(245, 42);
-            timeLabel.Name = "timeLabel";
-            timeLabel.Size = new Size(127, 23);
-            timeLabel.TabIndex = 2;
-            timeLabel.Text = "Client";
-            timeLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
             // bookingsPage
             // 
@@ -211,5 +228,6 @@
         private AntdUI.Label eventNameBookingLbl;
         private AntdUI.Label clientNameBookingLabel1;
         private AntdUI.Label timeLabel;
+        private AntdUI.Button CreateBookingButton;
     }
 }

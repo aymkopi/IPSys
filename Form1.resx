@@ -117,25 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="CreateBookingButton.Icon" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-    <value>
-        iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAC
-        /gAAAv4B29lnuQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAMrSURBVHhe7Z3N
-        bk1hGEafKTVQMcU9ELdB63okrb8hxbgMJNKUa5H6qcRPJO5Ayxx5qic5vvOVOv0a397PWsma7L3PPoN3
-        acM59itlcFnSA0nbknYl/ThAn/M1vvZSeRMYHmckPZf0vTLsv+nXbEpaLG8Kw+CCpI+Vwf6rHySdL28O
-        fXNK0qvKMOd1S9LJ8k2gX25WhnhUV8o3gT5ZkPStMsCj+pWfAsPgWmV4rVwq3wz6405lcK30rxbonPXK
-        4Frpe0PnPKkMrpW+N3QOAYRDAOEQQDgEEA4BhEMA4RBAOAQQDgGEQwDhEEA4BBAOAYRDAOEQQDgEEA4B
-        hEMA4RBAOAQQDgGEQwDhEEA4BBAOAYRDAOEQQDgEEA4BhEMA4RBAOAQQDgGEQwDhEEA4BBAOAYRDAOEQ
-        QDgEEA4BhEMADfAj1/3U7VuSHkt6NiA/VwbXSt+7fL+e9ez8gOvlwz7q3oP3C47jefv4f/VMV/8Ugnfs
-        tFyzgn36srYDydu1vBypvBjH6SdJZ6cD8Gq18iIctxuT4Xup4jx79XDYeuZ7yzEfVk5ihmsO4G3lBGb4
-        xgF4HVp5AjPccQDlQcxy5gBmOXMAs5w5gFnOHMAsZw5gltqtHMQMvziA7coJzHDvH4LuV05ghncdgD8Q
-        4MOgPD3zi78+D5Q2KxfguH06Gb5ZlPS+chGO03eSTk8HYPw1oa3KxTguX0g6Vw5/gr8wuMInhKPUf92/
-        LulEOfQaDmFJ0g2+Fv6bQ/ta+KP9GV497ODHAP8xJBwCCIcAwiGAcAggHAIIhwDCIYBwCCAcAgiHAMIh
-        gHAIIBwCCIcAwiGAcAggHAIIhwDCIYBwCCAcAgiHAMIhgHAIIBwCCIcAwiGAcAggHAIIhwDCIYBwCCAc
-        AgiHAMIhgHAIIBwCCIcAwiGAcAggHAIIhwDCWa8MrpW+N3TO7crgWukHL0PnLFcG18or5ZtBf/hR98ex
-        78DP24955PrQWa0M8Kh62QIMhIXG62+8ZoU//QPDO5BaLMLygqUDd+xA33gb2sacexH9Gq9Wm9muBcPD
-        yzHX9lel7lSGPdHnXku6N71Uccz8BHODlBStLOU0AAAAAElFTkSuQmCC
-</value>
-  </data>
 </root>
