@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(bookingPanel));
-            AntdUI.SegmentedItem segmentedItem4 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem5 = new AntdUI.SegmentedItem();
-            AntdUI.SegmentedItem segmentedItem6 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem1 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem2 = new AntdUI.SegmentedItem();
+            AntdUI.SegmentedItem segmentedItem3 = new AntdUI.SegmentedItem();
             eventNameLabel = new AntdUI.Label();
             createBookingLabel = new AntdUI.Label();
             label1 = new AntdUI.Label();
@@ -97,6 +97,7 @@
             inputEventName.Name = "inputEventName";
             inputEventName.Size = new Size(292, 40);
             inputEventName.TabIndex = 5;
+            inputEventName.TextChanged += bookingsInput_TextChanged;
             // 
             // label2
             // 
@@ -110,10 +111,12 @@
             // selectEventType
             // 
             selectEventType.Font = new Font("Poppins", 9.75F);
+            selectEventType.Items.AddRange(new object[] { "Wedding", "Debut", "Birthday", "Prenup", "Funshoot", "Studio Shoot" });
             selectEventType.Location = new Point(36, 231);
             selectEventType.Name = "selectEventType";
             selectEventType.Size = new Size(292, 40);
             selectEventType.TabIndex = 7;
+            selectEventType.SelectedIndexChanged += selectEventType_SelectedIndexChanged;
             // 
             // selectMultiplePackageInclusion
             // 
@@ -123,6 +126,7 @@
             selectMultiplePackageInclusion.Name = "selectMultiplePackageInclusion";
             selectMultiplePackageInclusion.Size = new Size(292, 40);
             selectMultiplePackageInclusion.TabIndex = 8;
+            selectMultiplePackageInclusion.SelectedValueChanged += bookingsInputSelectMultiple_SelectedValueChanged;
             // 
             // label3
             // 
@@ -149,6 +153,7 @@
             inputClientName.Name = "inputClientName";
             inputClientName.Size = new Size(270, 40);
             inputClientName.TabIndex = 14;
+            inputClientName.TextChanged += bookingsInput_TextChanged;
             // 
             // label4
             // 
@@ -166,6 +171,7 @@
             inputContactNum.Name = "inputContactNum";
             inputContactNum.Size = new Size(202, 40);
             inputContactNum.TabIndex = 16;
+            inputContactNum.TextChanged += bookingsInput_TextChanged;
             // 
             // label5
             // 
@@ -193,6 +199,7 @@
             selectMultipleEmployeesAssigned.Name = "selectMultipleEmployeesAssigned";
             selectMultipleEmployeesAssigned.Size = new Size(270, 40);
             selectMultipleEmployeesAssigned.TabIndex = 17;
+            selectMultipleEmployeesAssigned.SelectedValueChanged += bookingsInputSelectMultiple_SelectedValueChanged;
             // 
             // createBookingBtn
             // 
@@ -205,6 +212,7 @@
             createBookingBtn.TabIndex = 19;
             createBookingBtn.Text = "Create";
             createBookingBtn.Type = AntdUI.TTypeMini.Primary;
+            createBookingBtn.Click += createBookingBtn_Click;
             // 
             // inputNotes
             // 
@@ -256,6 +264,7 @@
             timePicker.Size = new Size(88, 40);
             timePicker.TabIndex = 23;
             timePicker.Text = "00:00";
+            timePicker.TextChanged += bookingsInput_TextChanged;
             // 
             // datePickerRange
             // 
@@ -265,6 +274,7 @@
             datePickerRange.Name = "datePickerRange";
             datePickerRange.Size = new Size(213, 40);
             datePickerRange.TabIndex = 25;
+            datePickerRange.TextChanged += bookingsInput_TextChanged;
             // 
             // label8
             // 
@@ -332,38 +342,39 @@
             segmentPayment.BarColor = Color.Blue;
             segmentPayment.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
             segmentPayment.Full = true;
-            segmentedItem4.Badge = null;
-            segmentedItem4.BadgeAlign = AntdUI.TAlignFrom.TR;
-            segmentedItem4.BadgeBack = null;
-            segmentedItem4.BadgeMode = false;
-            segmentedItem4.BadgeOffsetX = 0;
-            segmentedItem4.BadgeOffsetY = 0;
-            segmentedItem4.BadgeSize = 0.6F;
-            segmentedItem4.BadgeSvg = null;
-            segmentedItem4.Text = "Unpaid";
-            segmentedItem5.Badge = null;
-            segmentedItem5.BadgeAlign = AntdUI.TAlignFrom.TR;
-            segmentedItem5.BadgeBack = null;
-            segmentedItem5.BadgeMode = false;
-            segmentedItem5.BadgeOffsetX = 0;
-            segmentedItem5.BadgeOffsetY = 0;
-            segmentedItem5.BadgeSize = 0.6F;
-            segmentedItem5.BadgeSvg = null;
-            segmentedItem5.Text = "Partial";
-            segmentedItem6.Badge = null;
-            segmentedItem6.BadgeAlign = AntdUI.TAlignFrom.TR;
-            segmentedItem6.BadgeBack = null;
-            segmentedItem6.BadgeMode = false;
-            segmentedItem6.BadgeOffsetX = 0;
-            segmentedItem6.BadgeOffsetY = 0;
-            segmentedItem6.BadgeSize = 0.6F;
-            segmentedItem6.BadgeSvg = null;
-            segmentedItem6.Text = "Full";
-            segmentPayment.Items.Add(segmentedItem4);
-            segmentPayment.Items.Add(segmentedItem5);
-            segmentPayment.Items.Add(segmentedItem6);
+            segmentedItem1.Badge = null;
+            segmentedItem1.BadgeAlign = AntdUI.TAlignFrom.TR;
+            segmentedItem1.BadgeBack = null;
+            segmentedItem1.BadgeMode = false;
+            segmentedItem1.BadgeOffsetX = 0;
+            segmentedItem1.BadgeOffsetY = 0;
+            segmentedItem1.BadgeSize = 0.6F;
+            segmentedItem1.BadgeSvg = null;
+            segmentedItem1.Text = "Unpaid";
+            segmentedItem2.Badge = null;
+            segmentedItem2.BadgeAlign = AntdUI.TAlignFrom.TR;
+            segmentedItem2.BadgeBack = null;
+            segmentedItem2.BadgeMode = false;
+            segmentedItem2.BadgeOffsetX = 0;
+            segmentedItem2.BadgeOffsetY = 0;
+            segmentedItem2.BadgeSize = 0.6F;
+            segmentedItem2.BadgeSvg = null;
+            segmentedItem2.Text = "Partial";
+            segmentedItem3.Badge = null;
+            segmentedItem3.BadgeAlign = AntdUI.TAlignFrom.TR;
+            segmentedItem3.BadgeBack = null;
+            segmentedItem3.BadgeMode = false;
+            segmentedItem3.BadgeOffsetX = 0;
+            segmentedItem3.BadgeOffsetY = 0;
+            segmentedItem3.BadgeSize = 0.6F;
+            segmentedItem3.BadgeSvg = null;
+            segmentedItem3.Text = "Full";
+            segmentPayment.Items.Add(segmentedItem1);
+            segmentPayment.Items.Add(segmentedItem2);
+            segmentPayment.Items.Add(segmentedItem3);
             segmentPayment.Location = new Point(355, 380);
             segmentPayment.Name = "segmentPayment";
+            segmentPayment.SelectIndex = 0;
             segmentPayment.Size = new Size(260, 29);
             segmentPayment.TabIndex = 32;
             segmentPayment.Text = "segmented1";

@@ -206,8 +206,6 @@ namespace IPSys
             }
         }
 
-        
-
         private void CreateBookingButton_Click(object sender, EventArgs e)
         {
             // Create a new instance of the bookingPanel form

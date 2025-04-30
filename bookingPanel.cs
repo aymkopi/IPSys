@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AntdUI;
 
 
 
@@ -15,7 +16,7 @@ namespace IPSys
 {
     public partial class bookingPanel : Form
     {
-        public Boolean isCreateButtonEnabled = false;
+        public Boolean isCreateBookingBtnEnabled = false;
 
         public bookingPanel()
         {
@@ -56,43 +57,121 @@ namespace IPSys
             this.Close();
         }
 
+
+
+
+
         private void createButtonStatus()
         {
-            if (inputEventName == null)
+            // Initialize to true and set to false if any condition is not met
+            isCreateBookingBtnEnabled = true;
+
+            // Check if the input fields are null or invalid
+            if (string.IsNullOrWhiteSpace(inputEventName?.Text))
             {
-                isCreateButtonEnabled = false;
+                isCreateBookingBtnEnabled = false;
+                inputNotes.Text += isCreateBookingBtnEnabled.ToString();
             }
             if (selectEventType.SelectedIndex == -1)
             {
-                isCreateButtonEnabled = false;
+                isCreateBookingBtnEnabled = false;
+                inputNotes.Text += isCreateBookingBtnEnabled.ToString();
             }
-            if (selectMultiplePackageInclusion.Items.Count == 0)
+            if (selectMultiplePackageInclusion.SelectedValue.Count() == 0)
             {
-                isCreateButtonEnabled = false;
+                isCreateBookingBtnEnabled = false;
+                inputNotes.Text += isCreateBookingBtnEnabled.ToString();
             }
-            if (datePickerRange == null)
+            if (datePickerRange.Text == null || datePickerRange.Value == null || datePickerRange.Text == "")
             {
-                isCreateButtonEnabled = false;
+                isCreateBookingBtnEnabled = false;
+                inputNotes.Text += isCreateBookingBtnEnabled.ToString();
             }
             if (timePicker == null || timePicker.Value == TimeSpan.Zero)
             {
-                isCreateButtonEnabled = false;
+                isCreateBookingBtnEnabled = false;
+                inputNotes.Text += isCreateBookingBtnEnabled.ToString();
             }
-            if (inputClientName == null)
+            if (string.IsNullOrWhiteSpace(inputClientName?.Text))
             {
-                isCreateButtonEnabled = false;
+                isCreateBookingBtnEnabled = false;
+                inputNotes.Text += isCreateBookingBtnEnabled.ToString();
             }
-            if (inputContactNum == null)
+            if (string.IsNullOrWhiteSpace(inputContactNum?.Text))
             {
-                isCreateButtonEnabled = false;
+                isCreateBookingBtnEnabled = false;
+                inputNotes.Text += isCreateBookingBtnEnabled.ToString();
             }
-            if (selectMultipleEmployeesAssigned.Items.Count == 0)
+
+            if (selectMultipleEmployeesAssigned.SelectedValue.Count() == 0)
             {
-                isCreateButtonEnabled = false;
+                isCreateBookingBtnEnabled = false;
+                inputNotes.Text += isCreateBookingBtnEnabled.ToString();
             }
+
+            if (inputContactNum.Text.Any(char.IsAsciiLetter))
+            {
+                inputContactNum.Status = TType.Error;
+            } else
+            {
+                inputContactNum.Status = TType.None;
+            }
+
+
+            isCreateBookingBtnEnabled = true;
+
+
+
+
+                // Update the UI or button state if needed
+                createBookingBtn.Enabled = isCreateBookingBtnEnabled;
+        }
+
+        private void bookingsInput_TextChanged(object sender, EventArgs e)
+        {
+            createButtonStatus();
+        }
+
+        private void bookingsInputSelectMultiple_SelectedValueChanged(object sender, AntdUI.ObjectsEventArgs e)
+        {
+            createButtonStatus();
+        }
+
+        private void selectEventType_SelectedIndexChanged(object sender, AntdUI.IntEventArgs e)
+        {
+            createButtonStatus();
+        }
+
+        private void createBookingBtn_Click(object sender, EventArgs e)
+        {
+            Boolean closeBookingPanel = false;
+
+            AntdUI.Modal.open(new AntdUI.Modal.Config(this, "Confirmation", "Kindly check your booking details. If all the information is correct, please confirm to proceed.")
+            {
+                Icon = TType.Info,
+                Font = new Font("Poppins", 9, FontStyle.Regular),
+                Padding = new Size(24, 20),
+
+                CancelFont = new Font("Poppins", 9, FontStyle.Bold),
+                OkFont = new Font("Poppins", 9, FontStyle.Bold),
+
+
+                OnOk = config =>
+                {
+                    Thread.Sleep(2000);
+                    AntdUI.Notification.success(this, "Booking Created", "Your booking has been successfully created! Check your booking details below or go to your dashboard for more info.", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
+                    //call method here to submit data to database
+                    closeBookingPanel = true;
+                    return true; 
+                },
+            });
+
+            if (closeBookingPanel)
+            {
+                this.Close();
+            }   
 
 
         }
-
     }
 }
