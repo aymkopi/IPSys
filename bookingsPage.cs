@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Runtime.InteropServices.Marshalling;
 using AntdUI;
 using Microsoft.Data.SqlClient;
 
@@ -13,6 +14,9 @@ namespace IPSys
 
         public List<DateTime> SchedDatesList = new List<DateTime>();
         public List<int> SchedDatesNumList = new List<int>();
+
+
+        
 
         public bookingsPage()
         {
@@ -106,6 +110,7 @@ namespace IPSys
                     ))
                     .ToList();
             };
+            
             calendar.LoadBadge();
 
             GeneratePanelsForSelectedDate(calendar.Value);
@@ -200,24 +205,21 @@ namespace IPSys
                 }
             }
         }
-        private void LoadForm(object Form)
-        {
-            if (this.Controls.Count > 0)
-                this.Controls.RemoveAt(0);
-            Form f = Form as Form;
-            f.TopLevel = false;
-            f.Dock = DockStyle.Fill;
-            this.Controls.Add(f);
-            this.Tag = f;
-            f.Show();
 
-        }
+        
 
         private void CreateBookingButton_Click(object sender, EventArgs e)
         {
-            LoadForm(new Form1());
-        }   
+            // Create a new instance of the bookingPanel form
+            bookingPanel bookingForm = new bookingPanel();
 
+            // Display it as a modal dialog
+            bookingForm.ShowDialog();
+
+        }  
+
+
+       
 
     }
 }
