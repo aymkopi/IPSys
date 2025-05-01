@@ -173,13 +173,13 @@ namespace IPSys
 
                                 AntdUI.Button deleteEventButton = new Button()
                                 {
+                                    Name = $"buttonDeleteBooking{panelIndex}",
                                     Anchor = AnchorStyles.Top | AnchorStyles.Right,
                                     BorderWidth = 1F,
                                     Ghost = true,
                                     Icon = Properties.Resources.delete,
                                     IconGap = 0F,
                                     Location = new Point(326, 102),
-                                    Name = "buttonDeleteBooking",
                                     Size = new Size(50, 35),
                                     TabIndex = 20,
                                     Type = AntdUI.TTypeMini.Error,
@@ -187,27 +187,28 @@ namespace IPSys
 
                                 AntdUI.Button editEventButton = new Button()
                                 {
+                                    Name = $"buttonEditBooking{panelIndex}",
                                     Anchor = AnchorStyles.Top | AnchorStyles.Right,
                                     BorderWidth = 1F,
                                     Ghost = true,
                                     Icon = Properties.Resources.edit,
                                     IconGap = 0F,
                                     Location = new Point(278, 102),
-                                    Name = "buttonEditBooking",
                                     Size = new Size(50, 35),
                                     TabIndex = 19,
                                     Type = AntdUI.TTypeMini.Warn,
+                                    
                                 };
-
+                                
                                 AntdUI.Button goToEventDetailsButton = new Button()
                                 {
+                                    Name = $"buttonGoToEvent{panelIndex}",
                                     Ghost = true,
                                     Anchor = AnchorStyles.Top | AnchorStyles.Right,
                                     Icon = Properties.Resources.right_arrow,
                                     IconGap = 1F,
                                     IconRatio = 0.7F,
                                     Location = new Point(340, 18),
-                                    Name = "buttonGoToEvent",
                                     Size = new Size(40, 33),
                                     TabIndex = 19,
                                 };
