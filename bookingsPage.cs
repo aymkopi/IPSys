@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Runtime.InteropServices.Marshalling;
 using AntdUI;
 using Microsoft.Data.SqlClient;
 
@@ -16,7 +15,10 @@ namespace IPSys
         public List<int> SchedDatesNumList = new List<int>();
 
 
+        DateTime dateTimeNow = DateTime.Now;
         
+
+
 
         public bookingsPage()
         {
@@ -25,42 +27,7 @@ namespace IPSys
 
             this.DoubleBuffered = true;
 
-
-            // LoadDataIntoTable(table1);
         }
-
-        //private void LoadDataIntoTable(AntdUI.Table TableToFill)
-        //{
-        //    string query = "";
-        //    if (TableToFill == table1)
-        //    {
-        //        query = @"SELECT 
-        //        e.Event_Type AS [Event Name],
-        //        b.Date AS [Date],
-        //        c.Client_Name AS [Client Name],
-        //        c.Contact_Num AS [Contact],
-        //        e.Event_Type AS [Event Type],
-        //        p.Package_Type AS [Package Availed],
-        //        emp.Employee_Name AS [Assigned Employees]
-        //    FROM Bookings b
-        //    INNER JOIN Events e ON b.Event_ID = e.Event_ID
-        //    INNER JOIN Clients c ON b.Client_ID = c.Client_ID
-        //    INNER JOIN Packages p ON b.Package_ID = p.Package_ID
-        //    INNER JOIN Employees emp ON b.Employee_ID = emp.Employee_ID
-        //    ORDER BY b.Date ASC;";
-        //    }
-        //    using (SqlConnection conn = new SqlConnection(connectionString))
-        //    {
-        //        SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-        //        DataTable bookingsDataTable = new DataTable();
-        //        adapter.Fill(bookingsDataTable);
-
-        //        TableToFill.DataSource = bookingsDataTable; // This is how you bind it to AntdUI table
-
-        //        table1.DataSource = bookingsDataTable;
-        //    }
-        //}
-
         public void PopulateSchedDates()
         {
             string query = @"
@@ -110,7 +77,7 @@ namespace IPSys
                     ))
                     .ToList();
             };
-            
+
             calendar.LoadBadge();
 
             GeneratePanelsForSelectedDate(calendar.Value);
@@ -125,7 +92,7 @@ namespace IPSys
         public void GeneratePanelsForSelectedDate(DateTime selectedDate)
         {
             string query = @"
-        SELECT b.Event_Name, c.Client_Name, b.Time
+        SELECT b.Event_Name, c.Client_Name, b.Date, b.Time
         FROM Bookings b
         INNER JOIN Clients c ON b.client_id = c.client_id
         WHERE CAST(b.Date AS DATE) = @SelectedDate
@@ -151,7 +118,7 @@ namespace IPSys
                             AntdUI.Panel panel = new AntdUI.Panel
                             {
                                 Name = $"panel{panelIndex}",
-                                Size = new Size(392, 121), // Example size, adjust as necessary
+                                Size = new Size(392, 145), // Example size, adjust as necessary
                                 BackColor = Color.Transparent,
                                 Shadow = 5,
                             };
@@ -160,8 +127,8 @@ namespace IPSys
                             AntdUI.Label eventNameLabel = new AntdUI.Label
                             {
                                 Name = $"eventNameBookingLabel{panelIndex}",
-                                Font = new Font("Poppins Medium", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0),
-                                Location = new Point(23, 19),
+                                Font = new Font("Poppins", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0),
+                                Location = new Point(25, 22),
                                 Size = new Size(75, 23),
                                 Text = reader.GetString(0), // Get the EventName from the database
                                 AutoSize = true
@@ -171,27 +138,41 @@ namespace IPSys
                             {
                                 Name = $"clientNameBookingLabel{panelIndex}",
                                 Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0),
-                                Location = new Point(23, 48),
+                                Location = new Point(25, 50),
                                 Size = new Size(329, 23),
                                 Text = reader.GetString(1),
                                 AutoSize = true
                             };
 
-                            //AntdUI.Label timeLabel = new AntdUI.Label
-                            //{
-                            //    Name = $"timeLabel{panelIndex}",
-                            //    Font = new Font("Poppins", 9.75F, FontStyle.Italic, GraphicsUnit.Point, 0),
-                            //    Location = new Point(245, 42),
-                            //    Size = new Size(127, 23),
-                            //    Text = reader.GetString(2),
-                            //    TextAlign = ContentAlignment.MiddleRight,
-                            //    AutoSize = true
-                            //};
+                            AntdUI.Label timeLabel = new AntdUI.Label
+                            {
+                                Name = $"timeLabel{panelIndex}",
+                                Font = new Font("Poppins", 9.75F, FontStyle.Italic, GraphicsUnit.Point, 0),
+                                Location = new Point(245, 42),
+                                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                                Size = new Size(127, 23),
+                                Text = FormatTime(reader.GetTimeSpan(3)),
+                                TextAlign = ContentAlignment.MiddleRight,
+
+                            };
+
+                            AntdUI.Badge eventBadge = new AntdUI.Badge
+                            {
+                                Name = $"eventBadge{panelIndex}",
+                                Font = new Font("Poppins", 9F, FontStyle.Regular, GraphicsUnit.Point, 0),
+                                Location = new Point(351, 13),
+                                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                                Size = new Size(22, 25),
+                                Text = "",
+                                DotRatio = 0.5F,
+                                State = BadgeState(reader.GetDateTime(2)),
+                            };
 
                             // Add the label to the panel
                             panel.Controls.Add(eventNameLabel);
                             panel.Controls.Add(clientNameLabel);
-                            //panel.Controls.Add(timeLabel);
+                            panel.Controls.Add(timeLabel);
+                            panel.Controls.Add(eventBadge);
 
                             // Add the panel to the StackPanel
                             stackPanel1.Controls.Add(panel);
@@ -206,6 +187,36 @@ namespace IPSys
             }
         }
 
+        // Helper method to format TimeSpan to 12-hour time with AM/PM
+        private string FormatTime(TimeSpan timeSpan)
+        {
+            // Convert TimeSpan to DateTime (arbitrary date)
+            DateTime dateTime = DateTime.Today.Add(timeSpan);
+
+            // Format DateTime to 12-hour time with AM/PM
+            return dateTime.ToString("hh:mm tt");
+        }
+
+        private TState BadgeState(DateTime dateTime)
+        {
+            if (dateTime < dateTimeNow)
+            {
+                return TState.Success;
+            } else if(dateTime > dateTimeNow)
+            {
+                return TState.Primary;
+            }
+            else if (dateTime == dateTimeNow)
+            {
+                return TState.Processing;
+            } else
+            {
+                return TState.Default;
+            }
+        }
+
+
+
         private void CreateBookingButton_Click(object sender, EventArgs e)
         {
             // Create a new instance of the bookingPanel form
@@ -214,10 +225,6 @@ namespace IPSys
             // Display it as a modal dialog
             bookingForm.ShowDialog();
 
-        }  
-
-
-       
-
+        }
     }
 }

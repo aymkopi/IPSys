@@ -60,6 +60,7 @@
             label10 = new AntdUI.Label();
             label11 = new AntdUI.Label();
             segmentPayment = new AntdUI.Segmented();
+            divider1 = new AntdUI.Divider();
             SuspendLayout();
             // 
             // eventNameLabel
@@ -74,7 +75,7 @@
             // createBookingLabel
             // 
             createBookingLabel.Font = new Font("Poppins", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            createBookingLabel.Location = new Point(489, 21);
+            createBookingLabel.Location = new Point(413, 18);
             createBookingLabel.Name = "createBookingLabel";
             createBookingLabel.Size = new Size(175, 36);
             createBookingLabel.TabIndex = 3;
@@ -86,7 +87,7 @@
             label1.Font = new Font("Poppins SemiBold", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label1.Location = new Point(65, 60);
             label1.Name = "label1";
-            label1.Size = new Size(968, 44);
+            label1.Size = new Size(893, 44);
             label1.TabIndex = 4;
             label1.Text = resources.GetString("label1.Text");
             // 
@@ -200,13 +201,14 @@
             selectMultipleEmployeesAssigned.Size = new Size(270, 40);
             selectMultipleEmployeesAssigned.TabIndex = 17;
             selectMultipleEmployeesAssigned.SelectedValueChanged += bookingsInputSelectMultiple_SelectedValueChanged;
+            
             // 
             // createBookingBtn
             // 
             createBookingBtn.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             createBookingBtn.Enabled = false;
             createBookingBtn.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            createBookingBtn.Location = new Point(913, 578);
+            createBookingBtn.Location = new Point(838, 578);
             createBookingBtn.Name = "createBookingBtn";
             createBookingBtn.Size = new Size(120, 43);
             createBookingBtn.TabIndex = 19;
@@ -239,7 +241,7 @@
             button1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             button1.BackHover = Color.Red;
             button1.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            button1.Location = new Point(787, 578);
+            button1.Location = new Point(712, 578);
             button1.Name = "button1";
             button1.Size = new Size(120, 43);
             button1.TabIndex = 22;
@@ -280,7 +282,7 @@
             // 
             label8.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label8.Font = new Font("Poppins", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label8.Location = new Point(917, 500);
+            label8.Location = new Point(842, 500);
             label8.Name = "label8";
             label8.Size = new Size(106, 23);
             label8.TabIndex = 27;
@@ -293,7 +295,7 @@
             inputNumber.DecimalPlaces = 2;
             inputNumber.Font = new Font("Poppins", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             inputNumber.Increment = new decimal(new int[] { 100, 0, 0, 0 });
-            inputNumber.Location = new Point(863, 519);
+            inputNumber.Location = new Point(788, 519);
             inputNumber.Name = "inputNumber";
             inputNumber.PrefixText = "₱";
             inputNumber.Size = new Size(170, 41);
@@ -307,7 +309,7 @@
             label9.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label9.Font = new Font("Poppins", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
             label9.ForeColor = SystemColors.ButtonShadow;
-            label9.Location = new Point(886, 456);
+            label9.Location = new Point(811, 456);
             label9.Name = "label9";
             label9.Size = new Size(137, 23);
             label9.TabIndex = 29;
@@ -319,7 +321,7 @@
             label10.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             label10.Font = new Font("Poppins", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label10.ForeColor = SystemColors.ButtonShadow;
-            label10.Location = new Point(886, 473);
+            label10.Location = new Point(811, 473);
             label10.Name = "label10";
             label10.Size = new Size(137, 23);
             label10.TabIndex = 30;
@@ -379,12 +381,24 @@
             segmentPayment.TabIndex = 32;
             segmentPayment.Text = "segmented1";
             // 
+            // divider1
+            // 
+            divider1.BackColor = Color.Transparent;
+            divider1.Location = new Point(634, 166);
+            divider1.Name = "divider1";
+            divider1.Orientation = AntdUI.TOrientation.Left;
+            divider1.Size = new Size(19, 430);
+            divider1.TabIndex = 33;
+            divider1.Text = "";
+            divider1.Vertical = true;
+            // 
             // bookingPanel
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.InactiveBorder;
-            ClientSize = new Size(1070, 645);
+            ClientSize = new Size(995, 645);
+            Controls.Add(divider1);
             Controls.Add(segmentPayment);
             Controls.Add(label11);
             Controls.Add(label10);
@@ -452,5 +466,6 @@
         private AntdUI.Label label10;
         private AntdUI.Label label11;
         private AntdUI.Segmented segmentPayment;
+        private AntdUI.Divider divider1;
     }
 }

@@ -16,11 +16,13 @@ namespace IPSys
 {
     public partial class bookingPanel : Form
     {
+        private bookingsPage bookingsPage;
         public Boolean isCreateBookingBtnEnabled = false;
 
         public bookingPanel()
         {
             InitializeComponent();
+            
 
         }
 
@@ -155,11 +157,11 @@ namespace IPSys
                 CancelFont = new Font("Poppins", 9, FontStyle.Bold),
                 OkFont = new Font("Poppins", 9, FontStyle.Bold),
 
-
+                
                 OnOk = config =>
                 {
                     Thread.Sleep(2000);
-                    AntdUI.Notification.success(this, "Booking Created", "Your booking has been successfully created! Check your booking details below or go to your dashboard for more info.", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
+                    AntdUI.Notification.success(bookingsPage, "Booking Created", "Your booking has been successfully created! Check your booking details below or go to your dashboard for more info.", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
                     //call method here to submit data to database
                     closeBookingPanel = true;
                     return true; 
