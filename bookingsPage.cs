@@ -1,22 +1,26 @@
 ﻿using System.Data;
-using System.Runtime.InteropServices.Marshalling;
+using System.Windows;
 using AntdUI;
 using Microsoft.Data.SqlClient;
+using FontStyle = System.Drawing.FontStyle;
+using MessageBox = System.Windows.Forms.MessageBox;
+using Point = System.Drawing.Point;
+using Size = System.Drawing.Size;
 
 namespace IPSys
 {
     public partial class bookingsPage : Form
     {
-        string connectionString = "Data Source=DESKTOP-0IG0ARM\\SQLEXPRESS;" +
-                "Initial Catalog= owlie;" +
+        public List<DateTime> SchedDatesList = new List<DateTime>();
+
+        public List<int> SchedDatesNumList = new List<int>();
+
+        private string connectionString = "Data Source=DESKTOP-0IG0ARM\\SQLEXPRESS;" +
+                                "Initial Catalog= owlie;" +
                 "Integrated Security=True;" +
                 "Trust Server Certificate=True";
 
-        public List<DateTime> SchedDatesList = new List<DateTime>();
-        public List<int> SchedDatesNumList = new List<int>();
-
-
-        
+        private DateTime dateTimeNow = DateTime.Now;
 
         public bookingsPage()
         {
@@ -24,48 +28,162 @@ namespace IPSys
             PopulateSchedDates();
 
             this.DoubleBuffered = true;
-
-
-            // LoadDataIntoTable(table1);
         }
 
-        //private void LoadDataIntoTable(AntdUI.Table TableToFill)
-        //{
-        //    string query = "";
-        //    if (TableToFill == table1)
-        //    {
-        //        query = @"SELECT 
-        //        e.Event_Type AS [Event Name],
-        //        b.Date AS [Date],
-        //        c.Client_Name AS [Client Name],
-        //        c.Contact_Num AS [Contact],
-        //        e.Event_Type AS [Event Type],
-        //        p.Package_Type AS [Package Availed],
-        //        emp.Employee_Name AS [Assigned Employees]
-        //    FROM Bookings b
-        //    INNER JOIN Events e ON b.Event_ID = e.Event_ID
-        //    INNER JOIN Clients c ON b.Client_ID = c.Client_ID
-        //    INNER JOIN Packages p ON b.Package_ID = p.Package_ID
-        //    INNER JOIN Employees emp ON b.Employee_ID = emp.Employee_ID
-        //    ORDER BY b.Date ASC;";
-        //    }
-        //    using (SqlConnection conn = new SqlConnection(connectionString))
-        //    {
-        //        SqlDataAdapter adapter = new SqlDataAdapter(query, conn);
-        //        DataTable bookingsDataTable = new DataTable();
-        //        adapter.Fill(bookingsDataTable);
+        public void GeneratePanelsForSelectedDate(DateTime selectedDate)
+        {
+            string query = @"
+                SELECT
+                    b.Event_Name, c.Client_Name, b.Date, b.Time
+                FROM Bookings b
+                INNER JOIN Clients c ON b.client_id = c.client_id
+                WHERE CAST(b.Date AS DATE) = @SelectedDate
+            ";
 
-        //        TableToFill.DataSource = bookingsDataTable; // This is how you bind it to AntdUI table
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@SelectedDate", selectedDate);
 
-        //        table1.DataSource = bookingsDataTable;
-        //    }
-        //}
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        // Suspend layout updates during panel update
+                        stackPanel1.SuspendLayout();
+                        stackPanel1.Controls.Clear();
+
+                        if (reader.HasRows)
+                        {
+                            int panelIndex = 0;
+                            while (reader.Read())
+                            {
+                                // Create a new panel
+                                AntdUI.Panel panel = new AntdUI.Panel
+                                {
+                                    Name = $"panel{panelIndex}",
+                                    Size = new Size(392, 145), // Example size, adjust as necessary
+                                    BackColor = Color.Transparent,
+                                    Shadow = 5,
+                                };
+
+                                // Create a label for the event name
+                                AntdUI.Label eventNameLabel = new AntdUI.Label
+                                {
+                                    Name = $"eventNameBookingLabel{panelIndex}",
+                                    Font = new Font("Poppins", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0),
+                                    Location = new Point(25, 22),
+                                    Size = new Size(75, 23),
+                                    Text = reader.GetString(0), // Get the EventName from the database
+                                    AutoSize = true
+                                };
+
+                                AntdUI.Label clientNameLabel = new AntdUI.Label
+                                {
+                                    Name = $"clientNameBookingLabel{panelIndex}",
+                                    Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0),
+                                    Location = new Point(25, 50),
+                                    Size = new Size(329, 23),
+                                    Text = reader.GetString(1),
+                                    AutoSize = true
+                                };
+
+                                AntdUI.Label timeLabel = new AntdUI.Label
+                                {
+                                    Name = $"timeLabel{panelIndex}",
+                                    Font = new Font("Poppins", 9.75F, FontStyle.Italic, GraphicsUnit.Point, 0),
+                                    Location = new Point(245, 42),
+                                    Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                                    Size = new Size(127, 23),
+                                    Text = FormatTime(reader.GetTimeSpan(3)),
+                                    TextAlign = ContentAlignment.MiddleRight,
+                                };
+
+                                AntdUI.Badge eventBadge = new AntdUI.Badge
+                                {
+                                    Name = $"eventBadge{panelIndex}",
+                                    Font = new Font("Poppins", 9F, FontStyle.Regular, GraphicsUnit.Point, 0),
+                                    Location = new Point(351, 13),
+                                    Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                                    Size = new Size(22, 25),
+                                    Text = "",
+                                    DotRatio = 0.5F,
+                                    State = BadgeState(reader.GetDateTime(2)),
+                                };
+
+                                AntdUI.Button buttonDeleteBooking = new AntdUI.Button
+                                {
+                                    Name = $"buttonDeleteBooking{panelIndex}",
+                                    Location = new Point(334, 95),
+                                    Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
+                                    Size = new Size(42, 36),
+                                    BorderWidth = 1F,
+                                    Ghost = true,
+                                    Icon = Properties.Resources.delete,
+                                    IconGap = 0F,
+                                    TabIndex = 20,
+                                    Type = AntdUI.TTypeMini.Error
+                                };
+
+                                AntdUI.Button buttonEditBooking = new AntdUI.Button
+                                {
+                                    Name = $"buttonEditBooking{panelIndex}",
+                                    Location = new Point(292, 95),
+                                    Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
+                                    Size = new Size(42, 36),
+                                    BorderWidth = 1F,
+                                    Ghost = true,
+                                    Icon = Properties.Resources.edit,
+                                    IconGap = 0F,
+                                    TabIndex = 19,
+                                    Type = AntdUI.TTypeMini.Warn,
+                                };
+
+                                buttonEditBooking.Click += DeleteBookingButton_Click;
+
+                                // Add the label to the panel
+                                panel.Controls.Add(eventNameLabel);
+                                panel.Controls.Add(clientNameLabel);
+                                panel.Controls.Add(timeLabel);
+                                panel.Controls.Add(eventBadge);
+                                panel.Controls.Add(buttonDeleteBooking);
+                                panel.Controls.Add(buttonEditBooking);
+
+                                // Add the panel to the StackPanel
+                                stackPanel1.Controls.Add(panel);
+
+                                panelIndex++;
+                            }
+                        }
+                        else
+                        {
+                            // No bookings found for the selected date
+                            AntdUI.Label noBookingsLabel = new AntdUI.Label
+                            {
+                                Name = "noBookingsLabel",
+                                Font = new Font("Poppins", 11.25F, FontStyle.Italic, GraphicsUnit.Point, 0),
+                                Location = new Point(25, 22),
+                                Size = new Size(200, 23),
+                                Text = "No bookings found for this date.",
+                                TextAlign = ContentAlignment.MiddleCenter,
+                                
+                            };
+                            stackPanel1.Controls.Add(noBookingsLabel);
+                        }
+
+
+                        // Resume layout updates after panel update
+                        stackPanel1.ResumeLayout();
+                    }
+                }
+            }
+        }
 
         public void PopulateSchedDates()
         {
             string query = @"
-                SELECT 
-                    CAST(Date AS DATE) AS BookingDate, 
+                SELECT
+                    CAST(Date AS DATE) AS BookingDate,
                     COUNT(*) AS BookingCount
                 FROM Bookings
                 GROUP BY CAST(Date AS DATE)
@@ -95,7 +213,6 @@ namespace IPSys
                 MessageBox.Show("SchedDatesList is empty!");
             }
 
-
             calendar.BadgeAction = dates =>
             {
                 var datebefore = dates[0];
@@ -110,100 +227,35 @@ namespace IPSys
                     ))
                     .ToList();
             };
-            
+
             calendar.LoadBadge();
 
             GeneratePanelsForSelectedDate(calendar.Value);
+        }
 
+        private TState BadgeState(DateTime dateTime)
+        {
+            if (dateTime < dateTimeNow)
+            {
+                return TState.Success;
+            }
+            else if (dateTime > dateTimeNow)
+            {
+                return TState.Primary;
+            }
+            else if (dateTime == dateTimeNow)
+            {
+                return TState.Processing;
+            }
+            else
+            {
+                return TState.Default;
+            }
         }
 
         private void calendar1_DateChanged(object sender, DateTimeEventArgs e)
         {
             GeneratePanelsForSelectedDate(calendar.Value);
-        }
-
-        public void GeneratePanelsForSelectedDate(DateTime selectedDate)
-        {
-            string query = @"
-        SELECT b.Event_Name, c.Client_Name, b.Time
-        FROM Bookings b
-        INNER JOIN Clients c ON b.client_id = c.client_id
-        WHERE CAST(b.Date AS DATE) = @SelectedDate
-    ";
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@SelectedDate", selectedDate);
-
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        // Suspend layout updates during panel update
-                        stackPanel1.SuspendLayout();
-                        stackPanel1.Controls.Clear();
-
-                        int panelIndex = 0;
-                        while (reader.Read())
-                        {
-                            // Create a new panel
-                            AntdUI.Panel panel = new AntdUI.Panel
-                            {
-                                Name = $"panel{panelIndex}",
-                                Size = new Size(392, 121), // Example size, adjust as necessary
-                                BackColor = Color.Transparent,
-                                Shadow = 5,
-                            };
-
-                            // Create a label for the event name
-                            AntdUI.Label eventNameLabel = new AntdUI.Label
-                            {
-                                Name = $"eventNameBookingLabel{panelIndex}",
-                                Font = new Font("Poppins Medium", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0),
-                                Location = new Point(23, 19),
-                                Size = new Size(75, 23),
-                                Text = reader.GetString(0), // Get the EventName from the database
-                                AutoSize = true
-                            };
-
-                            AntdUI.Label clientNameLabel = new AntdUI.Label
-                            {
-                                Name = $"clientNameBookingLabel{panelIndex}",
-                                Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0),
-                                Location = new Point(23, 48),
-                                Size = new Size(329, 23),
-                                Text = reader.GetString(1),
-                                AutoSize = true
-                            };
-
-                            //AntdUI.Label timeLabel = new AntdUI.Label
-                            //{
-                            //    Name = $"timeLabel{panelIndex}",
-                            //    Font = new Font("Poppins", 9.75F, FontStyle.Italic, GraphicsUnit.Point, 0),
-                            //    Location = new Point(245, 42),
-                            //    Size = new Size(127, 23),
-                            //    Text = reader.GetString(2),
-                            //    TextAlign = ContentAlignment.MiddleRight,
-                            //    AutoSize = true
-                            //};
-
-                            // Add the label to the panel
-                            panel.Controls.Add(eventNameLabel);
-                            panel.Controls.Add(clientNameLabel);
-                            //panel.Controls.Add(timeLabel);
-
-                            // Add the panel to the StackPanel
-                            stackPanel1.Controls.Add(panel);
-
-                            panelIndex++;
-                        }
-
-                        // Resume layout updates after panel update
-                        stackPanel1.ResumeLayout();
-                    }
-                }
-            }
         }
 
         private void CreateBookingButton_Click(object sender, EventArgs e)
@@ -213,11 +265,25 @@ namespace IPSys
 
             // Display it as a modal dialog
             bookingForm.ShowDialog();
+        }
 
-        }  
+        private void DeleteBookingButton_Click(object sender, EventArgs e)
+        {
+            // Create a new instance of the bookingPanel form
+            bookingPanel bookingForm = new bookingPanel();
 
+            // Display it as a modal dialog
+            bookingForm.ShowDialog();
+        }
 
-       
+        // Helper method to format TimeSpan to 12-hour time with AM/PM
+        private string FormatTime(TimeSpan timeSpan)
+        {
+            // Convert TimeSpan to DateTime (arbitrary date)
+            DateTime dateTime = DateTime.Today.Add(timeSpan);
 
+            // Format DateTime to 12-hour time with AM/PM
+            return dateTime.ToString("hh:mm tt");
+        }
     }
 }

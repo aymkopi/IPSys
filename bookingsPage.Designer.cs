@@ -36,6 +36,11 @@
             CreateBookingButton = new AntdUI.Button();
             stackPanel1 = new AntdUI.StackPanel();
             panel3 = new AntdUI.Panel();
+            label3 = new AntdUI.Label();
+            buttonDeleteBooking = new AntdUI.Button();
+            buttonEditBooking = new AntdUI.Button();
+            label2 = new AntdUI.Label();
+            badgeEventStatus = new AntdUI.Badge();
             timeLabel = new AntdUI.Label();
             clientNameBookingLabel1 = new AntdUI.Label();
             eventNameBookingLabel1 = new AntdUI.Label();
@@ -115,16 +120,21 @@
             stackPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             stackPanel1.BackColor = Color.Transparent;
             stackPanel1.Controls.Add(panel3);
-            stackPanel1.Location = new Point(22, 90);
+            stackPanel1.Location = new Point(22, 132);
             stackPanel1.Name = "stackPanel1";
             stackPanel1.Padding = new Padding(5);
-            stackPanel1.Size = new Size(408, 555);
+            stackPanel1.Size = new Size(408, 513);
             stackPanel1.TabIndex = 21;
             stackPanel1.Text = "stackPanel1";
             stackPanel1.Vertical = true;
             // 
             // panel3
             // 
+            panel3.Controls.Add(label3);
+            panel3.Controls.Add(buttonDeleteBooking);
+            panel3.Controls.Add(buttonEditBooking);
+            panel3.Controls.Add(label2);
+            panel3.Controls.Add(badgeEventStatus);
             panel3.Controls.Add(timeLabel);
             panel3.Controls.Add(clientNameBookingLabel1);
             panel3.Controls.Add(eventNameBookingLabel1);
@@ -132,33 +142,98 @@
             panel3.Location = new Point(8, 8);
             panel3.Name = "panel3";
             panel3.Shadow = 5;
-            panel3.Size = new Size(392, 121);
+            panel3.ShadowColor = SystemColors.MenuHighlight;
+            panel3.ShadowOpacity = 0.3F;
+            panel3.Size = new Size(392, 145);
             panel3.TabIndex = 0;
             panel3.Text = "panel3";
             // 
+            // label3
+            // 
+            label3.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label3.Location = new Point(23, 106);
+            label3.Name = "label3";
+            label3.Prefix = "Employee:";
+            label3.Size = new Size(231, 23);
+            label3.TabIndex = 21;
+            label3.Text = "Client";
+            // 
+            // buttonDeleteBooking
+            // 
+            buttonDeleteBooking.BorderWidth = 1F;
+            buttonDeleteBooking.Ghost = true;
+            buttonDeleteBooking.Icon = Properties.Resources.delete;
+            buttonDeleteBooking.IconGap = 0F;
+            buttonDeleteBooking.Location = new Point(334, 95);
+            buttonDeleteBooking.Name = "buttonDeleteBooking";
+            buttonDeleteBooking.Size = new Size(42, 36);
+            buttonDeleteBooking.TabIndex = 20;
+            buttonDeleteBooking.Type = AntdUI.TTypeMini.Error;
+            // 
+            // buttonEditBooking
+            // 
+            buttonEditBooking.BorderWidth = 1F;
+            buttonEditBooking.Ghost = true;
+            buttonEditBooking.Icon = Properties.Resources.edit;
+            buttonEditBooking.IconGap = 0F;
+            buttonEditBooking.Location = new Point(292, 95);
+            buttonEditBooking.Name = "buttonEditBooking";
+            buttonEditBooking.Size = new Size(42, 36);
+            buttonEditBooking.TabIndex = 19;
+            buttonEditBooking.Type = AntdUI.TTypeMini.Warn;
+            // 
+            // label2
+            // 
+            label2.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label2.ForeColor = SystemColors.ControlDark;
+            label2.Location = new Point(23, 48);
+            label2.Name = "label2";
+            label2.Prefix = "";
+            label2.PrefixColor = Color.AliceBlue;
+            label2.PrefixSvg = "C:\\Users\\Justine\\source\\repos\\IPSys\\Resources\\calendar.png";
+            label2.Size = new Size(170, 23);
+            label2.SuffixColor = Color.AliceBlue;
+            label2.SuffixSvg = "C:\\Users\\Justine\\source\\repos\\IPSys\\Resources\\calendar.png";
+            label2.TabIndex = 4;
+            label2.Text = "Date";
+            // 
+            // badgeEventStatus
+            // 
+            badgeEventStatus.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            badgeEventStatus.DotRatio = 0.57F;
+            badgeEventStatus.Location = new Point(351, 13);
+            badgeEventStatus.Name = "badgeEventStatus";
+            badgeEventStatus.Size = new Size(22, 24);
+            badgeEventStatus.State = AntdUI.TState.Processing;
+            badgeEventStatus.TabIndex = 3;
+            badgeEventStatus.Text = "";
+            // 
             // timeLabel
             // 
+            timeLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             timeLabel.Font = new Font("Poppins", 9.75F, FontStyle.Italic, GraphicsUnit.Point, 0);
-            timeLabel.Location = new Point(245, 42);
+            timeLabel.ForeColor = SystemColors.ControlDark;
+            timeLabel.Location = new Point(242, 48);
             timeLabel.Name = "timeLabel";
             timeLabel.Size = new Size(127, 23);
             timeLabel.TabIndex = 2;
-            timeLabel.Text = "Client";
+            timeLabel.Text = "TIme";
             timeLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
             // clientNameBookingLabel1
             // 
             clientNameBookingLabel1.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            clientNameBookingLabel1.Location = new Point(23, 42);
+            clientNameBookingLabel1.Location = new Point(23, 77);
             clientNameBookingLabel1.Name = "clientNameBookingLabel1";
+            clientNameBookingLabel1.Prefix = "Client: ";
             clientNameBookingLabel1.Size = new Size(231, 23);
             clientNameBookingLabel1.TabIndex = 1;
             clientNameBookingLabel1.Text = "Client";
             // 
             // eventNameBookingLabel1
             // 
-            eventNameBookingLabel1.Font = new Font("Poppins Medium", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            eventNameBookingLabel1.Location = new Point(23, 19);
+            eventNameBookingLabel1.Font = new Font("Poppins Medium", 11.25F, FontStyle.Bold);
+            eventNameBookingLabel1.Location = new Point(23, 24);
             eventNameBookingLabel1.Name = "eventNameBookingLabel1";
             eventNameBookingLabel1.Size = new Size(329, 23);
             eventNameBookingLabel1.TabIndex = 0;
@@ -166,7 +241,7 @@
             // 
             // eventNameBookingLbl
             // 
-            eventNameBookingLbl.Font = new Font("Poppins Medium", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            eventNameBookingLbl.Font = new Font("Poppins Medium", 11.25F, FontStyle.Bold);
             eventNameBookingLbl.Location = new Point(23, 19);
             eventNameBookingLbl.Name = "eventNameBookingLbl";
             eventNameBookingLbl.Size = new Size(75, 23);
@@ -229,5 +304,10 @@
         private AntdUI.Label clientNameBookingLabel1;
         private AntdUI.Label timeLabel;
         private AntdUI.Button CreateBookingButton;
+        private AntdUI.Badge badgeEventStatus;
+        private AntdUI.Label label2;
+        private AntdUI.Button buttonEditBooking;
+        private AntdUI.Button buttonDeleteBooking;
+        private AntdUI.Label label3;
     }
 }
