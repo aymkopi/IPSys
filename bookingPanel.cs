@@ -58,11 +58,7 @@ namespace IPSys
         {
             this.Close();
         }
-
-
-
-
-
+        
         private void createButtonStatus()
         {
             // Initialize to true and set to false if any condition is not met

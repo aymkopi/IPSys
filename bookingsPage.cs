@@ -1,7 +1,7 @@
 ﻿using System.Data;
-using System.Windows;
 using AntdUI;
 using Microsoft.Data.SqlClient;
+using Button = AntdUI.Button;
 using FontStyle = System.Drawing.FontStyle;
 using MessageBox = System.Windows.Forms.MessageBox;
 using Point = System.Drawing.Point;
@@ -12,7 +12,6 @@ namespace IPSys
     public partial class bookingsPage : Form
     {
         public List<DateTime> SchedDatesList = new List<DateTime>();
-
         public List<int> SchedDatesNumList = new List<int>();
 
         private string connectionString = "Data Source=DESKTOP-0IG0ARM\\SQLEXPRESS;" +
@@ -25,7 +24,10 @@ namespace IPSys
         public bookingsPage()
         {
             InitializeComponent();
-            PopulateSchedDates();
+            PopulateBadgesOnDates();
+            // Set the default selected date to the current date
+            DateTime currentDate = DateTime.Now.Date; // Use only the date part
+            GeneratePanelsForSelectedDate(currentDate); // Generate panels for the current date
 
             this.DoubleBuffered = true;
         }
@@ -33,12 +35,15 @@ namespace IPSys
         public void GeneratePanelsForSelectedDate(DateTime selectedDate)
         {
             string query = @"
-                SELECT
-                    b.Event_Name, c.Client_Name, b.Date, b.Time
-                FROM Bookings b
-                INNER JOIN Clients c ON b.client_id = c.client_id
-                WHERE CAST(b.Date AS DATE) = @SelectedDate
-            ";
+    SELECT
+        b.Event_Name, c.Client_Name, b.Date, b.Time, p.Package_Type, e.Employee_Name
+    FROM Bookings b
+    INNER JOIN Clients c ON b.client_id = c.client_id
+    INNER JOIN Packages p ON b.Package_id = p.Package_id
+    INNER JOIN Employees e ON b.Employee_id = e.Employee_id
+    WHERE CAST(b.Date AS DATE) >= @SelectedDate
+    ORDER BY b.Date, b.Time
+     ";
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -55,14 +60,40 @@ namespace IPSys
 
                         if (reader.HasRows)
                         {
-                            int panelIndex = 0;
+                            DateTime? currentDay = null;
+                            var controlsToAdd = new List<Control>(); // Temporary list to store controls
+                            int panelIndex = 0; // Initialize panel index
+
                             while (reader.Read())
                             {
-                                // Create a new panel
+                                DateTime eventDate = reader.GetDateTime(2);
+
+                                // Add a label for the day if it's a new day
+                                if (currentDay == null || eventDate.Date != currentDay.Value.Date)
+                                {
+                                    currentDay = eventDate.Date;
+
+                                    AntdUI.Label dayLabel = new AntdUI.Label
+                                    {
+                                        Name = $"dayLabel{panelIndex}",
+                                        Anchor = AnchorStyles.Left,
+                                        Font = new Font("Poppins", 10F, FontStyle.Regular, GraphicsUnit.Point, 0),
+                                        Location = new Point(10, 10), // Adjust location as necessary
+                                        Size = new Size(380, 40), // Adjust size as necessary
+                                        Text = currentDay.Value == DateTime.Now.Date ?
+                                            "Today" : currentDay.Value.ToString("MMMM d, yyyy"),
+                                        TextAlign = ContentAlignment.BottomLeft,
+                                    };
+
+                                    // Add the label to the temporary list
+                                    controlsToAdd.Add(dayLabel);
+                                }
+
+                                // Create a panel for the event
                                 AntdUI.Panel panel = new AntdUI.Panel
                                 {
                                     Name = $"panel{panelIndex}",
-                                    Size = new Size(392, 145), // Example size, adjust as necessary
+                                    Size = new Size(392, 155),
                                     BackColor = Color.Transparent,
                                     Shadow = 5,
                                 };
@@ -71,106 +102,151 @@ namespace IPSys
                                 AntdUI.Label eventNameLabel = new AntdUI.Label
                                 {
                                     Name = $"eventNameBookingLabel{panelIndex}",
-                                    Font = new Font("Poppins", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0),
-                                    Location = new Point(25, 22),
-                                    Size = new Size(75, 23),
+                                    Anchor = AnchorStyles.Top | AnchorStyles.Left,
+                                    Font = new Font("Poppins Medium", 12F, FontStyle.Bold, GraphicsUnit.Point, 0),
+                                    Location = new Point(44, 21),
+                                    Size = new Size(286, 23),
+                                    TabIndex = 0,
                                     Text = reader.GetString(0), // Get the EventName from the database
                                     AutoSize = true
                                 };
 
-                                AntdUI.Label clientNameLabel = new AntdUI.Label
+                                AntdUI.Label dateTimeLabel = new AntdUI.Label
                                 {
-                                    Name = $"clientNameBookingLabel{panelIndex}",
+                                    Name = $"dateTimeLabel{panelIndex}",
+                                    Anchor = AnchorStyles.Top | AnchorStyles.Left,
                                     Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0),
-                                    Location = new Point(25, 50),
-                                    Size = new Size(329, 23),
-                                    Text = reader.GetString(1),
-                                    AutoSize = true
+                                    ForeColor = System.Drawing.SystemColors.ControlDark,
+                                    Location = new Point(23, 43),
+                                    Size = new Size(190, 23),
+                                    TabIndex = 4,
+                                    Text = FormatDate(reader.GetDateTime(2)) + " | " + FormatTime(reader.GetTimeSpan(3)),
+                                    TextAlign = ContentAlignment.MiddleLeft,
                                 };
 
-                                AntdUI.Label timeLabel = new AntdUI.Label
+                                AntdUI.Label clientNameLabel = new AntdUI.Label
                                 {
-                                    Name = $"timeLabel{panelIndex}",
-                                    Font = new Font("Poppins", 9.75F, FontStyle.Italic, GraphicsUnit.Point, 0),
-                                    Location = new Point(245, 42),
-                                    Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                                    Size = new Size(127, 23),
-                                    Text = FormatTime(reader.GetTimeSpan(3)),
-                                    TextAlign = ContentAlignment.MiddleRight,
+                                    Name = $"clientNameLabel{panelIndex}",
+                                    Anchor = AnchorStyles.Top | AnchorStyles.Left,
+                                    Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0),
+                                    Location = new Point(23, 85),
+                                    Size = new Size(231, 15),
+                                    TabIndex = 1,
+                                    Text = "Client: " + reader.GetString(1),
+                                    AutoSize = true,
+                                };
+
+                                AntdUI.Label packageNameLabel = new AntdUI.Label
+                                {
+                                    Name = $"packageNameLabel{panelIndex}",
+                                    Anchor = AnchorStyles.Top | AnchorStyles.Left,
+                                    Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0),
+                                    Location = new Point(23, 100),
+                                    Size = new Size(231, 15),
+                                    TabIndex = 22,
+                                    Text = "Package: " + reader.GetString(4),
+                                    AutoSize = true
+                                };
+                                AntdUI.Label eventHeadLabel = new AntdUI.Label
+                                {
+                                    Name = $"employeeNameLabel{panelIndex}",
+                                    Anchor = AnchorStyles.Top | AnchorStyles.Left,
+                                    Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0),
+                                    Location = new Point(23, 115),
+                                    Size = new Size(231, 15),
+                                    TabIndex = 21,
+                                    Text = "Event Head: " + reader.GetString(5),
+                                    AutoSize = true
                                 };
 
                                 AntdUI.Badge eventBadge = new AntdUI.Badge
                                 {
-                                    Name = $"eventBadge{panelIndex}",
-                                    Font = new Font("Poppins", 9F, FontStyle.Regular, GraphicsUnit.Point, 0),
-                                    Location = new Point(351, 13),
-                                    Anchor = AnchorStyles.Top | AnchorStyles.Right,
-                                    Size = new Size(22, 25),
+                                    Name = $"badge{panelIndex}",
+                                    Anchor = AnchorStyles.Top | AnchorStyles.Left,
+                                    DotRatio = 0.57F,
+                                    Location = new Point(19, 20),
+                                    Size = new Size(22, 24),
+                                    TabIndex = 3,
                                     Text = "",
-                                    DotRatio = 0.5F,
-                                    State = BadgeState(reader.GetDateTime(2)),
+                                    State = BadgeState(eventDate)
                                 };
 
-                                AntdUI.Button buttonDeleteBooking = new AntdUI.Button
+                                AntdUI.Button deleteEventButton = new Button()
                                 {
-                                    Name = $"buttonDeleteBooking{panelIndex}",
-                                    Location = new Point(334, 95),
-                                    Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
-                                    Size = new Size(42, 36),
+                                    Anchor = AnchorStyles.Top | AnchorStyles.Right,
                                     BorderWidth = 1F,
                                     Ghost = true,
                                     Icon = Properties.Resources.delete,
                                     IconGap = 0F,
+                                    Location = new Point(326, 102),
+                                    Name = "buttonDeleteBooking",
+                                    Size = new Size(50, 35),
                                     TabIndex = 20,
-                                    Type = AntdUI.TTypeMini.Error
+                                    Type = AntdUI.TTypeMini.Error,
                                 };
 
-                                AntdUI.Button buttonEditBooking = new AntdUI.Button
+                                AntdUI.Button editEventButton = new Button()
                                 {
-                                    Name = $"buttonEditBooking{panelIndex}",
-                                    Location = new Point(292, 95),
-                                    Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
-                                    Size = new Size(42, 36),
+                                    Anchor = AnchorStyles.Top | AnchorStyles.Right,
                                     BorderWidth = 1F,
                                     Ghost = true,
                                     Icon = Properties.Resources.edit,
                                     IconGap = 0F,
+                                    Location = new Point(278, 102),
+                                    Name = "buttonEditBooking",
+                                    Size = new Size(50, 35),
                                     TabIndex = 19,
                                     Type = AntdUI.TTypeMini.Warn,
                                 };
 
-                                buttonEditBooking.Click += DeleteBookingButton_Click;
+                                AntdUI.Button goToEventDetailsButton = new Button()
+                                {
+                                    Ghost = true,
+                                    Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                                    Icon = Properties.Resources.right_arrow,
+                                    IconGap = 1F,
+                                    IconRatio = 0.7F,
+                                    Location = new Point(340, 18),
+                                    Name = "buttonGoToEvent",
+                                    Size = new Size(40, 33),
+                                    TabIndex = 19,
+                                };
 
-                                // Add the label to the panel
                                 panel.Controls.Add(eventNameLabel);
+                                panel.Controls.Add(dateTimeLabel);
                                 panel.Controls.Add(clientNameLabel);
-                                panel.Controls.Add(timeLabel);
+                                panel.Controls.Add(packageNameLabel);
+                                panel.Controls.Add(eventHeadLabel);
                                 panel.Controls.Add(eventBadge);
-                                panel.Controls.Add(buttonDeleteBooking);
-                                panel.Controls.Add(buttonEditBooking);
+                                panel.Controls.Add(deleteEventButton);
+                                panel.Controls.Add(editEventButton);
+                                panel.Controls.Add(goToEventDetailsButton);
 
-                                // Add the panel to the StackPanel
-                                stackPanel1.Controls.Add(panel);
-                                //h
-                                panelIndex++;
+                                ;
+                                // Add the panel to the temporary list
+                                controlsToAdd.Add(panel);
+                            }
+
+                            // Add all controls in reverse order to stackPanel1
+                            for (int i = controlsToAdd.Count - 1; i >= 0; i--)
+                            {
+                                stackPanel1.Controls.Add(controlsToAdd[i]);
                             }
                         }
                         else
                         {
-                            // No bookings found for the selected date
-                            AntdUI.Label noBookingsLabel = new AntdUI.Label
+                            AntdUI.Label dayLabel = new AntdUI.Label
                             {
-                                Name = "noBookingsLabel",
-                                Font = new Font("Poppins", 11.25F, FontStyle.Italic, GraphicsUnit.Point, 0),
-                                Location = new Point(25, 22),
-                                Size = new Size(200, 23),
-                                Text = "No bookings found for this date.",
-                                TextAlign = ContentAlignment.MiddleCenter,
-                                
+                                Name = "dayLabel",
+                                Font = new Font("Poppins", 10F, FontStyle.Regular, GraphicsUnit.Point, 0),
+                                Location = new Point(10, 10), // Adjust location as necessary
+                                Size = new Size(380, 40), // Adjust size as necessary
+                                Text = "No bookings. Add new.",
+                                TextAlign = ContentAlignment.BottomCenter,
                             };
-                            stackPanel1.Controls.Add(noBookingsLabel);
-                        }
 
+                            stackPanel1.Controls.Add(dayLabel);
+                        }
 
                         // Resume layout updates after panel update
                         stackPanel1.ResumeLayout();
@@ -179,7 +255,7 @@ namespace IPSys
             }
         }
 
-        public void PopulateSchedDates()
+        public void PopulateBadgesOnDates()
         {
             string query = @"
                 SELECT
@@ -229,8 +305,6 @@ namespace IPSys
             };
 
             calendar.LoadBadge();
-
-            GeneratePanelsForSelectedDate(calendar.Value);
         }
 
         private TState BadgeState(DateTime dateTime)
@@ -274,6 +348,12 @@ namespace IPSys
 
             // Display it as a modal dialog
             bookingForm.ShowDialog();
+        }
+
+        private string FormatDate(DateTime dateTime)
+        {
+            // Format DateTime to 12-hour time with AM/PM
+            return dateTime.ToString("MMMM dd, yyyy");
         }
 
         // Helper method to format TimeSpan to 12-hour time with AM/PM
