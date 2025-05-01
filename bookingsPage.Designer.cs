@@ -47,6 +47,7 @@
             eventNameBookingLbl = new AntdUI.Label();
             label1 = new AntdUI.Label();
             divider1 = new AntdUI.Divider();
+            button1 = new AntdUI.Button();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             stackPanel1.SuspendLayout();
@@ -270,12 +271,24 @@
             divider1.TextPadding = 0F;
             divider1.Thickness = 1.5F;
             // 
+            // button1
+            // 
+            button1.BorderWidth = 1F;
+            button1.Ghost = true;
+            button1.Location = new Point(512, 24);
+            button1.Name = "button1";
+            button1.Size = new Size(47, 40);
+            button1.TabIndex = 19;
+            button1.Text = "\u007f";
+            button1.Type = AntdUI.TTypeMini.Warn;
+            // 
             // bookingsPage
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.InactiveBorder;
             ClientSize = new Size(1094, 712);
+            Controls.Add(button1);
             Controls.Add(panel2);
             Controls.Add(panel1);
             Controls.Add(label8);
