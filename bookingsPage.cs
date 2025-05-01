@@ -258,36 +258,6 @@ namespace IPSys
             GeneratePanelsForSelectedDate(calendar.Value);
         }
 
-        // Helper method to format TimeSpan to 12-hour time with AM/PM
-        private string FormatTime(TimeSpan timeSpan)
-        {
-            // Convert TimeSpan to DateTime (arbitrary date)
-            DateTime dateTime = DateTime.Today.Add(timeSpan);
-
-            // Format DateTime to 12-hour time with AM/PM
-            return dateTime.ToString("hh:mm tt");
-        }
-
-        private TState BadgeState(DateTime dateTime)
-        {
-            if (dateTime < dateTimeNow)
-            {
-                return TState.Success;
-            } else if(dateTime > dateTimeNow)
-            {
-                return TState.Primary;
-            }
-            else if (dateTime == dateTimeNow)
-            {
-                return TState.Processing;
-            } else
-            {
-                return TState.Default;
-            }
-        }
-
-
-
         private void CreateBookingButton_Click(object sender, EventArgs e)
         {
             // Create a new instance of the bookingPanel form
