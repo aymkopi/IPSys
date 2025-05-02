@@ -404,10 +404,11 @@ namespace IPSys
             Button clickedButton = sender as Button;
             if (clickedButton != null && clickedButton.Tag != null)
             {
-                string bookingID = clickedButton.Tag.ToString();
+                int bookingID = Convert.ToInt32(clickedButton.Tag.ToString());
 
                 bookingPanel bookingForm = new bookingPanel(this);
                 bookingForm.SetDataToEdit(bookingID);
+                bookingForm.ShowDialog();   
 
             }
         }

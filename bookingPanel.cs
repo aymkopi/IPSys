@@ -140,8 +140,6 @@ namespace IPSys
             string notes = inputNotes.Text;
             float cost = (float)inputNumber.Value;
 
-           
-
             try
             {
                 using (SqlConnection conn = new SqlConnection(connectionString))
@@ -285,7 +283,6 @@ namespace IPSys
 
         private void createBookingBtn_Click(object sender, EventArgs e)
         {
-            SubmitBookingToDB();
             Boolean closeBookingPanel = false;
 
             AntdUI.Modal.open(new AntdUI.Modal.Config(this, "Confirmation", "Kindly check your booking details. If all the information is correct, please confirm to proceed.")
@@ -418,9 +415,100 @@ namespace IPSys
             CreateButtonStatus();
         }
 
-        public void SetDataToEdit(string bookingID)
+        public void SetDataToEdit(int bookingID)
         {
-            
+
+            string query = @"
+    SELECT 
+        b.Event_Name,
+        e.Event_Type,
+        b.DateFrom,
+        b.DateTo,
+        b.Time,
+        b.Location,
+        c.Client_Name,
+        c.Contact_Num,
+        b.PStatus_ID,
+        b.Notes,
+        b.Cost
+    FROM Bookings b
+    INNER JOIN Clients c ON b.Client_ID = c.Client_ID
+    INNER JOIN Events e ON b.Event_ID = e.Event_ID
+    WHERE b.Booking_id = @BookingID;
+    ";
+
+            string packagesQuery = @"
+    SELECT p.Package_Type
+    FROM Bookings_Services bs
+    INNER JOIN Packages p ON bs.Package_ID = p.Package_ID
+    WHERE bs.Booking_id = @BookingID;
+    ";
+
+            string employeesQuery = @"
+    SELECT e.Employee_Name
+    FROM Bookings_Employees be
+    INNER JOIN Employees e ON be.Employee_ID = e.Employee_ID
+    WHERE be.Booking_id = @BookingID;
+    ";
+
+            using (SqlConnection conn = new SqlConnection(MainPage.ConnectionString()))
+            {
+                conn.Open();
+
+                // Retrieve main booking details
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@BookingID", bookingID);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            inputEventName.Text = reader.GetString(0);
+                            selectEventType.SelectedValue = reader.GetString(1); // EventType
+                            datePickerRange.Value = new DateTime[] { reader.GetDateTime(2), reader.GetDateTime(3) };
+                            timePicker.Value = reader.GetTimeSpan(4);
+                            inputLocation.Text = reader.GetString(5);
+                            inputClientName.Text = reader.GetString(6);
+                            inputContactNum.Text = reader.GetString(7);
+                            segmentPayment.SelectIndex = reader.GetInt32(8) - 1;
+                            inputNotes.Text = reader.IsDBNull(9) ? "" : reader.GetString(9);
+                            inputNumber.Value = Convert.ToDecimal(reader.GetDouble(10)); // Assuming Cost is decimal in db and control
+                        }
+                    }
+                }
+
+                // Retrieve multi-select packages
+                using (SqlCommand cmd = new SqlCommand(packagesQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@BookingID", bookingID);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        var packageList = new List<string>();
+                        while (reader.Read())
+                        {
+                            packageList.Add(reader.GetString(0));
+                        }
+                        selectMultiplePackageInclusion.SelectedValue = packageList.ToArray();
+                    }
+                }
+
+                // Retrieve multi-select employees
+                using (SqlCommand cmd = new SqlCommand(employeesQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@BookingID", bookingID);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        var employeeList = new List<string>();
+                        while (reader.Read())
+                        {
+                            employeeList.Add(reader.GetString(0));
+                        }
+                        selectMultipleEmployeesAssigned.SelectedValue = employeeList.ToArray();
+
+                    }
+                }
+            }
         }
 
     }
