@@ -15,43 +15,51 @@ namespace IPSys
         public List<DateTime> SchedDatesList = new List<DateTime>();
         public List<int> SchedDatesNumList = new List<int>();
 
+        private String connectionString = MainPage.ConnectionString();
+        private DateTime dateNow = DateTime.Now.Date;
         private DateTime dateTimeNow = DateTime.Now;
-        private DateTime dateNow = DateTime.Now.Date; // Use only the date part
-        String connectionString = MainPage.ConnectionString();
 
-
+        // Use only the date part
         public bookingsPage()
         {
             InitializeComponent();
             PopulateBadgesOnDates();
+            GeneratePanelsForSelectedDate(dateNow);
 
             this.DoubleBuffered = true;
-
-            
-
         }
 
         public void GeneratePanelsForSelectedDate(DateTime selectedDate)
         {
             string query = @"
-SELECT 
-    b.Event_Name, 
-    c.Client_Name, 
-    b.DateFrom, 
-    b.Time, 
-    STRING_AGG(p.Package_Type, ', ') AS Package_Types, 
-    STRING_AGG(e.Employee_Name, ', ') AS Employee_Names, 
-    b.Booking_id
-FROM Bookings b
-INNER JOIN Clients c ON b.client_id = c.client_id
-LEFT JOIN Bookings_Services bs ON b.Booking_id = bs.Booking_id
-LEFT JOIN Packages p ON bs.Package_id = p.Package_id
-LEFT JOIN Bookings_Employees be ON b.Booking_id = be.Booking_id
-LEFT JOIN Employees e ON be.Employee_id = e.Employee_id
-WHERE CAST(b.DateFrom AS DATE) >= @SelectedDate
-GROUP BY b.Event_Name, c.Client_Name, b.DateFrom, b.Time, b.Booking_id
-ORDER BY b.DateFrom, b.Time
-";
+                SELECT
+                    b.Event_Name,
+                    c.Client_Name,
+                    b.DateFrom,
+                    b.Time,
+                    (
+                        SELECT STRING_AGG(p.Package_Type, ', ')
+                        FROM Bookings_Services bs
+                        INNER JOIN Packages p ON bs.Package_id = p.Package_id
+                        WHERE bs.Booking_id = b.Booking_id
+                    ) AS Package_Types,
+                    (
+                        SELECT STRING_AGG(e.Employee_Name, ', ')
+                        FROM Bookings_Employees be
+                        INNER JOIN Employees e ON be.Employee_id = e.Employee_id
+                        WHERE be.Booking_id = b.Booking_id
+                    ) AS Employee_Names,
+                    b.Booking_id
+                FROM Bookings b
+                INNER JOIN Clients c ON b.client_id = c.client_id
+                LEFT JOIN Bookings_Services bs ON b.Booking_id = bs.Booking_id
+                LEFT JOIN Packages p ON bs.Package_id = p.Package_id
+                LEFT JOIN Bookings_Employees be ON b.Booking_id = be.Booking_id
+                LEFT JOIN Employees e ON be.Employee_id = e.Employee_id
+                WHERE CAST(b.DateFrom AS DATE) >= @SelectedDate
+                GROUP BY b.Event_Name, c.Client_Name, b.DateFrom, b.Time, b.Booking_id
+                ORDER BY b.DateFrom, b.Time
+                ";
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
@@ -83,14 +91,13 @@ ORDER BY b.DateFrom, b.Time
                                     AntdUI.Label dayLabel = new AntdUI.Label
                                     {
                                         Name = $"dayLabel{panelIndex}",
-                                        Anchor = AnchorStyles.Left, 
+                                        Anchor = AnchorStyles.Left,
                                         Font = new Font("Poppins", 10F, FontStyle.Regular, GraphicsUnit.Point, 0),
                                         Location = new Point(10, 10), // Adjust location as necessary
                                         Size = new Size(380, 40), // Adjust size as necessary
                                         Text = currentDay.Value == DateTime.Now.Date ?
-                                            "Today" : currentDay.Value.ToString("MMMM d, yyyy"),
+                                            "Today, " + currentDay.Value.ToString("MMMM d, yyyy") : currentDay.Value.ToString("MMMM d, yyyy"),
                                         TextAlign = ContentAlignment.BottomLeft,
-                                        
                                     };
 
                                     // Add the label to the temporary list
@@ -207,9 +214,8 @@ ORDER BY b.DateFrom, b.Time
                                     Size = new Size(50, 35),
                                     TabIndex = 19,
                                     Type = AntdUI.TTypeMini.Warn,
-                                    
                                 };
-                                
+
                                 AntdUI.Button goToEventDetailsButton = new Button()
                                 {
                                     Name = $"buttonGoToEvent{panelIndex}",
@@ -237,7 +243,6 @@ ORDER BY b.DateFrom, b.Time
                                 eventPanel.Controls.Add(editEventButton);
                                 eventPanel.Controls.Add(goToEventDetailsButton);
 
-                                ;
                                 // Add the panel to the temporary list
                                 controlsToAdd.Add(eventPanel);
                                 panelIndex++;
@@ -270,73 +275,6 @@ ORDER BY b.DateFrom, b.Time
                 }
             }
         }
-        // Add these methods to handle the click events
-        private void DeleteEventButton_Click(object sender, EventArgs e)
-        {
-            Button clickedButton = sender as Button;
-            if (clickedButton != null && clickedButton.Tag != null)
-            {
-                string bookingID = clickedButton.Tag.ToString();
-
-                AntdUI.Modal.open(new AntdUI.Modal.Config(this, "Confirmation", "Are you sure you want to delete this event?")
-                {
-                    Icon = TType.Info,
-                    Font = new Font("Poppins", 9, FontStyle.Regular),
-                    Padding = new Size(24, 20),
-                    Mask = false,
-
-                    CancelFont = new Font("Poppins", 9, FontStyle.Bold),
-                    OkFont = new Font("Poppins", 9, FontStyle.Bold),
-
-                    OnOk = config =>
-                    {
-                        Thread.Sleep(2000);
-
-                        AntdUI.Notification.success(this, "Success", "Your booking has been successfully deleted! Check your booking details below or go to your dashboard for more info.", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
-                        
-                        try
-                        {
-                            // SQL query to drop the column
-                            string query = $"DELETE FROM Bookings WHERE Booking_ID = {bookingID}";
-
-                            // Execute the SQL query
-                            using (SqlConnection conn = new SqlConnection(MainPage.ConnectionString()))
-                            {
-                                conn.Open();
-                                using (SqlCommand cmd = new SqlCommand(query, conn))
-                                {
-                                    cmd.ExecuteNonQuery();
-                                    MessageBox.Show($"The column '{bookingID}' has been successfully deleted.");
-                                }
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            // Handle any exceptions (e.g., column does not exist)
-                            MessageBox.Show($"An error occurred while deleting the column: {ex.Message}");
-                        }
-
-                        return true;
-                    },
-                });
-            }
-            PopulateBadgesOnDates();
-
-        }
-
-        private void EditEventButton_Click(object sender, EventArgs e)
-        {
-                MessageBox.Show("Edit Event button clicked!");
-                // Add your logic to edit the event
-        }
-
-
-        private void GoToEventDetailsButton_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Go to Event Details button clicked!");
-            // Add your logic to navigate to event details
-        }
-
         public void PopulateBadgesOnDates()
         {
             string query = @"
@@ -384,34 +322,20 @@ ORDER BY b.DateFrom, b.Time
 
             calendar.LoadBadge();
 
-            GeneratePanelsForSelectedDate(dateNow); // Generate panels for the current date
-        }
 
+            GeneratePanelsForSelectedDate(calendar.Value); // Generate panels for the selected date
+        }
         private TState BadgeState(DateTime dateTime)
         {
-            if (dateTime < dateTimeNow)
-            {
-                return TState.Success;
-            }
-            else if (dateTime > dateTimeNow)
-            {
-                return TState.Primary;
-            }
-            else if (dateTime == dateTimeNow)
-            {
-                return TState.Processing;
-            }
-            else
-            {
-                return TState.Default;
-            }
+            if (dateTime < dateTimeNow) return TState.Success;
+            if (dateTime > dateTimeNow) return TState.Primary;
+            if (dateTime == dateTimeNow) return TState.Processing;
+            return TState.Default;
         }
-
         private void calendar1_DateChanged(object sender, DateTimeEventArgs e)
         {
             GeneratePanelsForSelectedDate(calendar.Value);
         }
-
         private void CreateBookingButton_Click(object sender, EventArgs e)
         {
             // Create a new instance of the bookingPanel form
@@ -419,15 +343,73 @@ ORDER BY b.DateFrom, b.Time
 
             // Display it as a modal dialog
             bookingForm.ShowDialog();
+
+            // Refresh the panels after closing the booking form
+            PopulateBadgesOnDates();
+        }
+        private void DeleteEventButton_Click(object sender, EventArgs e)
+        {
+            Button clickedButton = sender as Button;
+            if (clickedButton != null && clickedButton.Tag != null)
+            {
+                string bookingID = clickedButton.Tag.ToString();
+
+                AntdUI.Modal.open(new AntdUI.Modal.Config(this, "Confirmation", "Are you sure you want to delete this event?")
+                {
+                    Icon = TType.Info,
+                    Font = new Font("Poppins", 9, FontStyle.Regular),
+                    Padding = new Size(24, 20),
+                    Mask = false,
+
+                    CancelFont = new Font("Poppins", 9, FontStyle.Bold),
+                    OkFont = new Font("Poppins", 9, FontStyle.Bold),
+
+                    OnOk = config =>
+                    {
+                        Thread.Sleep(2000);
+                        try
+                        {
+                            // SQL query to drop the column
+                            string query = $"DELETE FROM Bookings WHERE Booking_ID = {bookingID}";
+
+                            // Execute the SQL query
+                            using (SqlConnection conn = new SqlConnection(MainPage.ConnectionString()))
+                            {
+                                conn.Open();
+                                using (SqlCommand cmd = new SqlCommand(query, conn))
+                                {
+                                    cmd.ExecuteNonQuery();
+                                    AntdUI.Notification.success(this, "Success", "Your booking has been successfully deleted! Check your booking details below or go to your dashboard for more info.", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Handle any exceptions (e.g., column does not exist)
+                            AntdUI.Notification.error(this, "Error", $"An error occurred while deleting the column: {ex.Message}", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
+                        }
+
+                        
+
+
+                        return true;
+                    },
+                });
+            }
+            PopulateBadgesOnDates();
         }
 
-        private void DeleteBookingButton_Click(object sender, EventArgs e)
+        private void EditEventButton_Click(object sender, EventArgs e)
         {
-            // Create a new instance of the bookingPanel form
-            bookingPanel bookingForm = new bookingPanel(this);
+            Button clickedButton = sender as Button;
+            if (clickedButton != null && clickedButton.Tag != null)
+            {
+                string bookingID = clickedButton.Tag.ToString();
 
-            // Display it as a modal dialog
-            bookingForm.ShowDialog();
+                bookingPanel bookingForm = new bookingPanel(this);
+                bookingForm.SetDataToEdit(bookingID);
+
+            }
         }
 
         private string FormatDate(DateTime dateTime)
@@ -444,6 +426,12 @@ ORDER BY b.DateFrom, b.Time
 
             // Format DateTime to 12-hour time with AM/PM
             return dateTime.ToString("hh:mm tt");
+        }
+
+        private void GoToEventDetailsButton_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Go to Event Details button clicked!");
+            // Add your logic to navigate to event details
         }
     }
 }
