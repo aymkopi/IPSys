@@ -89,14 +89,14 @@ namespace IPSys
             }
             else
             {
-                TableOrder = "ORDER BY b.date DESC";
+                TableOrder = "ORDER BY b.dateFrom DESC";
             }
 
             if (TableToFill == EventsTable)
             {
                 query = @"SELECT 
                           b.event_name AS [Name],
-                          b.date AS [Date],
+                          b.dateFrom AS [Date],
                           b.time AS [Time],
                           b.location AS [Location]
                           FROM bookings b

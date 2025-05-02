@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+VisualStudioVersion = 17.13.35931.197
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IPSys", "IPSys.csproj", "{42E1D656-E713-4C8D-B757-DBF9B2B17CF3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntdUIDemo", "..\antdui-demo\AntdUIDemo.csproj", "{BA519622-DC59-E026-520D-D61E60A07BEE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{42E1D656-E713-4C8D-B757-DBF9B2B17CF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{42E1D656-E713-4C8D-B757-DBF9B2B17CF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42E1D656-E713-4C8D-B757-DBF9B2B17CF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA519622-DC59-E026-520D-D61E60A07BEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA519622-DC59-E026-520D-D61E60A07BEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA519622-DC59-E026-520D-D61E60A07BEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA519622-DC59-E026-520D-D61E60A07BEE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

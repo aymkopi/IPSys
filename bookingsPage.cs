@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 using Button = AntdUI.Button;
 using FontStyle = System.Drawing.FontStyle;
 using MessageBox = System.Windows.Forms.MessageBox;
+using Panel = AntdUI.Panel;
 using Point = System.Drawing.Point;
 using Size = System.Drawing.Size;
 
@@ -14,37 +15,43 @@ namespace IPSys
         public List<DateTime> SchedDatesList = new List<DateTime>();
         public List<int> SchedDatesNumList = new List<int>();
 
-        private string connectionString = "Data Source=DESKTOP-0IG0ARM\\SQLEXPRESS;" +
-                                "Initial Catalog= owlie;" +
-                "Integrated Security=True;" +
-                "Trust Server Certificate=True";
-
         private DateTime dateTimeNow = DateTime.Now;
+        private DateTime dateNow = DateTime.Now.Date; // Use only the date part
+        String connectionString = MainPage.ConnectionString();
+
 
         public bookingsPage()
         {
             InitializeComponent();
             PopulateBadgesOnDates();
-            // Set the default selected date to the current date
-            DateTime currentDate = DateTime.Now.Date; // Use only the date part
-            GeneratePanelsForSelectedDate(currentDate); // Generate panels for the current date
 
             this.DoubleBuffered = true;
+
+            
+
         }
 
         public void GeneratePanelsForSelectedDate(DateTime selectedDate)
         {
             string query = @"
-    SELECT
-        b.Event_Name, c.Client_Name, b.Date, b.Time, p.Package_Type, e.Employee_Name
-    FROM Bookings b
-    INNER JOIN Clients c ON b.client_id = c.client_id
-    INNER JOIN Packages p ON b.Package_id = p.Package_id
-    INNER JOIN Employees e ON b.Employee_id = e.Employee_id
-    WHERE CAST(b.Date AS DATE) >= @SelectedDate
-    ORDER BY b.Date, b.Time
-     ";
-
+SELECT 
+    b.Event_Name, 
+    c.Client_Name, 
+    b.DateFrom, 
+    b.Time, 
+    STRING_AGG(p.Package_Type, ', ') AS Package_Types, 
+    STRING_AGG(e.Employee_Name, ', ') AS Employee_Names, 
+    b.Booking_id
+FROM Bookings b
+INNER JOIN Clients c ON b.client_id = c.client_id
+LEFT JOIN Bookings_Services bs ON b.Booking_id = bs.Booking_id
+LEFT JOIN Packages p ON bs.Package_id = p.Package_id
+LEFT JOIN Bookings_Employees be ON b.Booking_id = be.Booking_id
+LEFT JOIN Employees e ON be.Employee_id = e.Employee_id
+WHERE CAST(b.DateFrom AS DATE) >= @SelectedDate
+GROUP BY b.Event_Name, c.Client_Name, b.DateFrom, b.Time, b.Booking_id
+ORDER BY b.DateFrom, b.Time
+";
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
@@ -76,13 +83,14 @@ namespace IPSys
                                     AntdUI.Label dayLabel = new AntdUI.Label
                                     {
                                         Name = $"dayLabel{panelIndex}",
-                                        Anchor = AnchorStyles.Left,
+                                        Anchor = AnchorStyles.Left, 
                                         Font = new Font("Poppins", 10F, FontStyle.Regular, GraphicsUnit.Point, 0),
                                         Location = new Point(10, 10), // Adjust location as necessary
                                         Size = new Size(380, 40), // Adjust size as necessary
                                         Text = currentDay.Value == DateTime.Now.Date ?
                                             "Today" : currentDay.Value.ToString("MMMM d, yyyy"),
                                         TextAlign = ContentAlignment.BottomLeft,
+                                        
                                     };
 
                                     // Add the label to the temporary list
@@ -90,7 +98,7 @@ namespace IPSys
                                 }
 
                                 // Create a panel for the event
-                                AntdUI.Panel panel = new AntdUI.Panel
+                                AntdUI.Panel eventPanel = new AntdUI.Panel
                                 {
                                     Name = $"panel{panelIndex}",
                                     Size = new Size(392, 155),
@@ -174,6 +182,7 @@ namespace IPSys
                                 AntdUI.Button deleteEventButton = new Button()
                                 {
                                     Name = $"buttonDeleteBooking{panelIndex}",
+                                    Tag = reader.GetInt32(6),
                                     Anchor = AnchorStyles.Top | AnchorStyles.Right,
                                     BorderWidth = 1F,
                                     Ghost = true,
@@ -188,6 +197,7 @@ namespace IPSys
                                 AntdUI.Button editEventButton = new Button()
                                 {
                                     Name = $"buttonEditBooking{panelIndex}",
+                                    Tag = reader.GetInt32(6),
                                     Anchor = AnchorStyles.Top | AnchorStyles.Right,
                                     BorderWidth = 1F,
                                     Ghost = true,
@@ -203,6 +213,7 @@ namespace IPSys
                                 AntdUI.Button goToEventDetailsButton = new Button()
                                 {
                                     Name = $"buttonGoToEvent{panelIndex}",
+                                    Tag = reader.GetInt32(6),
                                     Ghost = true,
                                     Anchor = AnchorStyles.Top | AnchorStyles.Right,
                                     Icon = Properties.Resources.right_arrow,
@@ -212,20 +223,24 @@ namespace IPSys
                                     Size = new Size(40, 33),
                                     TabIndex = 19,
                                 };
+                                deleteEventButton.Click += DeleteEventButton_Click;
+                                editEventButton.Click += EditEventButton_Click;
+                                goToEventDetailsButton.Click += GoToEventDetailsButton_Click;
 
-                                panel.Controls.Add(eventNameLabel);
-                                panel.Controls.Add(dateTimeLabel);
-                                panel.Controls.Add(clientNameLabel);
-                                panel.Controls.Add(packageNameLabel);
-                                panel.Controls.Add(eventHeadLabel);
-                                panel.Controls.Add(eventBadge);
-                                panel.Controls.Add(deleteEventButton);
-                                panel.Controls.Add(editEventButton);
-                                panel.Controls.Add(goToEventDetailsButton);
+                                eventPanel.Controls.Add(eventNameLabel);
+                                eventPanel.Controls.Add(dateTimeLabel);
+                                eventPanel.Controls.Add(clientNameLabel);
+                                eventPanel.Controls.Add(packageNameLabel);
+                                eventPanel.Controls.Add(eventHeadLabel);
+                                eventPanel.Controls.Add(eventBadge);
+                                eventPanel.Controls.Add(deleteEventButton);
+                                eventPanel.Controls.Add(editEventButton);
+                                eventPanel.Controls.Add(goToEventDetailsButton);
 
                                 ;
                                 // Add the panel to the temporary list
-                                controlsToAdd.Add(panel);
+                                controlsToAdd.Add(eventPanel);
+                                panelIndex++;
                             }
 
                             // Add all controls in reverse order to stackPanel1
@@ -255,15 +270,81 @@ namespace IPSys
                 }
             }
         }
+        // Add these methods to handle the click events
+        private void DeleteEventButton_Click(object sender, EventArgs e)
+        {
+            Button clickedButton = sender as Button;
+            if (clickedButton != null && clickedButton.Tag != null)
+            {
+                string bookingID = clickedButton.Tag.ToString();
+
+                AntdUI.Modal.open(new AntdUI.Modal.Config(this, "Confirmation", "Are you sure you want to delete this event?")
+                {
+                    Icon = TType.Info,
+                    Font = new Font("Poppins", 9, FontStyle.Regular),
+                    Padding = new Size(24, 20),
+                    Mask = false,
+
+                    CancelFont = new Font("Poppins", 9, FontStyle.Bold),
+                    OkFont = new Font("Poppins", 9, FontStyle.Bold),
+
+                    OnOk = config =>
+                    {
+                        Thread.Sleep(2000);
+
+                        AntdUI.Notification.success(this, "Success", "Your booking has been successfully deleted! Check your booking details below or go to your dashboard for more info.", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
+                        
+                        try
+                        {
+                            // SQL query to drop the column
+                            string query = $"DELETE FROM Bookings WHERE Booking_ID = {bookingID}";
+
+                            // Execute the SQL query
+                            using (SqlConnection conn = new SqlConnection(MainPage.ConnectionString()))
+                            {
+                                conn.Open();
+                                using (SqlCommand cmd = new SqlCommand(query, conn))
+                                {
+                                    cmd.ExecuteNonQuery();
+                                    MessageBox.Show($"The column '{bookingID}' has been successfully deleted.");
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Handle any exceptions (e.g., column does not exist)
+                            MessageBox.Show($"An error occurred while deleting the column: {ex.Message}");
+                        }
+
+                        return true;
+                    },
+                });
+            }
+            PopulateBadgesOnDates();
+
+        }
+
+        private void EditEventButton_Click(object sender, EventArgs e)
+        {
+                MessageBox.Show("Edit Event button clicked!");
+                // Add your logic to edit the event
+        }
+
+
+        private void GoToEventDetailsButton_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Go to Event Details button clicked!");
+            // Add your logic to navigate to event details
+        }
 
         public void PopulateBadgesOnDates()
         {
             string query = @"
                 SELECT
-                    CAST(Date AS DATE) AS BookingDate,
+                    CAST(DateFrom AS DATE) AS BookingDate,
                     COUNT(*) AS BookingCount
                 FROM Bookings
-                GROUP BY CAST(Date AS DATE)
+                GROUP BY CAST(DateFrom AS DATE)
                 ORDER BY BookingDate ASC;
             ";
 
@@ -285,10 +366,6 @@ namespace IPSys
                     }
                 }
             }
-            if (SchedDatesList.Count == 0)
-            {
-                MessageBox.Show("SchedDatesList is empty!");
-            }
 
             calendar.BadgeAction = dates =>
             {
@@ -306,6 +383,8 @@ namespace IPSys
             };
 
             calendar.LoadBadge();
+
+            GeneratePanelsForSelectedDate(dateNow); // Generate panels for the current date
         }
 
         private TState BadgeState(DateTime dateTime)
@@ -336,7 +415,7 @@ namespace IPSys
         private void CreateBookingButton_Click(object sender, EventArgs e)
         {
             // Create a new instance of the bookingPanel form
-            bookingPanel bookingForm = new bookingPanel();
+            bookingPanel bookingForm = new bookingPanel(this);
 
             // Display it as a modal dialog
             bookingForm.ShowDialog();
@@ -345,7 +424,7 @@ namespace IPSys
         private void DeleteBookingButton_Click(object sender, EventArgs e)
         {
             // Create a new instance of the bookingPanel form
-            bookingPanel bookingForm = new bookingPanel();
+            bookingPanel bookingForm = new bookingPanel(this);
 
             // Display it as a modal dialog
             bookingForm.ShowDialog();

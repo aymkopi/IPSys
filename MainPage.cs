@@ -33,6 +33,14 @@ namespace IPSys
             }
         }
 
+        public static string ConnectionString()
+        {
+            return "Data Source=DESKTOP-0IG0ARM\\SQLEXPRESS;" +
+                   "Initial Catalog= owlie;" +
+                   "Integrated Security=True;" +
+                   "Trust Server Certificate=True";
+        }
+
         private void LoadForm(object Form)
         {
             if (mainPanel.Controls.Count > 0)
