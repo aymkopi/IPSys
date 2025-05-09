@@ -86,6 +86,11 @@ namespace IPSys
             ToggleButton(bookingsBtn);
             LoadForm(new bookingsPage());
         }
+        private void employeesBtn_Click(object sender, EventArgs e)
+        {
+            ToggleButton(employeesBtn);
+            LoadForm(new EmployeesPage());
+        }
         private void clientsBtn_Click(object sender, EventArgs e)
         {
             ToggleButton(clientsBtn);
@@ -94,10 +99,7 @@ namespace IPSys
         {
             ToggleButton(earningsBtn);
         }
-        private void employeesBtn_Click(object sender, EventArgs e)
-        {
-            ToggleButton(employeesBtn);
-        }
+        
         private void reviewsBtn_Click(object sender, EventArgs e)
         {
             ToggleButton(reviewsBtn);

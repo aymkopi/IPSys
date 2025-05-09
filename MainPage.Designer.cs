@@ -1,4 +1,7 @@
-﻿namespace IPSys
+﻿using AntdUI;
+using Panel = System.Windows.Forms.Panel;
+
+namespace IPSys
 {
     partial class MainPage
     {
@@ -72,7 +75,7 @@
             // employeesBtn
             // 
             employeesBtn.Anchor = AnchorStyles.Top;
-            employeesBtn.Location = new Point(65, 408);
+            employeesBtn.Location = new Point(65, 275);
             employeesBtn.Name = "employeesBtn";
             employeesBtn.Shape = AntdUI.TShape.Round;
             employeesBtn.Size = new Size(165, 39);
@@ -92,11 +95,12 @@
             earningsBtn.Text = "Earnings";
             earningsBtn.ToggleType = AntdUI.TTypeMini.Primary;
             earningsBtn.Click += earningsBtn_Click;
+            
             // 
             // clientsBtn
             // 
             clientsBtn.Anchor = AnchorStyles.Top;
-            clientsBtn.Location = new Point(65, 275);
+            clientsBtn.Location = new Point(65, 403);
             clientsBtn.Name = "clientsBtn";
             clientsBtn.Shape = AntdUI.TShape.Round;
             clientsBtn.Size = new Size(165, 39);
@@ -114,7 +118,6 @@
             bookingsBtn.Size = new Size(165, 39);
             bookingsBtn.TabIndex = 2;
             bookingsBtn.Text = "Bookings";
-            bookingsBtn.ToggleType = AntdUI.TTypeMini.Primary;
             bookingsBtn.Click += bookingsBtn_Click;
             // 
             // dashboardBtn

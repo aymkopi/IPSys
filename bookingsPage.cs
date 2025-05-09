@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using AntdUI;
 using Microsoft.Data.SqlClient;
+using OxyPlot;
 using Button = AntdUI.Button;
 using FontStyle = System.Drawing.FontStyle;
 using MessageBox = System.Windows.Forms.MessageBox;
@@ -87,7 +88,7 @@ namespace IPSys
                                 if (currentDay == null || eventDate.Date != currentDay.Value.Date)
                                 {
                                     currentDay = eventDate.Date;
-
+                                    
                                     AntdUI.Label dayLabel = new AntdUI.Label
                                     {
                                         Name = $"dayLabel{panelIndex}",
@@ -264,13 +265,16 @@ namespace IPSys
                                 Size = new Size(380, 40), // Adjust size as necessary
                                 Text = "No bookings. Add new.",
                                 TextAlign = ContentAlignment.BottomCenter,
+                                
                             };
 
                             stackPanel1.Controls.Add(dayLabel);
+                            
                         }
 
                         // Resume layout updates after panel update
                         stackPanel1.ResumeLayout();
+                       
                     }
                 }
             }
@@ -327,9 +331,10 @@ namespace IPSys
         }
         private TState BadgeState(DateTime dateTime)
         {
-            if (dateTime < dateTimeNow) return TState.Success;
-            if (dateTime > dateTimeNow) return TState.Primary;
-            if (dateTime == dateTimeNow) return TState.Processing;
+
+            if (dateTime < dateNow) return TState.Success;
+            if (dateTime > dateNow) return TState.Processing;
+            if (dateTime == dateNow) return TState.Processing;
             return TState.Default;
         }
         private void calendar1_DateChanged(object sender, DateTimeEventArgs e)
@@ -408,7 +413,8 @@ namespace IPSys
 
                 bookingPanel bookingForm = new bookingPanel(this);
                 bookingForm.SetDataToEdit(bookingID);
-                bookingForm.ShowDialog();   
+                bookingForm.ShowDialog();
+                PopulateBadgesOnDates();
 
             }
         }

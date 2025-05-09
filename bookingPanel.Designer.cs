@@ -101,14 +101,14 @@
             inputEventName.Font = new Font("Poppins", 9.75F);
             inputEventName.Location = new Point(36, 151);
             inputEventName.Name = "inputEventName";
-            inputEventName.Size = new Size(270, 40);
+            inputEventName.Size = new Size(260, 40);
             inputEventName.TabIndex = 0;
             inputEventName.TextChanged += bookingsInput_TextChanged;
             // 
             // label2
             // 
             label2.Font = new Font("Poppins", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label2.Location = new Point(342, 198);
+            label2.Location = new Point(311, 198);
             label2.Name = "label2";
             label2.Size = new Size(106, 23);
             label2.TabIndex = 6;
@@ -117,7 +117,7 @@
             // selectEventType
             // 
             selectEventType.Font = new Font("Poppins", 9.75F);
-            selectEventType.Location = new Point(336, 218);
+            selectEventType.Location = new Point(305, 218);
             selectEventType.Name = "selectEventType";
             selectEventType.Size = new Size(152, 40);
             selectEventType.TabIndex = 2;
@@ -128,7 +128,7 @@
             selectMultiplePackageInclusion.Font = new Font("Poppins", 9.75F);
             selectMultiplePackageInclusion.Location = new Point(36, 218);
             selectMultiplePackageInclusion.Name = "selectMultiplePackageInclusion";
-            selectMultiplePackageInclusion.Size = new Size(292, 40);
+            selectMultiplePackageInclusion.Size = new Size(260, 40);
             selectMultiplePackageInclusion.TabIndex = 1;
             selectMultiplePackageInclusion.SelectedValueChanged += bookingsInputSelectMultiple_SelectedValueChanged;
             // 
@@ -145,7 +145,7 @@
             // dateLabel
             // 
             dateLabel.Font = new Font("Poppins", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            dateLabel.Location = new Point(320, 133);
+            dateLabel.Location = new Point(311, 133);
             dateLabel.Name = "dateLabel";
             dateLabel.Size = new Size(151, 23);
             dateLabel.TabIndex = 11;
@@ -174,7 +174,7 @@
             // inputContactNum
             // 
             inputContactNum.Font = new Font("Poppins", 9.75F);
-            inputContactNum.Location = new Point(323, 297);
+            inputContactNum.Location = new Point(318, 297);
             inputContactNum.Name = "inputContactNum";
             inputContactNum.Size = new Size(202, 40);
             inputContactNum.TabIndex = 6;
@@ -183,7 +183,7 @@
             // label5
             // 
             label5.Font = new Font("Poppins", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label5.Location = new Point(326, 277);
+            label5.Location = new Point(321, 277);
             label5.Name = "label5";
             label5.Size = new Size(106, 23);
             label5.TabIndex = 15;
@@ -257,7 +257,7 @@
             // timeLabel
             // 
             timeLabel.Font = new Font("Poppins", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            timeLabel.Location = new Point(553, 133);
+            timeLabel.Location = new Point(537, 133);
             timeLabel.Name = "timeLabel";
             timeLabel.Size = new Size(77, 23);
             timeLabel.TabIndex = 24;
@@ -267,21 +267,22 @@
             // timePicker
             // 
             timePicker.Font = new Font("Poppins", 9.75F);
-            timePicker.Format = "HH:mm";
-            timePicker.Location = new Point(548, 151);
+            timePicker.Format = "hh:mm tt";
+            timePicker.Location = new Point(532, 151);
             timePicker.Name = "timePicker";
-            timePicker.Size = new Size(94, 40);
+            timePicker.Size = new Size(110, 40);
             timePicker.TabIndex = 4;
-            timePicker.Text = "00:00";
+            timePicker.Text = "12:00 AM";
             timePicker.TextChanged += bookingsInput_TextChanged;
             // 
             // datePickerRange
             // 
             datePickerRange.Font = new Font("Poppins", 9.75F);
             datePickerRange.Format = "MM-dd-yy";
-            datePickerRange.Location = new Point(314, 151);
+            datePickerRange.Location = new Point(305, 151);
+            datePickerRange.MinDate = new DateTime(2025, 5, 2, 11, 47, 20, 641);
             datePickerRange.Name = "datePickerRange";
-            datePickerRange.Size = new Size(226, 40);
+            datePickerRange.Size = new Size(220, 40);
             datePickerRange.TabIndex = 3;
             datePickerRange.TextChanged += bookingsInput_TextChanged;
             // 
@@ -404,15 +405,15 @@
             // inputLocation
             // 
             inputLocation.Font = new Font("Poppins", 9.75F);
-            inputLocation.Location = new Point(496, 218);
+            inputLocation.Location = new Point(465, 218);
             inputLocation.Name = "inputLocation";
-            inputLocation.Size = new Size(146, 40);
+            inputLocation.Size = new Size(177, 40);
             inputLocation.TabIndex = 34;
             // 
             // locationLabel
             // 
             locationLabel.Font = new Font("Poppins", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            locationLabel.Location = new Point(499, 198);
+            locationLabel.Location = new Point(468, 198);
             locationLabel.Name = "locationLabel";
             locationLabel.Size = new Size(106, 23);
             locationLabel.TabIndex = 35;

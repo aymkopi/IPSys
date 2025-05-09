@@ -38,16 +38,16 @@
             EventsTable = new AntdUI.Table();
             label10 = new AntdUI.Label();
             panel4 = new AntdUI.Panel();
-            BookingsChart = new LiveChartsCore.SkiaSharpView.WinForms.CartesianChart();
+            EarningsChart = new LiveChartsCore.SkiaSharpView.WinForms.CartesianChart();
             label9 = new AntdUI.Label();
             panel3 = new AntdUI.Panel();
-            EarningsChart = new LiveChartsCore.SkiaSharpView.WinForms.CartesianChart();
+            BookingsChart = new LiveChartsCore.SkiaSharpView.WinForms.CartesianChart();
             label8 = new AntdUI.Label();
             panel2 = new AntdUI.Panel();
-            label6 = new AntdUI.Label();
-            label4 = new AntdUI.Label();
+            totalRevenueLbl = new AntdUI.Label();
+            totalStaffLbl = new AntdUI.Label();
             label7 = new AntdUI.Label();
-            label2 = new AntdUI.Label();
+            totalBookingsLbl = new AntdUI.Label();
             avatar4 = new AntdUI.Avatar();
             label5 = new AntdUI.Label();
             totalClientsLbl = new AntdUI.Label();
@@ -169,7 +169,7 @@
             // 
             // panel4
             // 
-            panel4.Controls.Add(BookingsChart);
+            panel4.Controls.Add(EarningsChart);
             panel4.Controls.Add(label9);
             panel4.Location = new Point(734, 9);
             panel4.Name = "panel4";
@@ -178,16 +178,16 @@
             panel4.TabIndex = 1;
             panel4.Text = "panel4";
             // 
-            // BookingsChart
+            // EarningsChart
             // 
-            BookingsChart.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            BookingsChart.BackColor = Color.Transparent;
-            BookingsChart.BackgroundImageLayout = ImageLayout.None;
-            BookingsChart.Location = new Point(24, 53);
-            BookingsChart.MatchAxesScreenDataRatio = false;
-            BookingsChart.Name = "BookingsChart";
-            BookingsChart.Size = new Size(248, 141);
-            BookingsChart.TabIndex = 17;
+            EarningsChart.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            EarningsChart.BackColor = Color.Transparent;
+            EarningsChart.BackgroundImageLayout = ImageLayout.None;
+            EarningsChart.Location = new Point(24, 53);
+            EarningsChart.MatchAxesScreenDataRatio = false;
+            EarningsChart.Name = "EarningsChart";
+            EarningsChart.Size = new Size(248, 141);
+            EarningsChart.TabIndex = 17;
             // 
             // label9
             // 
@@ -197,11 +197,11 @@
             label9.Name = "label9";
             label9.Size = new Size(184, 29);
             label9.TabIndex = 16;
-            label9.Text = "Bookings";
+            label9.Text = "Earnings";
             // 
             // panel3
             // 
-            panel3.Controls.Add(EarningsChart);
+            panel3.Controls.Add(BookingsChart);
             panel3.Controls.Add(label8);
             panel3.Location = new Point(9, 9);
             panel3.Name = "panel3";
@@ -210,16 +210,16 @@
             panel3.TabIndex = 0;
             panel3.Text = "'";
             // 
-            // EarningsChart
+            // BookingsChart
             // 
-            EarningsChart.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            EarningsChart.BackColor = Color.Transparent;
-            EarningsChart.BackgroundImageLayout = ImageLayout.None;
-            EarningsChart.Location = new Point(20, 53);
-            EarningsChart.MatchAxesScreenDataRatio = false;
-            EarningsChart.Name = "EarningsChart";
-            EarningsChart.Size = new Size(668, 141);
-            EarningsChart.TabIndex = 16;
+            BookingsChart.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            BookingsChart.BackColor = Color.Transparent;
+            BookingsChart.BackgroundImageLayout = ImageLayout.None;
+            BookingsChart.Location = new Point(20, 53);
+            BookingsChart.MatchAxesScreenDataRatio = false;
+            BookingsChart.Name = "BookingsChart";
+            BookingsChart.Size = new Size(668, 141);
+            BookingsChart.TabIndex = 16;
             // 
             // label8
             // 
@@ -229,16 +229,16 @@
             label8.Name = "label8";
             label8.Size = new Size(219, 29);
             label8.TabIndex = 15;
-            label8.Text = "Earnings";
+            label8.Text = "Bookings";
             // 
             // panel2
             // 
             panel2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel2.BackColor = Color.Transparent;
-            panel2.Controls.Add(label6);
-            panel2.Controls.Add(label4);
+            panel2.Controls.Add(totalRevenueLbl);
+            panel2.Controls.Add(totalStaffLbl);
             panel2.Controls.Add(label7);
-            panel2.Controls.Add(label2);
+            panel2.Controls.Add(totalBookingsLbl);
             panel2.Controls.Add(avatar4);
             panel2.Controls.Add(label5);
             panel2.Controls.Add(totalClientsLbl);
@@ -254,27 +254,27 @@
             panel2.TabIndex = 7;
             panel2.Text = "panel2";
             // 
-            // label6
+            // totalRevenueLbl
             // 
-            label6.Anchor = AnchorStyles.None;
-            label6.BackColor = Color.Transparent;
-            label6.Font = new Font("Poppins ExtraBold", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label6.Location = new Point(788, 46);
-            label6.Name = "label6";
-            label6.Size = new Size(120, 29);
-            label6.TabIndex = 14;
-            label6.Text = "245";
+            totalRevenueLbl.Anchor = AnchorStyles.None;
+            totalRevenueLbl.BackColor = Color.Transparent;
+            totalRevenueLbl.Font = new Font("Poppins ExtraBold", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            totalRevenueLbl.Location = new Point(788, 46);
+            totalRevenueLbl.Name = "totalRevenueLbl";
+            totalRevenueLbl.Size = new Size(120, 29);
+            totalRevenueLbl.TabIndex = 14;
+            totalRevenueLbl.Text = "245";
             // 
-            // label4
+            // totalStaffLbl
             // 
-            label4.Anchor = AnchorStyles.None;
-            label4.BackColor = Color.Transparent;
-            label4.Font = new Font("Poppins ExtraBold", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label4.Location = new Point(599, 46);
-            label4.Name = "label4";
-            label4.Size = new Size(120, 29);
-            label4.TabIndex = 11;
-            label4.Text = "245";
+            totalStaffLbl.Anchor = AnchorStyles.None;
+            totalStaffLbl.BackColor = Color.Transparent;
+            totalStaffLbl.Font = new Font("Poppins ExtraBold", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            totalStaffLbl.Location = new Point(599, 46);
+            totalStaffLbl.Name = "totalStaffLbl";
+            totalStaffLbl.Size = new Size(120, 29);
+            totalStaffLbl.TabIndex = 11;
+            totalStaffLbl.Text = "245";
             // 
             // label7
             // 
@@ -287,16 +287,16 @@
             label7.TabIndex = 12;
             label7.Text = "Revenue";
             // 
-            // label2
+            // totalBookingsLbl
             // 
-            label2.Anchor = AnchorStyles.None;
-            label2.BackColor = Color.Transparent;
-            label2.Font = new Font("Poppins ExtraBold", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label2.Location = new Point(387, 46);
-            label2.Name = "label2";
-            label2.Size = new Size(120, 29);
-            label2.TabIndex = 8;
-            label2.Text = "245";
+            totalBookingsLbl.Anchor = AnchorStyles.None;
+            totalBookingsLbl.BackColor = Color.Transparent;
+            totalBookingsLbl.Font = new Font("Poppins ExtraBold", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            totalBookingsLbl.Location = new Point(387, 46);
+            totalBookingsLbl.Name = "totalBookingsLbl";
+            totalBookingsLbl.Size = new Size(120, 29);
+            totalBookingsLbl.TabIndex = 8;
+            totalBookingsLbl.Text = "245";
             // 
             // avatar4
             // 
@@ -457,7 +457,7 @@
         private AntdUI.Panel panel4;
         private AntdUI.Panel panel3;
         private AntdUI.Panel panel2;
-        private AntdUI.Label label2;
+        private AntdUI.Label totalBookingsLbl;
         private AntdUI.Avatar avatar4;
         private AntdUI.Label totalClientsLbl;
         private AntdUI.Avatar avatar3;
@@ -467,8 +467,8 @@
         private AntdUI.Avatar avatar1;
         private AntdUI.Avatar avatarIcon;
         private AntdUI.Input searchBar;
-        private AntdUI.Label label6;
-        private AntdUI.Label label4;
+        private AntdUI.Label totalRevenueLbl;
+        private AntdUI.Label totalStaffLbl;
         private AntdUI.Label label7;
         private AntdUI.Label label5;
         private AntdUI.Panel panel1;
@@ -476,8 +476,8 @@
         private AntdUI.Label label9;
         private AntdUI.Label label11;
         private AntdUI.Label label10;
-        private LiveChartsCore.SkiaSharpView.WinForms.CartesianChart EarningsChart;
         private LiveChartsCore.SkiaSharpView.WinForms.CartesianChart BookingsChart;
+        private LiveChartsCore.SkiaSharpView.WinForms.CartesianChart EarningsChart;
         private AntdUI.Table EventsTable;
         private AntdUI.Table ClientsTable;
         private AntdUI.Select sortEventsBtn;

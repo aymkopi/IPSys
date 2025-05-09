@@ -19,6 +19,8 @@ namespace IPSys
         private readonly Form bookingsPage;
 
         private string connectionString = MainPage.ConnectionString();
+        private int? editingBookingID = null; // Track if we are editing
+
 
         public bookingPanel(Form bookingsPage)
         {
@@ -28,6 +30,15 @@ namespace IPSys
             InitializeInputItems();
         }
 
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ClassStyle |= 0x00020000; // CS_DROPSHADOW
+                return cp;
+            }
+        }
         public void InitializeInputItems()
         {
             List<string> packageNames = new List<string>();
@@ -126,8 +137,9 @@ namespace IPSys
 
         public void SubmitBookingToDB()
         {
+            // Gather all fields as before
             string eventName = inputEventName.Text;
-            string eventType = selectEventType.SelectedValue.ToString();
+            string eventType = selectEventType.SelectedValue?.ToString() ?? "";
             List<string> packageInclusions = selectMultiplePackageInclusion.SelectedValue.Cast<string>().ToList();
             DateTime eventDateFrom = datePickerRange.Value[0];
             DateTime eventDateTo = datePickerRange.Value[1];
@@ -136,9 +148,11 @@ namespace IPSys
             string clientName = inputClientName.Text;
             string contactNum = inputContactNum.Text;
             List<string> employeeAssigned = selectMultipleEmployeesAssigned.SelectedValue.Cast<string>().ToList();
-            int paymentStatus = Convert.ToInt32(segmentPayment.SelectIndex.ToString()) + 1;
+            int paymentStatus = segmentPayment.SelectIndex + 1;
             string notes = inputNotes.Text;
             float cost = (float)inputNumber.Value;
+
+            bool closeBookingPanel = false;
 
             try
             {
@@ -146,10 +160,10 @@ namespace IPSys
                 {
                     conn.Open();
 
-                    // 1. Check if client exists
+                    // 1. Check if client exists or insert new
                     int clientID;
                     string checkClientQuery = @"
-                SELECT Client_ID FROM Clients WHERE Client_Name = @ClientName AND Contact_Num = @ContactNum";
+                        SELECT Client_ID FROM Clients WHERE Client_Name = @ClientName AND Contact_Num = @ContactNum";
                     using (SqlCommand checkCmd = new SqlCommand(checkClientQuery, conn))
                     {
                         checkCmd.Parameters.AddWithValue("@ClientName", clientName);
@@ -159,15 +173,13 @@ namespace IPSys
                         if (result != null && result != DBNull.Value)
                         {
                             clientID = Convert.ToInt32(result);
-                            MessageBox.Show("here");
                         }
                         else
                         {
-                            // 2. Insert new client if not exists
                             string insertClientQuery = @"
-                        INSERT INTO Clients (Client_Name, Contact_Num)
-                        VALUES (@ClientName, @ContactNum);
-                        SELECT SCOPE_IDENTITY();";
+                                INSERT INTO Clients (Client_Name, Contact_Num)
+                                VALUES (@ClientName, @ContactNum);
+                                SELECT SCOPE_IDENTITY();";
                             using (SqlCommand insertClientCmd = new SqlCommand(insertClientQuery, conn))
                             {
                                 insertClientCmd.Parameters.AddWithValue("@ClientName", clientName);
@@ -177,43 +189,98 @@ namespace IPSys
                         }
                     }
 
-                    // 3. Insert into Bookings and retrieve Booking_ID
-                    string insertBookingQuery = @"
-                INSERT INTO Bookings 
-                (Event_Name, Event_ID, DateFrom, DateTo, Time, Location, Client_ID, Cost, PStatus_ID, Notes) 
-                VALUES 
-                (@EventName, 
-                    (SELECT Event_ID FROM Events WHERE Event_Type = @EventType), 
-                    @EventDateFrom,
-                    @EventDateTo,
-                    @EventTime,
-                    @Location,
-                    @ClientID, 
-                    @Cost, 
-                    @PStatus_ID, 
-                    @Notes
-                );
-                SELECT SCOPE_IDENTITY();";
-                    SqlCommand cmd = new SqlCommand(insertBookingQuery, conn);
-                    cmd.Parameters.AddWithValue("@EventName", eventName);
-                    cmd.Parameters.AddWithValue("@EventType", eventType);
-                    cmd.Parameters.AddWithValue("@EventDateFrom", eventDateFrom);
-                    cmd.Parameters.AddWithValue("@EventDateTo", eventDateTo);
-                    cmd.Parameters.AddWithValue("@EventTime", eventTime);
-                    cmd.Parameters.AddWithValue("@Location", location);
-                    cmd.Parameters.AddWithValue("@ClientID", clientID);
-                    cmd.Parameters.AddWithValue("@Cost", cost);
-                    cmd.Parameters.AddWithValue("@PStatus_ID", paymentStatus);
-                    cmd.Parameters.AddWithValue("@Notes", notes);
+                    int bookingID;
+                    if (editingBookingID.HasValue)
+                    {
+                        bookingID = editingBookingID.Value;
+                        // UPDATE existing booking
+                        string updateBookingQuery = @"
+                            UPDATE Bookings SET
+                                Event_Name = @EventName,
+                                Event_ID = (SELECT Event_ID FROM Events WHERE Event_Type = @EventType),
+                                DateFrom = @EventDateFrom,
+                                DateTo = @EventDateTo,
+                                Time = @EventTime,
+                                Location = @Location,
+                                Client_ID = @ClientID,
+                                Cost = @Cost,
+                                PStatus_ID = @PStatus_ID,
+                                Notes = @Notes
+                            WHERE Booking_ID = @BookingID;
+                        ";
+                        using (SqlCommand cmd = new SqlCommand(updateBookingQuery, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@EventName", eventName);
+                            cmd.Parameters.AddWithValue("@EventType", eventType);
+                            cmd.Parameters.AddWithValue("@EventDateFrom", eventDateFrom);
+                            cmd.Parameters.AddWithValue("@EventDateTo", eventDateTo);
+                            cmd.Parameters.AddWithValue("@EventTime", eventTime);
+                            cmd.Parameters.AddWithValue("@Location", location);
+                            cmd.Parameters.AddWithValue("@ClientID", clientID);
+                            cmd.Parameters.AddWithValue("@Cost", cost);
+                            cmd.Parameters.AddWithValue("@PStatus_ID", paymentStatus);
+                            cmd.Parameters.AddWithValue("@Notes", notes);
+                            cmd.Parameters.AddWithValue("@BookingID", editingBookingID.Value);
+                            cmd.ExecuteNonQuery();
+                        }
 
-                    int bookingID = Convert.ToInt32(cmd.ExecuteScalar());
 
-                    // Insert into Bookings_Services (for each package)
+                        // Clean up old relations
+                        using (SqlCommand cmd = new SqlCommand(
+                            "DELETE FROM Bookings_Services WHERE Booking_ID = @BookingID", conn))
+                        {
+                            cmd.Parameters.AddWithValue("@BookingID", bookingID);
+                            cmd.ExecuteNonQuery();
+                        }
+                        using (SqlCommand cmd = new SqlCommand(
+                            "DELETE FROM Bookings_Employees WHERE Booking_ID = @BookingID", conn))
+                        {
+                            cmd.Parameters.AddWithValue("@BookingID", bookingID);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                    else
+                    {
+                        // INSERT new booking
+                        string insertBookingQuery = @"
+                            INSERT INTO Bookings 
+                                (Event_Name, Event_ID, DateFrom, DateTo, Time, Location, Client_ID, Cost, PStatus_ID, Notes) 
+                            VALUES 
+                                (@EventName, 
+                                (SELECT Event_ID FROM Events WHERE Event_Type = @EventType), 
+                                @EventDateFrom,
+                                @EventDateTo,
+                                @EventTime,
+                                @Location,
+                                @ClientID, 
+                                @Cost, 
+                                @PStatus_ID, 
+                                @Notes
+                            );
+                            SELECT SCOPE_IDENTITY();";
+                        using (SqlCommand cmd = new SqlCommand(insertBookingQuery, conn))
+                        {
+                            cmd.Parameters.AddWithValue("@EventName", eventName);
+                            cmd.Parameters.AddWithValue("@EventType", eventType);
+                            cmd.Parameters.AddWithValue("@EventDateFrom", eventDateFrom);
+                            cmd.Parameters.AddWithValue("@EventDateTo", eventDateTo);
+                            cmd.Parameters.AddWithValue("@EventTime", eventTime);
+                            cmd.Parameters.AddWithValue("@Location", location);
+                            cmd.Parameters.AddWithValue("@ClientID", clientID);
+                            cmd.Parameters.AddWithValue("@Cost", cost);
+                            cmd.Parameters.AddWithValue("@PStatus_ID", paymentStatus);
+                            cmd.Parameters.AddWithValue("@Notes", notes);
+
+                            bookingID = Convert.ToInt32(cmd.ExecuteScalar());
+                        }
+                    }
+
+                    // Insert Bookings_Services for each package
                     foreach (var packageType in packageInclusions)
                     {
                         string insertService = @"
-                    INSERT INTO Bookings_Services (Booking_ID, Package_ID)
-                    SELECT @BookingID, Package_ID FROM Packages WHERE Package_Type = @PackageType";
+                            INSERT INTO Bookings_Services (Booking_ID, Package_ID)
+                            SELECT @BookingID, Package_ID FROM Packages WHERE Package_Type = @PackageType";
                         using (SqlCommand cmdService = new SqlCommand(insertService, conn))
                         {
                             cmdService.Parameters.AddWithValue("@BookingID", bookingID);
@@ -222,27 +289,28 @@ namespace IPSys
                         }
                     }
 
-                    // Insert into Bookings_Employees (for each employee)
+                    // Insert Bookings_Employees for each assigned employee
                     foreach (var employeeName in employeeAssigned)
                     {
                         string insertEmployee = @"
-                    INSERT INTO Bookings_Employees (Booking_ID, Employee_ID)
-                    SELECT @BookingID, Employee_ID FROM Employees WHERE Employee_Name = @EmployeeName";
-                        using (SqlCommand cmdEmp = new SqlCommand(insertEmployee, conn))
+                            INSERT INTO Bookings_Employees (Booking_ID, Employee_ID)
+                            SELECT @BookingID, Employee_ID FROM Employees WHERE Employee_Name = @EmployeeName";
+                        using (SqlCommand cmdEmployee = new SqlCommand(insertEmployee, conn))
                         {
-                            cmdEmp.Parameters.AddWithValue("@BookingID", bookingID);
-                            cmdEmp.Parameters.AddWithValue("@EmployeeName", employeeName);
-                            cmdEmp.ExecuteNonQuery();
+                            cmdEmployee.Parameters.AddWithValue("@BookingID", bookingID);
+                            cmdEmployee.Parameters.AddWithValue("@EmployeeName", employeeName);
+                            cmdEmployee.ExecuteNonQuery();
                         }
                     }
 
-                    MessageBox.Show("Booking successfully added to the database.");
+                    
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred while submitting the booking: {ex.Message}");
+                MessageBox.Show("An error occurred: " + ex.Message);
             }
+
         }
 
         private void ApplyRoundedCorners(int cornerRadius)
@@ -265,24 +333,21 @@ namespace IPSys
             // Apply the GraphicsPath to the form's Region
             this.Region = new Region(path);
         }
-
         private void bookingsInput_TextChanged(object sender, EventArgs e)
         {
             CreateButtonStatus();
         }
-
         private void bookingsInputSelectMultiple_SelectedValueChanged(object sender, AntdUI.ObjectsEventArgs e)
         {
             CreateButtonStatus();
         }
-
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
         }
-
         private void createBookingBtn_Click(object sender, EventArgs e)
         {
+           
             Boolean closeBookingPanel = false;
 
             AntdUI.Modal.open(new AntdUI.Modal.Config(this, "Confirmation", "Kindly check your booking details. If all the information is correct, please confirm to proceed.")
@@ -298,10 +363,12 @@ namespace IPSys
                 {
                     Thread.Sleep(2000);
 
+                    SubmitBookingToDB();
                     AntdUI.Notification.success(bookingsPage, "Booking Created", "Your booking has been successfully created! Check your booking details below or go to your dashboard for more info.", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
 
                     // Close the booking panel dialog
                     closeBookingPanel = true;
+                    
 
                     return true;
                 },
@@ -417,98 +484,103 @@ namespace IPSys
 
         public void SetDataToEdit(int bookingID)
         {
+            editingBookingID = bookingID;
 
-            string query = @"
-    SELECT 
-        b.Event_Name,
-        e.Event_Type,
-        b.DateFrom,
-        b.DateTo,
-        b.Time,
-        b.Location,
-        c.Client_Name,
-        c.Contact_Num,
-        b.PStatus_ID,
-        b.Notes,
-        b.Cost
-    FROM Bookings b
-    INNER JOIN Clients c ON b.Client_ID = c.Client_ID
-    INNER JOIN Events e ON b.Event_ID = e.Event_ID
-    WHERE b.Booking_id = @BookingID;
-    ";
-
-            string packagesQuery = @"
-    SELECT p.Package_Type
-    FROM Bookings_Services bs
-    INNER JOIN Packages p ON bs.Package_ID = p.Package_ID
-    WHERE bs.Booking_id = @BookingID;
-    ";
-
-            string employeesQuery = @"
-    SELECT e.Employee_Name
-    FROM Bookings_Employees be
-    INNER JOIN Employees e ON be.Employee_ID = e.Employee_ID
-    WHERE be.Booking_id = @BookingID;
-    ";
-
-            using (SqlConnection conn = new SqlConnection(MainPage.ConnectionString()))
+            using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
 
-                // Retrieve main booking details
+                // Fetch booking details
+                string query = @"
+                    SELECT 
+                        b.Event_Name,
+                        e.Event_Type,
+                        b.DateFrom,
+                        b.DateTo,
+                        b.Time,
+                        b.Location,
+                        c.Client_Name,
+                        c.Contact_Num,
+                        b.PStatus_ID,
+                        b.Notes,
+                        b.Cost
+                    FROM Bookings b
+                    INNER JOIN Clients c ON b.Client_ID = c.Client_ID
+                    INNER JOIN Events e ON b.Event_ID = e.Event_ID
+                    WHERE b.Booking_id = @BookingID;
+                ";
+
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@BookingID", bookingID);
-
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
                         {
-                            inputEventName.Text = reader.GetString(0);
-                            selectEventType.SelectedValue = reader.GetString(1); // EventType
-                            datePickerRange.Value = new DateTime[] { reader.GetDateTime(2), reader.GetDateTime(3) };
-                            timePicker.Value = reader.GetTimeSpan(4);
-                            inputLocation.Text = reader.GetString(5);
-                            inputClientName.Text = reader.GetString(6);
-                            inputContactNum.Text = reader.GetString(7);
-                            segmentPayment.SelectIndex = reader.GetInt32(8) - 1;
-                            inputNotes.Text = reader.IsDBNull(9) ? "" : reader.GetString(9);
-                            inputNumber.Value = Convert.ToDecimal(reader.GetDouble(10)); // Assuming Cost is decimal in db and control
+                            inputEventName.Text = reader["Event_Name"].ToString();
+                            selectEventType.SelectedValue = reader["Event_Type"].ToString();
+                            datePickerRange.Value = new DateTime[] {
+                                Convert.ToDateTime(reader["DateFrom"]),
+                                Convert.ToDateTime(reader["DateTo"])
+                            };
+                            timePicker.Value = (TimeSpan)reader["Time"];
+                            inputLocation.Text = reader["Location"].ToString();
+                            inputClientName.Text = reader["Client_Name"].ToString();
+                            inputContactNum.Text = reader["Contact_Num"].ToString();
+                            segmentPayment.SelectIndex = Convert.ToInt32(reader["PStatus_ID"]) - 1;
+                            inputNotes.Text = reader["Notes"].ToString();
+                            inputNumber.Value = Convert.ToDecimal(reader["Cost"]);
                         }
                     }
                 }
 
-                // Retrieve multi-select packages
+                // Fetch package inclusions
+                string packagesQuery = @"
+                    SELECT p.Package_Type
+                    FROM Bookings_Services bs
+                    INNER JOIN Packages p ON bs.Package_ID = p.Package_ID
+                    WHERE bs.Booking_id = @BookingID;
+                ";
                 using (SqlCommand cmd = new SqlCommand(packagesQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@BookingID", bookingID);
+                    var packageList = new List<string>();
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        var packageList = new List<string>();
                         while (reader.Read())
                         {
-                            packageList.Add(reader.GetString(0));
+                            packageList.Add(reader["Package_Type"].ToString());
                         }
-                        selectMultiplePackageInclusion.SelectedValue = packageList.ToArray();
                     }
+                    // Select items in the packages multi-select
+                    selectMultiplePackageInclusion.SelectedValue = packageList.ToArray();
                 }
 
-                // Retrieve multi-select employees
+                // Fetch employees assigned
+                string employeesQuery = @"
+                    SELECT e.Employee_Name
+                    FROM Bookings_Employees be
+                    INNER JOIN Employees e ON be.Employee_ID = e.Employee_ID
+                    WHERE be.Booking_id = @BookingID;
+                ";
                 using (SqlCommand cmd = new SqlCommand(employeesQuery, conn))
                 {
                     cmd.Parameters.AddWithValue("@BookingID", bookingID);
+                    var empList = new List<string>();
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        var employeeList = new List<string>();
                         while (reader.Read())
                         {
-                            employeeList.Add(reader.GetString(0));
+                            empList.Add(reader["Employee_Name"].ToString());
                         }
-                        selectMultipleEmployeesAssigned.SelectedValue = employeeList.ToArray();
-
                     }
+                    selectMultipleEmployeesAssigned.SelectedValue = empList.ToArray();
                 }
             }
+
+            // Optionally update UI: change the label/title to "Edit Booking" etc.
+            createBookingLabel.Text = "Edit Booking";
+            createBookingBtn.Text = "Update";
         }
 
     }

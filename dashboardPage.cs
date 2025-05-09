@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Globalization;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using Microsoft.Data.SqlClient;
@@ -24,9 +25,68 @@ namespace IPSys
 
             // Optimize initialization
             InitializeDashboardCharts();
+            InitializeDashboardStats();
 
             // Batch data loading and UI updates
             LoadDataIntoTable(EventsTable);
+           
+        }
+
+        private void InitializeDashboardStats()
+        {
+            int bookingCount = 0;
+            int clientCount = 0;
+            int employeeCount = 0;
+            decimal earnings = 0;
+
+            string connectionString = MainPage.ConnectionString();
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    // Bookings
+                    using (SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM Bookings", conn))
+                    {
+                        bookingCount = (int)cmd.ExecuteScalar();
+                    }
+
+                    // Clients
+                    using (SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM Clients", conn))
+                    {
+                        clientCount = (int)cmd.ExecuteScalar();
+                    }
+
+                    // Employees
+                    using (SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM Employees", conn))
+                    {
+                        employeeCount = (int)cmd.ExecuteScalar();
+                    }
+
+                    // Earnings (assumes Bookings.Cost is the revenue per booking)
+                    using (SqlCommand cmd = new SqlCommand("SELECT ISNULL(SUM(Cost), 0) FROM Bookings", conn))
+                    {
+                        object result = cmd.ExecuteScalar();
+                        if (result != DBNull.Value)
+                            earnings = Convert.ToDecimal(result);
+                    }
+                }
+
+                // Assign to labels (adjust names as per your Designer)
+                totalBookingsLbl.Text = bookingCount.ToString();
+                totalClientsLbl.Text = clientCount.ToString();
+                totalStaffLbl.Text = employeeCount.ToString();
+                totalRevenueLbl.Text = earnings.ToString("C", CultureInfo.GetCultureInfo("en-PH")); // Currency format
+            }
+            catch (Exception ex)
+            {
+                totalBookingsLbl.Text = "Error";
+                totalClientsLbl.Text = "Error";
+                totalStaffLbl.Text = "Error";
+                totalRevenueLbl.Text = "Error";
+            }
         }
 
         public void InitializeDashboardCharts()
@@ -34,15 +94,53 @@ namespace IPSys
             // Suspend layout updates during chart initialization
             SuspendLayout();
 
-            EarningsChart.Series = new ISeries[]
+            int[] bookingsPerMonth = new int[12];
+
+            string connectionString = MainPage.ConnectionString();
+            string query = @"
+        SELECT 
+            MONTH(DateFrom) AS [Month], 
+            COUNT(*) AS [BookingCount]
+        FROM Bookings
+        GROUP BY MONTH(DateFrom)
+        ORDER BY [Month]";
+
+            try
             {
-                new LineSeries<int>
+                using (SqlConnection conn = new SqlConnection(connectionString))
                 {
-                    Values = new int[12] {5, 4, 12, 30, 4, 22, 6, 17, 0, 0, 0, 0}
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                int month = reader.GetInt32(0); // 1-based: Jan=1, Dec=12
+                                int count = reader.GetInt32(1);
+                                // Adjust index for 0-based array
+                                if (month >= 1 && month <= 12)
+                                    bookingsPerMonth[month - 1] = count;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Optionally handle error/log
+            }
+
+            BookingsChart.Series = new ISeries[]
+            {
+                new ColumnSeries<int>
+                {
+                    Values = bookingsPerMonth,
+                    
                 }
             };
 
-            EarningsChart.XAxes = new List<Axis>
+            BookingsChart.XAxes = new List<Axis>
             {
                 new()
                 {
@@ -50,7 +148,7 @@ namespace IPSys
                 }
             };
 
-            BookingsChart.Series = new ISeries[]
+            EarningsChart.Series = new ISeries[]
             {
                 new ColumnSeries<int>
                 {
@@ -59,7 +157,7 @@ namespace IPSys
                 }
             };
 
-            BookingsChart.XAxes = new List<Axis>
+            EarningsChart.XAxes = new List<Axis>
             {
                 new()
                 {
@@ -68,8 +166,8 @@ namespace IPSys
             };
 
             // Apply consistent background colors
-            EarningsChart.BackColor = Color.White;
             BookingsChart.BackColor = Color.White;
+            EarningsChart.BackColor = Color.White;
 
             // Resume layout updates after chart initialization
             ResumeLayout();
