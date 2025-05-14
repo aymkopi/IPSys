@@ -31,6 +31,7 @@
             label8 = new AntdUI.Label();
             panel1 = new AntdUI.Panel();
             empTable = new AntdUI.Table();
+            SearchBar = new AntdUI.Input();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -69,12 +70,24 @@
             empTable.TabIndex = 0;
             empTable.CellClick += empTable_CellClick;
             // 
+            // SearchBar
+            // 
+            SearchBar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            SearchBar.Font = new Font("Poppins", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            SearchBar.Location = new Point(684, 67);
+            SearchBar.Name = "SearchBar";
+            SearchBar.PlaceholderText = "   Search";
+            SearchBar.Size = new Size(370, 45);
+            SearchBar.TabIndex = 19;
+            SearchBar.TextChanged += SearchBar_TextChanged;
+            // 
             // EmployeesPage
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.InactiveBorder;
             ClientSize = new Size(1084, 719);
+            Controls.Add(SearchBar);
             Controls.Add(panel1);
             Controls.Add(label8);
             FormBorderStyle = FormBorderStyle.None;
@@ -89,5 +102,6 @@
         private AntdUI.Label label8;
         private AntdUI.Panel panel1;
         private AntdUI.Table empTable;
+        private AntdUI.Input SearchBar;
     }
 }

@@ -17,7 +17,8 @@ namespace IPSys
     {
         // Assume you have an AntList<EmployeeRow> and a reference to your AntdUI table control
         AntList<EmployeeRow> empList;
-        
+        AntList<EmployeeRow> filteredEmpList;
+
         string connectionString = MainPage.ConnectionString();
 
         public EmployeesPage()
@@ -29,10 +30,28 @@ namespace IPSys
 
 
         }
-       
+
+        private void SearchBar_TextChanged(object sender, EventArgs e)
+        {
+            string searchText = SearchBar.Text?.ToLower() ?? "";
+
+            // Filter employee list based on the search text
+            filteredEmpList = new AntList<EmployeeRow>(
+                empList.Where(emp =>
+                    emp.EmpName.ToLower().Contains(searchText) ||
+                    emp.EmpRole.ToLower().Contains(searchText) ||
+                    emp.EmpID.ToLower().Contains(searchText)
+                ).ToList()
+            );
+
+            // Re-bind the filtered list to the table
+            empTable.Binding(filteredEmpList);
+            empTable.Refresh();
+        }
+
         private void InitializeTableColumns()
         {
-            
+
             empTable.Columns = new ColumnCollection()
             {
                 new ColumnCheck("Selected")
@@ -52,13 +71,13 @@ namespace IPSys
                 {
                     //Width = "200",
                     Align = ColumnAlign.Center,
-                        
+
                 },
                 new Column("BookingNum", "Bookings")
                 {
                     //Width = "120",
                     Align = ColumnAlign.Center,
-                    
+
                 },
                 new ColumnSwitch("Enabled", "Active", ColumnAlign.Center)
                 {
@@ -69,8 +88,8 @@ namespace IPSys
                         return value;
                     }
                 },
-                
-                
+
+
 
             };
         }
@@ -118,7 +137,7 @@ namespace IPSys
                             BookingNum = Convert.ToInt32(reader["BookingNum"]),
                             Enabled = Convert.ToBoolean(reader["Enabled"]),
 
-                            
+
                         };
                         empList.Add(empRow);
                     }
@@ -131,6 +150,7 @@ namespace IPSys
         {
             var record = e.Record;
         }
+
     }
 
     // Define a model class for your table rows

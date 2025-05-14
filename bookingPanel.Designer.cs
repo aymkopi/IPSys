@@ -63,6 +63,8 @@
             divider1 = new AntdUI.Divider();
             inputLocation = new AntdUI.Input();
             locationLabel = new AntdUI.Label();
+            InputEmail = new AntdUI.Input();
+            label12 = new AntdUI.Label();
             SuspendLayout();
             // 
             // eventNameLabel
@@ -155,9 +157,11 @@
             // inputClientName
             // 
             inputClientName.Font = new Font("Poppins", 9.75F);
+            inputClientName.LocalizationPlaceholderText = "";
             inputClientName.Location = new Point(39, 297);
             inputClientName.Name = "inputClientName";
-            inputClientName.Size = new Size(270, 40);
+            inputClientName.PlaceholderText = "";
+            inputClientName.Size = new Size(219, 40);
             inputClientName.TabIndex = 5;
             inputClientName.TextChanged += bookingsInput_TextChanged;
             // 
@@ -174,16 +178,16 @@
             // inputContactNum
             // 
             inputContactNum.Font = new Font("Poppins", 9.75F);
-            inputContactNum.Location = new Point(318, 297);
+            inputContactNum.Location = new Point(267, 296);
             inputContactNum.Name = "inputContactNum";
-            inputContactNum.Size = new Size(202, 40);
+            inputContactNum.Size = new Size(164, 40);
             inputContactNum.TabIndex = 6;
             inputContactNum.TextChanged += bookingsInput_TextChanged;
             // 
             // label5
             // 
             label5.Font = new Font("Poppins", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label5.Location = new Point(321, 277);
+            label5.Location = new Point(270, 276);
             label5.Name = "label5";
             label5.Size = new Size(106, 23);
             label5.TabIndex = 15;
@@ -405,7 +409,7 @@
             // inputLocation
             // 
             inputLocation.Font = new Font("Poppins", 9.75F);
-            inputLocation.Location = new Point(465, 218);
+            inputLocation.Location = new Point(468, 218);
             inputLocation.Name = "inputLocation";
             inputLocation.Size = new Size(177, 40);
             inputLocation.TabIndex = 34;
@@ -420,6 +424,23 @@
             locationLabel.TabStop = false;
             locationLabel.Text = "Location";
             // 
+            // InputEmail
+            // 
+            InputEmail.Font = new Font("Poppins", 9.75F);
+            InputEmail.Location = new Point(439, 296);
+            InputEmail.Name = "InputEmail";
+            InputEmail.Size = new Size(203, 40);
+            InputEmail.TabIndex = 36;
+            // 
+            // label12
+            // 
+            label12.Font = new Font("Poppins", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label12.Location = new Point(442, 276);
+            label12.Name = "label12";
+            label12.Size = new Size(132, 23);
+            label12.TabIndex = 37;
+            label12.Text = "Email Address";
+            // 
             // bookingPanel
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -427,6 +448,8 @@
             BackColor = SystemColors.InactiveBorder;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(993, 645);
+            Controls.Add(InputEmail);
+            Controls.Add(label12);
             Controls.Add(inputLocation);
             Controls.Add(locationLabel);
             Controls.Add(divider1);
@@ -501,5 +524,7 @@
         private AntdUI.Divider divider1;
         private AntdUI.Input inputLocation;
         private AntdUI.Label locationLabel;
+        private AntdUI.Input InputEmail;
+        private AntdUI.Label label12;
     }
 }

@@ -94,6 +94,7 @@ namespace IPSys
         private void clientsBtn_Click(object sender, EventArgs e)
         {
             ToggleButton(clientsBtn);
+            LoadForm(new ClientPage());
         }
         private void earningsBtn_Click(object sender, EventArgs e)
         {
