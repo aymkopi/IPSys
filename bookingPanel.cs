@@ -17,10 +17,8 @@ namespace IPSys
     {
         public Boolean isCreateBookingBtnEnabled = false;
         private readonly Form bookingsPage;
-
         private string connectionString = MainPage.ConnectionString();
         private int? editingBookingID = null; // Track if we are editing
-
 
         public bookingPanel(Form bookingsPage)
         {
@@ -30,6 +28,9 @@ namespace IPSys
             InitializeInputItems();
         }
 
+        /// <summary>
+        /// Adds drop shadow to the form.
+        /// </summary>
         protected override CreateParams CreateParams
         {
             get
@@ -39,120 +40,74 @@ namespace IPSys
                 return cp;
             }
         }
-        public void InitializeInputItems()
-        {
-            List<string> packageNames = new List<string>();
-            List<string> eventTypes = new List<string>();
-            List<string> clientNames = new List<string>();
-            List<string> employeeNames = new List<string>();
 
+        /// <summary>
+        /// Helper method to fetch a list of strings from a single-column SQL query.
+        /// </summary>
+        private List<string> FetchListFromDB(string query, string columnName)
+        {
+            var result = new List<string>();
             try
             {
-                // Fetch package names
-                string packageQuery = "SELECT Package_Type FROM Packages";
                 using (SqlConnection conn = new SqlConnection(connectionString))
+                using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(packageQuery, conn))
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        while (reader.Read())
                         {
-                            while (reader.Read())
-                            {
-                                packageNames.Add(reader["Package_Type"].ToString());
-                            }
-                        }
-                    }
-                }
-
-                // Fetch event types
-                string eventQuery = "SELECT Event_Type FROM Events";
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(eventQuery, conn))
-                    {
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                eventTypes.Add(reader["Event_Type"].ToString());
-                            }
-                        }
-                    }
-                }
-
-                // Fetch client names
-                string clientQuery = "SELECT Client_Name FROM Clients";
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(clientQuery, conn))
-                    {
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                clientNames.Add(reader["Client_Name"].ToString());
-                            }
-                        }
-                    }
-                }
-
-                // Fetch employee names
-                string employeeQuery = "SELECT Employee_Name FROM Employees";
-                using (SqlConnection conn = new SqlConnection(connectionString))
-                {
-                    conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(employeeQuery, conn))
-                    {
-                        using (SqlDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                employeeNames.Add(reader["Employee_Name"].ToString());
-                            }
+                            result.Add(reader[columnName].ToString());
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
+                Console.WriteLine($"An error occurred fetching {columnName}: {ex.Message}");
             }
-
-            foreach (string packageName in packageNames)
-            {
-                selectMultiplePackageInclusion.Items.Add(packageName);
-            }
-            foreach (string eventType in eventTypes)
-            {
-                selectEventType.Items.Add(eventType);
-            }
-            foreach (string employeeName in employeeNames)
-            {
-                selectMultipleEmployeesAssigned.Items.Add(employeeName);
-            }
+            return result;
         }
 
+        /// <summary>
+        /// Initializes dropdowns and multi-selects with data from the database.
+        /// </summary>
+        public void InitializeInputItems()
+        {
+            // Fetch data for dropdowns
+            var packageNames = FetchListFromDB("SELECT Package_Type FROM Packages", "Package_Type");
+            var eventTypes = FetchListFromDB("SELECT Event_Type FROM Events", "Event_Type");
+            var clientNames = FetchListFromDB("SELECT Client_Name FROM Clients", "Client_Name");
+            var employeeNames = FetchListFromDB("SELECT Employee_Name FROM Employees", "Employee_Name");
+
+            // Populate UI controls
+            selectMultiplePackageInclusion.Items.AddRange(packageNames.ToArray());
+            selectEventType.Items.AddRange(eventTypes.ToArray());
+            selectMultipleEmployeesAssigned.Items.AddRange(employeeNames.ToArray());
+        }
+
+        /// <summary>
+        /// Submits the booking data to the database, handling both insert and update.
+        /// </summary>
         public void SubmitBookingToDB()
         {
-            // Gather all fields as before
-            string eventName = inputEventName.Text;
-            string eventType = selectEventType.SelectedValue?.ToString() ?? "";
-            List<string> packageInclusions = selectMultiplePackageInclusion.SelectedValue.Cast<string>().ToList();
-            DateTime eventDateFrom = datePickerRange.Value[0];
-            DateTime eventDateTo = datePickerRange.Value[1];
-            TimeSpan eventTime = timePicker.Value;
-            string location = inputLocation.Text;
-            string clientName = inputClientName.Text;
-            string contactNum = inputContactNum.Text;
-            List<string> employeeAssigned = selectMultipleEmployeesAssigned.SelectedValue.Cast<string>().ToList();
-            int paymentStatus = segmentPayment.SelectIndex + 1;
-            string notes = inputNotes.Text;
-            float cost = (float)inputNumber.Value;
-
-            bool closeBookingPanel = false;
+            var Booking = new Booking
+            {
+                EventName = inputEventName.Text,
+                EventType = selectEventType.SelectedValue?.ToString() ?? "",
+                PackageInclusions = selectMultiplePackageInclusion.SelectedValue.Cast<string>().ToList(),
+                EventDateFrom = datePickerRange.Value[0],
+                EventDateTo = datePickerRange.Value[1],
+                EventTime = timePicker.Value,
+                Location = inputLocation.Text,
+                ClientName = inputClientName.Text,
+                ContactNum = inputContactNum.Text,
+                ClientEmail = InputEmail.Text,
+                EmployeeAssigned = selectMultipleEmployeesAssigned.SelectedValue.Cast<string>().ToList(),
+                PaymentStatus = segmentPayment.SelectIndex + 1,
+                Notes = inputNotes.Text,
+                Cost = (float)inputNumber.Value
+            };
 
             try
             {
@@ -163,11 +118,12 @@ namespace IPSys
                     // 1. Check if client exists or insert new
                     int clientID;
                     string checkClientQuery = @"
-                        SELECT Client_ID FROM Clients WHERE Client_Name = @ClientName AND Contact_Num = @ContactNum";
+                        SELECT Client_ID FROM Clients WHERE Client_Name = @ClientName AND Contact_Num = @ContactNum AND Client_Email = @ClientEmail";
                     using (SqlCommand checkCmd = new SqlCommand(checkClientQuery, conn))
                     {
-                        checkCmd.Parameters.AddWithValue("@ClientName", clientName);
-                        checkCmd.Parameters.AddWithValue("@ContactNum", contactNum);
+                        checkCmd.Parameters.AddWithValue("@ClientName", Booking.ClientName);
+                        checkCmd.Parameters.AddWithValue("@ContactNum", Booking.ContactNum);
+                        checkCmd.Parameters.AddWithValue("@ClientEmail", Booking.ClientEmail);
 
                         object result = checkCmd.ExecuteScalar();
                         if (result != null && result != DBNull.Value)
@@ -177,13 +133,14 @@ namespace IPSys
                         else
                         {
                             string insertClientQuery = @"
-                                INSERT INTO Clients (Client_Name, Contact_Num)
-                                VALUES (@ClientName, @ContactNum);
+                                INSERT INTO Clients (Client_Name, Contact_Num, Client_Email)
+                                VALUES (@ClientName, @ContactNum, @ClientEmail);
                                 SELECT SCOPE_IDENTITY();";
                             using (SqlCommand insertClientCmd = new SqlCommand(insertClientQuery, conn))
                             {
-                                insertClientCmd.Parameters.AddWithValue("@ClientName", clientName);
-                                insertClientCmd.Parameters.AddWithValue("@ContactNum", contactNum);
+                                insertClientCmd.Parameters.AddWithValue("@ClientName", Booking.ClientName);
+                                insertClientCmd.Parameters.AddWithValue("@ContactNum", Booking.ContactNum);
+                                insertClientCmd.Parameters.AddWithValue("@ClientEmail", Booking.ClientEmail);
                                 clientID = Convert.ToInt32(insertClientCmd.ExecuteScalar());
                             }
                         }
@@ -192,8 +149,8 @@ namespace IPSys
                     int bookingID;
                     if (editingBookingID.HasValue)
                     {
-                        bookingID = editingBookingID.Value;
                         // UPDATE existing booking
+                        bookingID = editingBookingID.Value;
                         string updateBookingQuery = @"
                             UPDATE Bookings SET
                                 Event_Name = @EventName,
@@ -206,34 +163,30 @@ namespace IPSys
                                 Cost = @Cost,
                                 PStatus_ID = @PStatus_ID,
                                 Notes = @Notes
-                            WHERE Booking_ID = @BookingID;
-                        ";
+                            WHERE Booking_ID = @BookingID;";
                         using (SqlCommand cmd = new SqlCommand(updateBookingQuery, conn))
                         {
-                            cmd.Parameters.AddWithValue("@EventName", eventName);
-                            cmd.Parameters.AddWithValue("@EventType", eventType);
-                            cmd.Parameters.AddWithValue("@EventDateFrom", eventDateFrom);
-                            cmd.Parameters.AddWithValue("@EventDateTo", eventDateTo);
-                            cmd.Parameters.AddWithValue("@EventTime", eventTime);
-                            cmd.Parameters.AddWithValue("@Location", location);
+                            cmd.Parameters.AddWithValue("@EventName", Booking.EventName);
+                            cmd.Parameters.AddWithValue("@EventType", Booking.EventType);
+                            cmd.Parameters.AddWithValue("@EventDateFrom", Booking.EventDateFrom);
+                            cmd.Parameters.AddWithValue("@EventDateTo", Booking.EventDateTo);
+                            cmd.Parameters.AddWithValue("@EventTime", Booking.EventTime);
+                            cmd.Parameters.AddWithValue("@Location", Booking.Location);
                             cmd.Parameters.AddWithValue("@ClientID", clientID);
-                            cmd.Parameters.AddWithValue("@Cost", cost);
-                            cmd.Parameters.AddWithValue("@PStatus_ID", paymentStatus);
-                            cmd.Parameters.AddWithValue("@Notes", notes);
-                            cmd.Parameters.AddWithValue("@BookingID", editingBookingID.Value);
+                            cmd.Parameters.AddWithValue("@Cost", Booking.Cost);
+                            cmd.Parameters.AddWithValue("@PStatus_ID", Booking.PaymentStatus);
+                            cmd.Parameters.AddWithValue("@Notes", Booking.Notes);
+                            cmd.Parameters.AddWithValue("@BookingID", bookingID);
                             cmd.ExecuteNonQuery();
                         }
 
-
                         // Clean up old relations
-                        using (SqlCommand cmd = new SqlCommand(
-                            "DELETE FROM Bookings_Services WHERE Booking_ID = @BookingID", conn))
+                        using (SqlCommand cmd = new SqlCommand("DELETE FROM Bookings_Services WHERE Booking_ID = @BookingID", conn))
                         {
                             cmd.Parameters.AddWithValue("@BookingID", bookingID);
                             cmd.ExecuteNonQuery();
                         }
-                        using (SqlCommand cmd = new SqlCommand(
-                            "DELETE FROM Bookings_Employees WHERE Booking_ID = @BookingID", conn))
+                        using (SqlCommand cmd = new SqlCommand("DELETE FROM Bookings_Employees WHERE Booking_ID = @BookingID", conn))
                         {
                             cmd.Parameters.AddWithValue("@BookingID", bookingID);
                             cmd.ExecuteNonQuery();
@@ -260,23 +213,22 @@ namespace IPSys
                             SELECT SCOPE_IDENTITY();";
                         using (SqlCommand cmd = new SqlCommand(insertBookingQuery, conn))
                         {
-                            cmd.Parameters.AddWithValue("@EventName", eventName);
-                            cmd.Parameters.AddWithValue("@EventType", eventType);
-                            cmd.Parameters.AddWithValue("@EventDateFrom", eventDateFrom);
-                            cmd.Parameters.AddWithValue("@EventDateTo", eventDateTo);
-                            cmd.Parameters.AddWithValue("@EventTime", eventTime);
-                            cmd.Parameters.AddWithValue("@Location", location);
+                            cmd.Parameters.AddWithValue("@EventName", Booking.EventName);
+                            cmd.Parameters.AddWithValue("@EventType", Booking.EventType);
+                            cmd.Parameters.AddWithValue("@EventDateFrom", Booking.EventDateFrom);
+                            cmd.Parameters.AddWithValue("@EventDateTo", Booking.EventDateTo);
+                            cmd.Parameters.AddWithValue("@EventTime", Booking.EventTime);
+                            cmd.Parameters.AddWithValue("@Location", Booking.Location);
                             cmd.Parameters.AddWithValue("@ClientID", clientID);
-                            cmd.Parameters.AddWithValue("@Cost", cost);
-                            cmd.Parameters.AddWithValue("@PStatus_ID", paymentStatus);
-                            cmd.Parameters.AddWithValue("@Notes", notes);
-
+                            cmd.Parameters.AddWithValue("@Cost", Booking.Cost);
+                            cmd.Parameters.AddWithValue("@PStatus_ID", Booking.PaymentStatus);
+                            cmd.Parameters.AddWithValue("@Notes", Booking.Notes);
                             bookingID = Convert.ToInt32(cmd.ExecuteScalar());
                         }
                     }
 
                     // Insert Bookings_Services for each package
-                    foreach (var packageType in packageInclusions)
+                    foreach (var packageType in Booking.PackageInclusions)
                     {
                         string insertService = @"
                             INSERT INTO Bookings_Services (Booking_ID, Package_ID)
@@ -290,7 +242,7 @@ namespace IPSys
                     }
 
                     // Insert Bookings_Employees for each assigned employee
-                    foreach (var employeeName in employeeAssigned)
+                    foreach (var employeeName in Booking.EmployeeAssigned)
                     {
                         string insertEmployee = @"
                             INSERT INTO Bookings_Employees (Booking_ID, Employee_ID)
@@ -302,52 +254,62 @@ namespace IPSys
                             cmdEmployee.ExecuteNonQuery();
                         }
                     }
-
-                    
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show("An error occurred: " + ex.Message);
             }
-
         }
 
+        /// <summary>
+        /// Applies rounded corners to the form.
+        /// </summary>
         private void ApplyRoundedCorners(int cornerRadius)
         {
-            // Create a new GraphicsPath for rounded corners
             GraphicsPath path = new GraphicsPath();
-
-            // Define the rounded rectangle
             Rectangle bounds = new Rectangle(0, 0, this.Width, this.Height);
             int diameter = cornerRadius * 2;
 
             path.StartFigure();
-            path.AddArc(bounds.X, bounds.Y, diameter, diameter, 180, 90); // Top-left corner
-            path.AddArc(bounds.Right - diameter, bounds.Y, diameter, diameter, 270, 90); // Top-right corner
-            path.AddArc(bounds.Right - diameter, bounds.Bottom - diameter, diameter, diameter, 0,
-                90); // Bottom-right corner
-            path.AddArc(bounds.X, bounds.Bottom - diameter, diameter, diameter, 90, 90); // Bottom-left corner
+            path.AddArc(bounds.X, bounds.Y, diameter, diameter, 180, 90); // Top-left
+            path.AddArc(bounds.Right - diameter, bounds.Y, diameter, diameter, 270, 90); // Top-right
+            path.AddArc(bounds.Right - diameter, bounds.Bottom - diameter, diameter, diameter, 0, 90); // Bottom-right
+            path.AddArc(bounds.X, bounds.Bottom - diameter, diameter, diameter, 90, 90); // Bottom-left
             path.CloseFigure();
 
-            // Apply the GraphicsPath to the form's Region
             this.Region = new Region(path);
         }
+
+        /// <summary>
+        /// Handles text change in input fields to update button status.
+        /// </summary>
         private void bookingsInput_TextChanged(object sender, EventArgs e)
         {
             CreateButtonStatus();
         }
+
+        /// <summary>
+        /// Handles selection change in multi-selects to update button status.
+        /// </summary>
         private void bookingsInputSelectMultiple_SelectedValueChanged(object sender, AntdUI.ObjectsEventArgs e)
         {
             CreateButtonStatus();
         }
+
+        /// <summary>
+        /// Closes the booking panel.
+        /// </summary>
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
         }
+
+        /// <summary>
+        /// Handles booking creation confirmation and submission.
+        /// </summary>
         private void createBookingBtn_Click(object sender, EventArgs e)
         {
-           
             Boolean closeBookingPanel = false;
 
             AntdUI.Modal.open(new AntdUI.Modal.Config(this, "Confirmation", "Kindly check your booking details. If all the information is correct, please confirm to proceed.")
@@ -355,21 +317,15 @@ namespace IPSys
                 Icon = TType.Info,
                 Font = new Font("Poppins", 9, FontStyle.Regular),
                 Padding = new Size(24, 20),
-
                 CancelFont = new Font("Poppins", 9, FontStyle.Bold),
                 OkFont = new Font("Poppins", 9, FontStyle.Bold),
-
                 OnOk = config =>
                 {
                     Thread.Sleep(2000);
-
+                    
                     SubmitBookingToDB();
                     AntdUI.Notification.success(bookingsPage, "Booking Created", "Your booking has been successfully created! Check your booking details below or go to your dashboard for more info.", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
-
-                    // Close the booking panel dialog
                     closeBookingPanel = true;
-                    
-
                     return true;
                 },
             });
@@ -380,72 +336,60 @@ namespace IPSys
             }
         }
 
+        /// <summary>
+        /// Validates all input fields and updates the create booking button status.
+        /// </summary>
         private void CreateButtonStatus()
         {
-            // Initialize to true and set to false if any condition is not met
             isCreateBookingBtnEnabled = true;
 
-            // Check if the input fields are null or invalid
+            // Validate each input and update status
             if (string.IsNullOrWhiteSpace(inputEventName?.Text))
             {
                 isCreateBookingBtnEnabled = false;
                 inputEventName.Status = TType.Error;
             }
-            else
-            {
-                inputEventName.Status = TType.None;
-            }
+            else inputEventName.Status = TType.None;
+
             if (selectEventType.SelectedIndex == -1)
             {
                 isCreateBookingBtnEnabled = false;
                 selectEventType.Status = TType.Error;
             }
-            else
-            {
-                selectEventType.Status = TType.None;
-            }
+            else selectEventType.Status = TType.None;
 
             if (selectMultiplePackageInclusion.SelectedValue.Length == 0)
             {
                 isCreateBookingBtnEnabled = false;
                 selectMultiplePackageInclusion.Status = TType.Error;
             }
-            else
-            {
-                selectMultiplePackageInclusion.Status = TType.None;
-            }
+            else selectMultiplePackageInclusion.Status = TType.None;
+
             if (datePickerRange.Text == null || datePickerRange.Value == null || datePickerRange.Text == "")
             {
                 isCreateBookingBtnEnabled = false;
                 datePickerRange.Status = TType.Error;
             }
-            else
-            {
-                datePickerRange.Status = TType.None;
-            }
+            else datePickerRange.Status = TType.None;
+
             if (timePicker == null || timePicker.Value == TimeSpan.Zero)
             {
                 isCreateBookingBtnEnabled = false;
                 timePicker.Status = TType.Error;
             }
-            else
-            {
-                timePicker.Status = TType.None;
-            }
+            else timePicker.Status = TType.None;
+
             if (string.IsNullOrWhiteSpace(inputClientName?.Text))
             {
                 isCreateBookingBtnEnabled = false;
                 inputClientName.Status = TType.Error;
             }
-            else
-            {
-                inputClientName.Status = TType.None;
-            }
+            else inputClientName.Status = TType.None;
+
             if (string.IsNullOrWhiteSpace(inputContactNum?.Text) || inputContactNum.Text.Any(char.IsAsciiLetter) || inputContactNum.Text.Length != 11)
             {
                 isCreateBookingBtnEnabled = false;
                 inputContactNum.Status = TType.Error;
-
                 if (inputContactNum.Text.Any(char.IsAsciiLetter))
                 {
                     AntdUI.Tooltip.open(new AntdUI.Tooltip.Config(inputContactNum, "Please enter a valid number.")
@@ -466,22 +410,22 @@ namespace IPSys
                 isCreateBookingBtnEnabled = false;
                 selectMultipleEmployeesAssigned.Status = TType.Error;
             }
-            else
-            {
-                selectMultipleEmployeesAssigned.Status = TType.None;
-            }
+            else selectMultipleEmployeesAssigned.Status = TType.None;
 
-           // isCreateBookingBtnEnabled = true;
-
-            // Update the UI or button state if needed
             createBookingBtn.Enabled = isCreateBookingBtnEnabled;
         }
 
+        /// <summary>
+        /// Handles event type selection change to update button status.
+        /// </summary>
         private void selectEventType_SelectedIndexChanged(object sender, AntdUI.IntEventArgs e)
         {
             CreateButtonStatus();
         }
 
+        /// <summary>
+        /// Loads booking data into the form for editing.
+        /// </summary>
         public void SetDataToEdit(int bookingID)
         {
             editingBookingID = bookingID;
@@ -501,6 +445,7 @@ namespace IPSys
                         b.Location,
                         c.Client_Name,
                         c.Contact_Num,
+                        c.Client_Email,
                         b.PStatus_ID,
                         b.Notes,
                         b.Cost
@@ -527,6 +472,7 @@ namespace IPSys
                             inputLocation.Text = reader["Location"].ToString();
                             inputClientName.Text = reader["Client_Name"].ToString();
                             inputContactNum.Text = reader["Contact_Num"].ToString();
+                            InputEmail.Text = reader["Client_Email"].ToString();
                             segmentPayment.SelectIndex = Convert.ToInt32(reader["PStatus_ID"]) - 1;
                             inputNotes.Text = reader["Notes"].ToString();
                             inputNumber.Value = Convert.ToDecimal(reader["Cost"]);
@@ -552,7 +498,6 @@ namespace IPSys
                             packageList.Add(reader["Package_Type"].ToString());
                         }
                     }
-                    // Select items in the packages multi-select
                     selectMultiplePackageInclusion.SelectedValue = packageList.ToArray();
                 }
 
@@ -578,13 +523,41 @@ namespace IPSys
                 }
             }
 
-            // Optionally update UI: change the label/title to "Edit Booking" etc.
+            // Update UI for edit mode
             createBookingLabel.Text = "Edit Booking";
             createBookingBtn.Text = "Update";
         }
 
+        private void bookingPanel_Load(object sender, EventArgs e)
+        {
+            // Reserved for future use
+        }
     }
 
+    /// <summary>
+    /// Booking data model.
+    /// </summary>
+    internal class Booking
+    {
+        public string EventName { get; set; }
+        public string EventType { get; set; }
+        public List<string> PackageInclusions { get; set; }
+        public DateTime EventDateFrom { get; set; }
+        public DateTime EventDateTo { get; set; }
+        public TimeSpan EventTime { get; set; }
+        public string Location { get; set; }
+        public string ClientName { get; set; }
+        public string ContactNum { get; set; }
+        public string ClientEmail { get; set; }
+        public List<string> EmployeeAssigned { get; set; }
+        public int PaymentStatus { get; set; }
+        public string Notes { get; set; }
+        public float Cost { get; set; }
 
-    
+        public Booking()
+        {
+            PackageInclusions = new List<string>();
+            EmployeeAssigned = new List<string>();
+        }
+    }
 }

@@ -65,6 +65,7 @@
             locationLabel = new AntdUI.Label();
             InputEmail = new AntdUI.Input();
             label12 = new AntdUI.Label();
+            panel2 = new AntdUI.Panel();
             SuspendLayout();
             // 
             // eventNameLabel
@@ -441,6 +442,14 @@
             label12.TabIndex = 37;
             label12.Text = "Email Address";
             // 
+            // panel2
+            // 
+            panel2.Location = new Point(732, 285);
+            panel2.Name = "panel2";
+            panel2.Size = new Size(219, 40);
+            panel2.TabIndex = 38;
+            panel2.Text = "panel1";
+            // 
             // bookingPanel
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -448,6 +457,7 @@
             BackColor = SystemColors.InactiveBorder;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(993, 645);
+            Controls.Add(panel2);
             Controls.Add(InputEmail);
             Controls.Add(label12);
             Controls.Add(inputLocation);
@@ -488,6 +498,7 @@
             StartPosition = FormStartPosition.CenterScreen;
             Text = "bookingPanel";
             TransparencyKey = Color.FromArgb(192, 0, 192);
+            Load += bookingPanel_Load;
             ResumeLayout(false);
         }
 
@@ -526,5 +537,6 @@
         private AntdUI.Label locationLabel;
         private AntdUI.Input InputEmail;
         private AntdUI.Label label12;
+        private AntdUI.Panel panel2;
     }
 }

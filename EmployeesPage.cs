@@ -15,20 +15,18 @@ namespace IPSys
 {
     public partial class EmployeesPage : Form
     {
+
+        string connectionString = MainPage.ConnectionString();
+
         // Assume you have an AntList<EmployeeRow> and a reference to your AntdUI table control
         AntList<EmployeeRow> empList;
         AntList<EmployeeRow> filteredEmpList;
-
-        string connectionString = MainPage.ConnectionString();
 
         public EmployeesPage()
         {
             InitializeComponent();
             InitializeTableColumns();
             LoadEmployeeData();
-
-
-
         }
 
         private void SearchBar_TextChanged(object sender, EventArgs e)
@@ -44,8 +42,16 @@ namespace IPSys
                 ).ToList()
             );
 
-            // Re-bind the filtered list to the table
-            empTable.Binding(filteredEmpList);
+            if (SearchBar.Text == "")
+            {
+                empTable.Binding(empList);
+            }
+            else
+            {
+                // Re-bind the filtered list to the table
+                empTable.Binding(filteredEmpList);
+            }
+
             empTable.Refresh();
         }
 
@@ -88,9 +94,6 @@ namespace IPSys
                         return value;
                     }
                 },
-
-
-
             };
         }
         private void LoadEmployeeData()

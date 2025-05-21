@@ -17,13 +17,14 @@ namespace IPSys
     {
         private string connectionString = MainPage.ConnectionString();
 
-        AntList<ClientRow> clientList;
-        AntList<ClientRow> filteredEmpList;
+        AntList<Client> clientList;
+        AntList<Client> filteredEmpList;
 
         public ClientPage()
         {
             InitializeComponent();
             InitializeTableColumns();
+            LoadClientData();
 
         }
 
@@ -35,6 +36,7 @@ namespace IPSys
                 new ColumnCheck("Selected")
                 {
                     Fixed = true,
+                    Width = "50"
                 },
                 new Column("ClientID", "ID")
                 {
@@ -43,15 +45,33 @@ namespace IPSys
                 },
                 new Column("ClientName", "Name")
                 {
+                    Align = ColumnAlign.Center,
+                    Width = "300",
+                    Fixed = true,
+                },
+                new Column("ClientContact", "Contact Number")
+                {
+                    Align = ColumnAlign.Center,
+                    Width = "150",
+                    Fixed = true
+                },
+                new Column("ClientEmail", "Email")
+                {
+                    Align = ColumnAlign.Center,
+                    Width = "300",
+                    Fixed = true,
+                },
+                new Column("ClientAddress", "Address")
+                {
                     Align = ColumnAlign.Center
                 },
-                new Column("BookingNum", "Bookings")
+                new Column("TotalBookings", "Bookings")
                 {
                     //Width = "120",
                     Align = ColumnAlign.Center,
 
                 },
-                new ColumnSwitch("Enabled", "Active", ColumnAlign.Center)
+                new ColumnSwitch("Enabled", "Actions", ColumnAlign.Center)
                 {
                     Call= (value,record, i_row, i_col) =>{
                         // Perform time-consuming operation
@@ -60,6 +80,8 @@ namespace IPSys
                         return value;
                     }
                 },
+                new Column("BtnsCellLinks", "Links", ColumnAlign.Center)
+
 
 
 
@@ -67,26 +89,26 @@ namespace IPSys
         }
         private void LoadClientData()
         {
-            // Define your ClientRow class to match your table columns
-            clientList = new AntList<ClientRow>();
+            // Define your Client class to match your table columns
+            clientList = new AntList<Client>();
 
             string sql = @"
                 SELECT 
                     c.Client_ID AS ClientID,
                     c.Client_Name AS ClientName,
-                    c.Email AS ClientEmail,
-                    c.Phone AS ClientPhone,
-                    c.Address AS ClientAddress,
-                    c.Registration_Date AS RegistrationDate,
-                    COUNT(o.Order_ID) AS TotalOrders
+                    c.Contact_Num AS ClientContact,
+                    c.Client_Email AS ClientEmail,
+                    c.Client_Address AS ClientAddress,
+                    COUNT(b.Booking_ID) AS TotalBookings,
+                    1 AS Enabled
                 FROM 
                     Clients c
                 LEFT JOIN 
-                    Orders o ON c.Client_ID = o.Client_ID
+                    Bookings b ON c.Client_ID = b.Client_ID
                 GROUP BY 
-                    c.Client_ID, c.Client_Name, c.Email, c.Phone, c.Address, c.Registration_Date
+                    c.Client_ID, c.Client_Name, c.Contact_Num, c.Client_Email, c.Client_Address
                 ORDER BY 
-                    c.Client_Name ASC;
+                    c.Client_ID ASC;
             ";
 
             using (SqlConnection conn = new SqlConnection(connectionString))
@@ -100,28 +122,36 @@ namespace IPSys
 
                     while (reader.Read())
                     {
-                        var clientRow = new ClientRow
-                        {
-                            ClientID = reader["ClientID"].ToString(),
-                            ClientName = reader["ClientName"].ToString(),
-                           ClientPhone = reader["ClientPhone"].ToString(),
-                            ClientAddress = reader["ClientAddress"].ToString(),
-                            RegistrationDate = Convert.ToDateTime(reader["RegistrationDate"]), // Assuming it's a DateTime field
-                            TotalOrders = Convert.ToInt32(reader["TotalOrders"]),
-                        };
-                        clientList.Add(clientRow);
+                        clientList.Add(new Client
+                            {
+                                Selected = false,
+                                ClientID = reader["ClientID"].ToString(),
+                                ClientName = reader["ClientName"].ToString(),
+                                ClientContact = reader["ClientContact"].ToString(),
+                                ClientEmail = reader["ClientEmail"].ToString(),
+                                ClientAddress = reader["ClientAddress"].ToString(),
+                                TotalBookings = Convert.ToInt32(reader["TotalBookings"]),
+                                Enabled = Convert.ToBoolean(reader["Enabled"]),
+                                BtnsCellLinks = new CellLink[]{ new CellButton(Guid.NewGuid().ToString(), "Edit", TTypeMini.Default), new CellButton(Guid.NewGuid().ToString(), "Delete", TTypeMini.Primary), }
+                            }
+                        );
                     }
                 }
             }
             clientTable.Binding(clientList);
         }
 
-        public class ClientRow
+        public class Client
         {
+            public bool Selected { get; set; }
             public string ClientID { get; set; }
-
             public string ClientName { get; set; }
-            public string
+            public string ClientContact { get; set; }
+            public string ClientAddress { get; set; }
+            public string ClientEmail { get; set; }
+            public int TotalBookings { get; set; }
+            public bool Enabled { get; set; } 
+            public CellLink[] BtnsCellLinks { get; set; }
         }
     }
 }
