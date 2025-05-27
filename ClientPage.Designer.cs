@@ -67,6 +67,7 @@
             clientTable.Name = "clientTable";
             clientTable.Size = new Size(977, 524);
             clientTable.TabIndex = 0;
+            clientTable.CellButtonClick += clientTable_CellButtonClick;
             // 
             // ClientPage
             // 

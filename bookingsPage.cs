@@ -19,8 +19,8 @@ namespace IPSys
         private String connectionString = MainPage.ConnectionString();
         private DateTime dateNow = DateTime.Now.Date;
         private DateTime dateTimeNow = DateTime.Now;
-
-        // Use only the date part
+        public DateTime DateChosen;
+        
         public bookingsPage()
         {
             InitializeComponent();
@@ -29,7 +29,7 @@ namespace IPSys
 
             this.DoubleBuffered = true;
         }
-
+        
         public void GeneratePanelsForSelectedDate(DateTime selectedDate)
         {
             string query = @"
@@ -88,7 +88,7 @@ namespace IPSys
                                 if (currentDay == null || eventDate.Date != currentDay.Value.Date)
                                 {
                                     currentDay = eventDate.Date;
-                                    
+
                                     AntdUI.Label dayLabel = new AntdUI.Label
                                     {
                                         Name = $"dayLabel{panelIndex}",
@@ -202,8 +202,11 @@ namespace IPSys
                                     Type = AntdUI.TTypeMini.Error,
                                 };
 
+
+                               
                                 AntdUI.Button editEventButton = new Button()
                                 {
+
                                     Name = $"buttonEditBooking{panelIndex}",
                                     Tag = reader.GetInt32(6),
                                     Anchor = AnchorStyles.Top | AnchorStyles.Right,
@@ -215,7 +218,12 @@ namespace IPSys
                                     Size = new Size(50, 35),
                                     TabIndex = 19,
                                     Type = AntdUI.TTypeMini.Warn,
-                                };
+                                    };
+                                if (reader.GetDateTime(2) < dateNow)
+                                {
+                                    editEventButton.Enabled = false;
+
+                                }
 
                                 AntdUI.Button goToEventDetailsButton = new Button()
                                 {
@@ -340,12 +348,14 @@ namespace IPSys
         private void calendar1_DateChanged(object sender, DateTimeEventArgs e)
         {
             GeneratePanelsForSelectedDate(calendar.Value);
+            DateChosen = calendar.Value; // Update DateChosen when the date changes
         }
         private void CreateBookingButton_Click(object sender, EventArgs e)
-        {
+        { 
+            DateChosen = calendar.Value;
             // Create a new instance of the bookingPanel form
             bookingPanel bookingForm = new bookingPanel(this);
-
+           
             // Display it as a modal dialog
             bookingForm.ShowDialog();
 

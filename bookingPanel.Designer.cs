@@ -50,7 +50,7 @@
             createBookingBtn = new AntdUI.Button();
             inputNotes = new AntdUI.Input();
             label7 = new AntdUI.Label();
-            button1 = new AntdUI.Button();
+            cancelButton = new AntdUI.Button();
             timeLabel = new AntdUI.Label();
             timePicker = new AntdUI.TimePicker();
             datePickerRange = new AntdUI.DatePickerRange();
@@ -65,7 +65,6 @@
             locationLabel = new AntdUI.Label();
             InputEmail = new AntdUI.Input();
             label12 = new AntdUI.Label();
-            panel2 = new AntdUI.Panel();
             SuspendLayout();
             // 
             // eventNameLabel
@@ -247,17 +246,17 @@
             label7.TabStop = false;
             label7.Text = "Additional Notes";
             // 
-            // button1
+            // cancelButton
             // 
-            button1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            button1.BackHover = Color.Red;
-            button1.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            button1.Location = new Point(710, 578);
-            button1.Name = "button1";
-            button1.Size = new Size(120, 43);
-            button1.TabIndex = 11;
-            button1.Text = "Cancel";
-            button1.Click += button1_Click;
+            cancelButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            cancelButton.BackHover = Color.Red;
+            cancelButton.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            cancelButton.Location = new Point(710, 578);
+            cancelButton.Name = "cancelButton";
+            cancelButton.Size = new Size(120, 43);
+            cancelButton.TabIndex = 11;
+            cancelButton.Text = "Cancel";
+            cancelButton.Click += cancelButton_Click;
             // 
             // timeLabel
             // 
@@ -285,7 +284,7 @@
             datePickerRange.Font = new Font("Poppins", 9.75F);
             datePickerRange.Format = "MM-dd-yy";
             datePickerRange.Location = new Point(305, 151);
-            datePickerRange.MinDate = new DateTime(2025, 5, 2, 11, 47, 20, 641);
+            datePickerRange.MinDate = new DateTime(2025, 5, 26, 21, 43, 47, 396);
             datePickerRange.Name = "datePickerRange";
             datePickerRange.Size = new Size(220, 40);
             datePickerRange.TabIndex = 3;
@@ -418,7 +417,7 @@
             // locationLabel
             // 
             locationLabel.Font = new Font("Poppins", 11.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            locationLabel.Location = new Point(468, 198);
+            locationLabel.Location = new Point(475, 198);
             locationLabel.Name = "locationLabel";
             locationLabel.Size = new Size(106, 23);
             locationLabel.TabIndex = 35;
@@ -442,14 +441,6 @@
             label12.TabIndex = 37;
             label12.Text = "Email Address";
             // 
-            // panel2
-            // 
-            panel2.Location = new Point(732, 285);
-            panel2.Name = "panel2";
-            panel2.Size = new Size(219, 40);
-            panel2.TabIndex = 38;
-            panel2.Text = "panel1";
-            // 
             // bookingPanel
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -457,7 +448,6 @@
             BackColor = SystemColors.InactiveBorder;
             BackgroundImageLayout = ImageLayout.None;
             ClientSize = new Size(993, 645);
-            Controls.Add(panel2);
             Controls.Add(InputEmail);
             Controls.Add(label12);
             Controls.Add(inputLocation);
@@ -472,7 +462,7 @@
             Controls.Add(datePickerRange);
             Controls.Add(timeLabel);
             Controls.Add(timePicker);
-            Controls.Add(button1);
+            Controls.Add(cancelButton);
             Controls.Add(label7);
             Controls.Add(inputNotes);
             Controls.Add(createBookingBtn);
@@ -522,7 +512,7 @@
         private AntdUI.Button createBookingBtn;
         private AntdUI.Input inputNotes;
         private AntdUI.Label label7;
-        private AntdUI.Button button1;
+        private AntdUI.Button cancelButton;
         private AntdUI.Label timeLabel;
         private AntdUI.TimePicker timePicker;
         private AntdUI.DatePickerRange datePickerRange;
@@ -537,6 +527,5 @@
         private AntdUI.Label locationLabel;
         private AntdUI.Input InputEmail;
         private AntdUI.Label label12;
-        private AntdUI.Panel panel2;
     }
 }

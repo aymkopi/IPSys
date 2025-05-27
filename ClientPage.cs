@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using AntdUI;
 using Microsoft.Data.SqlClient;
 using System.Windows.Shell;
+using System.Windows.Input;
 
 namespace IPSys
 {
@@ -25,7 +26,7 @@ namespace IPSys
             InitializeComponent();
             InitializeTableColumns();
             LoadClientData();
-
+            
         }
 
         private void InitializeTableColumns()
@@ -71,22 +72,11 @@ namespace IPSys
                     Align = ColumnAlign.Center,
 
                 },
-                new ColumnSwitch("Enabled", "Actions", ColumnAlign.Center)
-                {
-                    Call= (value,record, i_row, i_col) =>{
-                        // Perform time-consuming operation
-                        Thread.Sleep(2000);
-                        AntdUI.Message.info(this, value.ToString(),autoClose:1);
-                        return value;
-                    }
-                },
-                new Column("BtnsCellLinks", "Links", ColumnAlign.Center)
-
-
-
-
+                new Column("BtnsCellLinks", "Actions", ColumnAlign.Center)
             };
         }
+
+
         private void LoadClientData()
         {
             // Define your Client class to match your table columns
@@ -98,7 +88,6 @@ namespace IPSys
                     c.Client_Name AS ClientName,
                     c.Contact_Num AS ClientContact,
                     c.Client_Email AS ClientEmail,
-                    c.Client_Address AS ClientAddress,
                     COUNT(b.Booking_ID) AS TotalBookings,
                     1 AS Enabled
                 FROM 
@@ -106,7 +95,7 @@ namespace IPSys
                 LEFT JOIN 
                     Bookings b ON c.Client_ID = b.Client_ID
                 GROUP BY 
-                    c.Client_ID, c.Client_Name, c.Contact_Num, c.Client_Email, c.Client_Address
+                    c.Client_ID, c.Client_Name, c.Contact_Num, c.Client_Email
                 ORDER BY 
                     c.Client_ID ASC;
             ";
@@ -123,17 +112,16 @@ namespace IPSys
                     while (reader.Read())
                     {
                         clientList.Add(new Client
-                            {
-                                Selected = false,
-                                ClientID = reader["ClientID"].ToString(),
-                                ClientName = reader["ClientName"].ToString(),
-                                ClientContact = reader["ClientContact"].ToString(),
-                                ClientEmail = reader["ClientEmail"].ToString(),
-                                ClientAddress = reader["ClientAddress"].ToString(),
-                                TotalBookings = Convert.ToInt32(reader["TotalBookings"]),
-                                Enabled = Convert.ToBoolean(reader["Enabled"]),
-                                BtnsCellLinks = new CellLink[]{ new CellButton(Guid.NewGuid().ToString(), "Edit", TTypeMini.Default), new CellButton(Guid.NewGuid().ToString(), "Delete", TTypeMini.Primary), }
-                            }
+                        {
+                            Selected = false,
+                            ClientID = reader["ClientID"].ToString(),
+                            ClientName = reader["ClientName"].ToString(),
+                            ClientContact = reader["ClientContact"].ToString(),
+                            ClientEmail = reader["ClientEmail"].ToString(),
+                            TotalBookings = Convert.ToInt32(reader["TotalBookings"]),
+                            Enabled = Convert.ToBoolean(reader["Enabled"]),
+                            BtnsCellLinks = new CellLink[] { new CellButton(Guid.NewGuid().ToString(), "Edit", TTypeMini.Default), new CellButton(Guid.NewGuid().ToString(), "Delete", TTypeMini.Primary), }
+                        }
                         );
                     }
                 }
@@ -141,17 +129,118 @@ namespace IPSys
             clientTable.Binding(clientList);
         }
 
-        public class Client
+        public void UpdateClientInDatabase(Client client)
         {
-            public bool Selected { get; set; }
-            public string ClientID { get; set; }
-            public string ClientName { get; set; }
-            public string ClientContact { get; set; }
-            public string ClientAddress { get; set; }
-            public string ClientEmail { get; set; }
-            public int TotalBookings { get; set; }
-            public bool Enabled { get; set; } 
-            public CellLink[] BtnsCellLinks { get; set; }
+            string sql = @"
+        UPDATE Clients
+        SET 
+            Client_Name = @ClientName,
+            Contact_Num = @ClientContact,
+            Client_Email = @ClientEmail
+        WHERE 
+            Client_ID = @ClientID;
+    ";
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = new SqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@ClientID", client.ClientID);
+                cmd.Parameters.AddWithValue("@ClientName", client.ClientName);
+                cmd.Parameters.AddWithValue("@ClientContact", client.ClientContact);
+                cmd.Parameters.AddWithValue("@ClientEmail", client.ClientEmail);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteClientInDatabase(Client clientID)
+        {
+           
+        }
+
+        private void clientTable_CellButtonClick(object sender, TableButtonEventArgs e)
+        {
+            var buttontext = e.Btn.Text;
+            if (e.Record is Client client)
+            {
+                switch (buttontext)
+                {
+                    // Does not currently support entering full-row editing, only supports editing specific cells. It is recommended to use a modal or drawer for full-row editing.
+                    case "Edit":
+                        var form = new ClientEdit(this, client) { Size = new Size(350, 300),};
+                        AntdUI.Drawer.open(new AntdUI.Drawer.Config(ActiveForm, form)
+                        {
+                            OnLoad = () =>
+                            {
+                                AntdUI.Message.info(this, "Entering edit", autoClose: 1);
+                            },
+                            OnClose = () =>
+                            {
+                                UpdateClientInDatabase(client);
+                                clientTable.Refresh();
+                                AntdUI.Message.info(this, "Edit finished", autoClose: 1);
+                               
+                            }
+                            
+                        });
+                        
+                        break;
+                    case "Delete":
+                        AntdUI.Modal.open(new AntdUI.Modal.Config(this, "Confirmation", "Are you sure you want to delete this client?")
+                        {
+                            Icon = TType.Info,
+                            Font = new Font("Poppins", 9, FontStyle.Regular),
+                            Padding = new Size(24, 20),
+                            Mask = false,
+
+                            CancelFont = new Font("Poppins", 9, FontStyle.Bold),
+                            OkFont = new Font("Poppins", 9, FontStyle.Bold),
+                            OkText = "Delete",
+                            OnOk = config =>
+                            {
+                                Thread.Sleep(2000);
+                                try
+                                {
+                                    // SQL query to drop the column
+                                    string query = $"DELETE FROM Clients WHERE ClientID = {client.ClientID}";
+
+                                    // Execute the SQL query
+                                    using (SqlConnection conn = new SqlConnection(MainPage.ConnectionString()))
+                                    {
+                                        conn.Open();
+                                        using (SqlCommand cmd = new SqlCommand(query, conn))
+                                        {
+                                            cmd.ExecuteNonQuery();
+                                            AntdUI.Notification.success(this, "Success", "Client Deleted Successfully.", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
+                                        }
+                                    }
+
+                                    clientTable.Refresh();
+                                }
+                                catch (Exception ex)
+                                {
+                                    // Handle any exceptions (e.g., column does not exist)
+                                    AntdUI.Notification.error(this, "Error", $"An error occurred while deleting the column: {ex.Message}", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
+                                }
+                                clientList.Remove(client);
+                                return true;
+                            },
+                        });
+                        
+                        
+
+                        break;
+                    //case "AntdUI":
+                    //    // Hyperlink content
+                    //    AntdUI.Message.info(window, user.CellLinks.FirstOrDefault().Id, autoClose: 1);
+                    //    break;
+                    //case "View Image":
+                    //    // Using clone can prevent the image in the table from being modified
+                    //    Preview.open(new Preview.Config(window, (Image)curUser.CellImages[0].Image.Clone()));
+                    //    break;
+                }
+            }
         }
     }
 }

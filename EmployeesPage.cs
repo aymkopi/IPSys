@@ -85,16 +85,39 @@ namespace IPSys
                     Align = ColumnAlign.Center,
 
                 },
-                new ColumnSwitch("Enabled", "Active", ColumnAlign.Center)
+                new ColumnSwitch("IsActive", "Active", ColumnAlign.Center)
                 {
                     Call= (value,record, i_row, i_col) =>{
                         // Perform time-consuming operation
                         Thread.Sleep(2000);
-                        AntdUI.Message.info(this, value.ToString(),autoClose:1);
+                        AntdUI.Notification.success(this, "Changes Saved.", "", autoClose: 5, align: TAlignFrom.TR, font: new Font("Poppins", 9, FontStyle.Regular));
+                        UpdateEmployeeStatus(value, record);
                         return value;
                     }
                 },
             };
+        }
+
+        private void UpdateEmployeeStatus(bool value, object? record)
+        {
+            string sql = @"
+                UPDATE Employees
+                SET IsActive = @IsActive
+                WHERE Employee_ID = @EmpID;";
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = new SqlCommand(sql, conn))
+            {
+                // Assuming you have a way to get the selected employee's ID
+                // For example, from the current row in the table
+                if (record is EmployeeRow emp)
+                {
+                    cmd.Parameters.AddWithValue("@IsActive", value);
+                    cmd.Parameters.AddWithValue("@EmpID", emp.EmpID);
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
         private void LoadEmployeeData()
         {
@@ -107,7 +130,7 @@ namespace IPSys
                     e.Employee_Name AS EmpName,
                     er.Role_Name AS EmpRole,
                     COUNT(be.Booking_ID) AS BookingNum,
-                    1 AS Enabled -- Replace with e.Enabled if such a column exists
+                    e.IsActive AS IsActive
                 FROM 
                     Employees e
                 INNER JOIN 
@@ -115,7 +138,7 @@ namespace IPSys
                 LEFT JOIN 
                     Bookings_Employees be ON e.Employee_ID = be.Employee_ID
                 GROUP BY 
-                    e.Employee_ID, e.Employee_Name, er.Role_Name
+                    e.Employee_ID, e.Employee_Name, er.Role_Name, e.IsActive
                 ORDER BY 
                     e.Employee_ID;
             ";
@@ -138,9 +161,7 @@ namespace IPSys
                             EmpName = reader["EmpName"].ToString(),
                             EmpRole = reader["EmpRole"].ToString(),
                             BookingNum = Convert.ToInt32(reader["BookingNum"]),
-                            Enabled = Convert.ToBoolean(reader["Enabled"]),
-
-
+                            IsActive = Convert.ToBoolean(reader["IsActive"]),
                         };
                         empList.Add(empRow);
                     }
@@ -152,6 +173,16 @@ namespace IPSys
         private void empTable_CellClick(object sender, TableClickEventArgs e)
         {
             var record = e.Record;
+            if (e.Record is EmployeeRow emp)
+            {
+                // Access all properties of the selected row
+                string info = emp.EmpID;
+                MessageBox.Show(info, "Selected Employee");
+            }
+            else
+            {
+                MessageBox.Show("No valid employee record selected.");
+            }
         }
 
     }
@@ -164,7 +195,7 @@ namespace IPSys
         public string EmpName { get; set; }
         public string EmpRole { get; set; }
         public int BookingNum { get; set; }
-        public bool Enabled { get; set; }
+        public bool IsActive { get; set; }
     }
 
 }

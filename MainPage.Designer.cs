@@ -31,6 +31,7 @@ namespace IPSys
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainPage));
             NavigationBarPanel = new AntdUI.Panel();
             reviewsBtn = new AntdUI.Button();
             employeesBtn = new AntdUI.Button();
@@ -40,6 +41,7 @@ namespace IPSys
             dashboardBtn = new AntdUI.Button();
             logoutBtn = new AntdUI.Button();
             mainPanel = new Panel();
+            pageHeader1 = new PageHeader();
             NavigationBarPanel.SuspendLayout();
             SuspendLayout();
             // 
@@ -53,10 +55,10 @@ namespace IPSys
             NavigationBarPanel.Controls.Add(bookingsBtn);
             NavigationBarPanel.Controls.Add(dashboardBtn);
             NavigationBarPanel.Controls.Add(logoutBtn);
-            NavigationBarPanel.Location = new Point(-10, -13);
+            NavigationBarPanel.Location = new Point(-10, 33);
             NavigationBarPanel.Name = "NavigationBarPanel";
             NavigationBarPanel.Shadow = 10;
-            NavigationBarPanel.Size = new Size(298, 704);
+            NavigationBarPanel.Size = new Size(298, 658);
             NavigationBarPanel.TabIndex = 2;
             NavigationBarPanel.Click += NavigationBarPanel_Click;
             // 
@@ -65,11 +67,11 @@ namespace IPSys
             reviewsBtn.Anchor = AnchorStyles.Top;
             reviewsBtn.Location = new Point(65, 474);
             reviewsBtn.Name = "reviewsBtn";
-            reviewsBtn.Shape = AntdUI.TShape.Round;
+            reviewsBtn.Shape = TShape.Round;
             reviewsBtn.Size = new Size(165, 39);
             reviewsBtn.TabIndex = 6;
             reviewsBtn.Text = "Reviews";
-            reviewsBtn.ToggleType = AntdUI.TTypeMini.Primary;
+            reviewsBtn.ToggleType = TTypeMini.Primary;
             reviewsBtn.Click += reviewsBtn_Click;
             // 
             // employeesBtn
@@ -77,11 +79,11 @@ namespace IPSys
             employeesBtn.Anchor = AnchorStyles.Top;
             employeesBtn.Location = new Point(65, 275);
             employeesBtn.Name = "employeesBtn";
-            employeesBtn.Shape = AntdUI.TShape.Round;
+            employeesBtn.Shape = TShape.Round;
             employeesBtn.Size = new Size(165, 39);
             employeesBtn.TabIndex = 5;
             employeesBtn.Text = "Employees";
-            employeesBtn.ToggleType = AntdUI.TTypeMini.Primary;
+            employeesBtn.ToggleType = TTypeMini.Primary;
             employeesBtn.Click += employeesBtn_Click;
             // 
             // earningsBtn
@@ -89,24 +91,23 @@ namespace IPSys
             earningsBtn.Anchor = AnchorStyles.Top;
             earningsBtn.Location = new Point(65, 336);
             earningsBtn.Name = "earningsBtn";
-            earningsBtn.Shape = AntdUI.TShape.Round;
+            earningsBtn.Shape = TShape.Round;
             earningsBtn.Size = new Size(165, 39);
             earningsBtn.TabIndex = 4;
             earningsBtn.Text = "Earnings";
-            earningsBtn.ToggleType = AntdUI.TTypeMini.Primary;
+            earningsBtn.ToggleType = TTypeMini.Primary;
             earningsBtn.Click += earningsBtn_Click;
-            
             // 
             // clientsBtn
             // 
             clientsBtn.Anchor = AnchorStyles.Top;
             clientsBtn.Location = new Point(65, 403);
             clientsBtn.Name = "clientsBtn";
-            clientsBtn.Shape = AntdUI.TShape.Round;
+            clientsBtn.Shape = TShape.Round;
             clientsBtn.Size = new Size(165, 39);
             clientsBtn.TabIndex = 3;
             clientsBtn.Text = "Clients";
-            clientsBtn.ToggleType = AntdUI.TTypeMini.Primary;
+            clientsBtn.ToggleType = TTypeMini.Primary;
             clientsBtn.Click += clientsBtn_Click;
             // 
             // bookingsBtn
@@ -114,7 +115,7 @@ namespace IPSys
             bookingsBtn.Anchor = AnchorStyles.Top;
             bookingsBtn.Location = new Point(65, 213);
             bookingsBtn.Name = "bookingsBtn";
-            bookingsBtn.Shape = AntdUI.TShape.Round;
+            bookingsBtn.Shape = TShape.Round;
             bookingsBtn.Size = new Size(165, 39);
             bookingsBtn.TabIndex = 2;
             bookingsBtn.Text = "Bookings";
@@ -125,12 +126,12 @@ namespace IPSys
             dashboardBtn.Anchor = AnchorStyles.Top;
             dashboardBtn.Location = new Point(65, 154);
             dashboardBtn.Name = "dashboardBtn";
-            dashboardBtn.Shape = AntdUI.TShape.Round;
+            dashboardBtn.Shape = TShape.Round;
             dashboardBtn.Size = new Size(165, 39);
             dashboardBtn.TabIndex = 1;
             dashboardBtn.Text = "Dashboard";
             dashboardBtn.Toggle = true;
-            dashboardBtn.ToggleType = AntdUI.TTypeMini.Primary;
+            dashboardBtn.ToggleType = TTypeMini.Primary;
             dashboardBtn.Click += dashboardBtn_Click;
             // 
             // logoutBtn
@@ -145,10 +146,22 @@ namespace IPSys
             // mainPanel
             // 
             mainPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            mainPanel.Location = new Point(284, -2);
+            mainPanel.Location = new Point(284, 33);
             mainPanel.Name = "mainPanel";
-            mainPanel.Size = new Size(982, 683);
+            mainPanel.Size = new Size(982, 648);
             mainPanel.TabIndex = 6;
+            // 
+            // pageHeader1
+            // 
+            pageHeader1.Dock = DockStyle.Top;
+            pageHeader1.Font = new Font("Poppins", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            pageHeader1.Location = new Point(0, 0);
+            pageHeader1.Name = "pageHeader1";
+            pageHeader1.ShowButton = true;
+            pageHeader1.ShowIcon = true;
+            pageHeader1.Size = new Size(1264, 35);
+            pageHeader1.TabIndex = 0;
+            pageHeader1.Text = "HH Production Booking and Management System";
             // 
             // MainPage
             // 
@@ -157,10 +170,14 @@ namespace IPSys
             BackColor = SystemColors.InactiveBorder;
             ClientSize = new Size(1264, 681);
             ControlBox = false;
+            Controls.Add(pageHeader1);
             Controls.Add(mainPanel);
             Controls.Add(NavigationBarPanel);
             FormBorderStyle = FormBorderStyle.None;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             IsMdiContainer = true;
+            MaximizeBox = false;
+            MinimizeBox = false;
             Name = "MainPage";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "HH Production Booking System";
@@ -179,5 +196,6 @@ namespace IPSys
         private AntdUI.Button dashboardBtn;
         private AntdUI.Button logoutBtn;
         private Panel mainPanel;
+        private PageHeader pageHeader1;
     }
 }

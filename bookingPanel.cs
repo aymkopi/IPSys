@@ -16,9 +16,10 @@ namespace IPSys
     public partial class bookingPanel : Form
     {
         public Boolean isCreateBookingBtnEnabled = false;
-        private readonly Form bookingsPage;
+        private Form bookingsPage;
         private string connectionString = MainPage.ConnectionString();
         private int? editingBookingID = null; // Track if we are editing
+        
 
         public bookingPanel(Form bookingsPage)
         {
@@ -26,11 +27,20 @@ namespace IPSys
             InitializeComponent();
             ApplyRoundedCorners(7);
             InitializeInputItems();
+    
+
+            if (bookingsPage is IPSys.bookingsPage bp)
+            {
+                // Set the date picker to the chosen date
+                if (bp.DateChosen != default)
+                {
+                    // If your date picker is a range, set both start and end to DateChosen
+                    datePickerRange.Value = new DateTime[] {bp.DateChosen, bp.DateChosen};
+                }
+            }
+
         }
 
-        /// <summary>
-        /// Adds drop shadow to the form.
-        /// </summary>
         protected override CreateParams CreateParams
         {
             get
@@ -41,9 +51,6 @@ namespace IPSys
             }
         }
 
-        /// <summary>
-        /// Helper method to fetch a list of strings from a single-column SQL query.
-        /// </summary>
         private List<string> FetchListFromDB(string query, string columnName)
         {
             var result = new List<string>();
@@ -68,27 +75,19 @@ namespace IPSys
             }
             return result;
         }
-
-        /// <summary>
-        /// Initializes dropdowns and multi-selects with data from the database.
-        /// </summary>
         public void InitializeInputItems()
         {
             // Fetch data for dropdowns
             var packageNames = FetchListFromDB("SELECT Package_Type FROM Packages", "Package_Type");
             var eventTypes = FetchListFromDB("SELECT Event_Type FROM Events", "Event_Type");
             var clientNames = FetchListFromDB("SELECT Client_Name FROM Clients", "Client_Name");
-            var employeeNames = FetchListFromDB("SELECT Employee_Name FROM Employees", "Employee_Name");
+            var employeeNames = FetchListFromDB("SELECT Employee_Name FROM Employees WHERE IsActive = 1", "Employee_Name");
 
             // Populate UI controls
             selectMultiplePackageInclusion.Items.AddRange(packageNames.ToArray());
             selectEventType.Items.AddRange(eventTypes.ToArray());
             selectMultipleEmployeesAssigned.Items.AddRange(employeeNames.ToArray());
         }
-
-        /// <summary>
-        /// Submits the booking data to the database, handling both insert and update.
-        /// </summary>
         public void SubmitBookingToDB()
         {
             var Booking = new Booking
@@ -255,7 +254,19 @@ namespace IPSys
                         }
                     }
                 }
+                if (bookingsPage is bookingsPage bp)
+                {
+                    if (bp.InvokeRequired)
+                    {
+                        bp.Invoke(new Action(() => bp.PopulateBadgesOnDates()));
+                    }
+                    else
+                    {
+                        bp.PopulateBadgesOnDates();
+                    }
+                }
             }
+
             catch (Exception ex)
             {
                 MessageBox.Show("An error occurred: " + ex.Message);
@@ -291,7 +302,7 @@ namespace IPSys
 
         /// <summary>
         /// Handles selection change in multi-selects to update button status.
-        /// </summary>
+        /// </summary>s
         private void bookingsInputSelectMultiple_SelectedValueChanged(object sender, AntdUI.ObjectsEventArgs e)
         {
             CreateButtonStatus();
@@ -300,7 +311,7 @@ namespace IPSys
         /// <summary>
         /// Closes the booking panel.
         /// </summary>
-        private void button1_Click(object sender, EventArgs e)
+        private void cancelButton_Click(object sender, EventArgs e)
         {
             this.Close();
         }
@@ -321,8 +332,8 @@ namespace IPSys
                 OkFont = new Font("Poppins", 9, FontStyle.Bold),
                 OnOk = config =>
                 {
-                    Thread.Sleep(2000);
                     
+                    Thread.Sleep(2000);
                     SubmitBookingToDB();
                     AntdUI.Notification.success(bookingsPage, "Booking Created", "Your booking has been successfully created! Check your booking details below or go to your dashboard for more info.", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
                     closeBookingPanel = true;
@@ -386,18 +397,16 @@ namespace IPSys
             }
             else inputClientName.Status = TType.None;
 
-            if (string.IsNullOrWhiteSpace(inputContactNum?.Text) || inputContactNum.Text.Any(char.IsAsciiLetter) || inputContactNum.Text.Length != 11)
+            if (string.IsNullOrWhiteSpace(inputContactNum?.Text) || inputContactNum.Text.Any(char.IsAsciiLetter) || inputContactNum.Text.Length != 11 || !inputContactNum.Text.StartsWith("09"))
             {
                 isCreateBookingBtnEnabled = false;
                 inputContactNum.Status = TType.Error;
-                if (inputContactNum.Text.Any(char.IsAsciiLetter))
+
+                AntdUI.Tooltip.open(new AntdUI.Tooltip.Config(inputContactNum, "Please enter a valid number.")
                 {
-                    AntdUI.Tooltip.open(new AntdUI.Tooltip.Config(inputContactNum, "Please enter a valid number.")
-                    {
-                        Font = new Font("Poppins", 9F, FontStyle.Regular, GraphicsUnit.Point, 0),
-                        ArrowAlign = TAlign.Right,
-                    });
-                }
+                    Font = new Font("Poppins", 9F, FontStyle.Regular, GraphicsUnit.Point, 0),
+                    ArrowAlign = TAlign.BL,
+                });
             }
             else
             {
