@@ -33,7 +33,7 @@ namespace IPSys
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainPage));
             NavigationBarPanel = new AntdUI.Panel();
-            reviewsBtn = new AntdUI.Button();
+            projectsBtn = new AntdUI.Button();
             employeesBtn = new AntdUI.Button();
             servicesBtn = new AntdUI.Button();
             clientsBtn = new AntdUI.Button();
@@ -48,7 +48,7 @@ namespace IPSys
             // NavigationBarPanel
             // 
             NavigationBarPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            NavigationBarPanel.Controls.Add(reviewsBtn);
+            NavigationBarPanel.Controls.Add(projectsBtn);
             NavigationBarPanel.Controls.Add(employeesBtn);
             NavigationBarPanel.Controls.Add(servicesBtn);
             NavigationBarPanel.Controls.Add(clientsBtn);
@@ -62,17 +62,17 @@ namespace IPSys
             NavigationBarPanel.TabIndex = 2;
             NavigationBarPanel.Click += NavigationBarPanel_Click;
             // 
-            // reviewsBtn
+            // projectsBtn
             // 
-            reviewsBtn.Anchor = AnchorStyles.Top;
-            reviewsBtn.Location = new Point(65, 465);
-            reviewsBtn.Name = "reviewsBtn";
-            reviewsBtn.Shape = TShape.Round;
-            reviewsBtn.Size = new Size(165, 39);
-            reviewsBtn.TabIndex = 6;
-            reviewsBtn.Text = "Reviews";
-            reviewsBtn.ToggleType = TTypeMini.Primary;
-            reviewsBtn.Click += reviewsBtn_Click;
+            projectsBtn.Anchor = AnchorStyles.Top;
+            projectsBtn.Location = new Point(65, 465);
+            projectsBtn.Name = "projectsBtn";
+            projectsBtn.Shape = TShape.Round;
+            projectsBtn.Size = new Size(165, 39);
+            projectsBtn.TabIndex = 6;
+            projectsBtn.Text = "Projects";
+            projectsBtn.ToggleType = TTypeMini.Primary;
+            projectsBtn.Click += reviewsBtn_Click;
             // 
             // employeesBtn
             // 
@@ -188,7 +188,7 @@ namespace IPSys
 
         #endregion
         private AntdUI.Panel NavigationBarPanel;
-        private AntdUI.Button reviewsBtn;
+        private AntdUI.Button projectsBtn;
         private AntdUI.Button employeesBtn;
         private AntdUI.Button servicesBtn;
         private AntdUI.Button clientsBtn;

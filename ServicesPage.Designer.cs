@@ -29,11 +29,16 @@
         private void InitializeComponent()
         {
             lblServices = new AntdUI.Label();
-            flowPanel = new AntdUI.FlowPanel();
+            servicesFlowPanel = new AntdUI.FlowPanel();
             panel1 = new AntdUI.Panel();
             lblService = new AntdUI.Label();
-            flowPanel.SuspendLayout();
+            eventsFlowPanel = new AntdUI.FlowPanel();
+            panel2 = new AntdUI.Panel();
+            label1 = new AntdUI.Label();
+            servicesFlowPanel.SuspendLayout();
             panel1.SuspendLayout();
+            eventsFlowPanel.SuspendLayout();
+            panel2.SuspendLayout();
             SuspendLayout();
             // 
             // lblServices
@@ -46,15 +51,18 @@
             lblServices.TabIndex = 17;
             lblServices.Text = "Services";
             // 
-            // flowPanel
+            // servicesFlowPanel
             // 
-            flowPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            flowPanel.Controls.Add(panel1);
-            flowPanel.Location = new Point(57, 137);
-            flowPanel.Name = "flowPanel";
-            flowPanel.Size = new Size(978, 194);
-            flowPanel.TabIndex = 18;
-            flowPanel.Text = "flowPanel1";
+            servicesFlowPanel.Align = AntdUI.TAlignFlow.Left;
+            servicesFlowPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            servicesFlowPanel.AutoScroll = true;
+            servicesFlowPanel.BackColor = SystemColors.ControlDarkDark;
+            servicesFlowPanel.Controls.Add(panel1);
+            servicesFlowPanel.Location = new Point(57, 137);
+            servicesFlowPanel.Name = "servicesFlowPanel";
+            servicesFlowPanel.Size = new Size(978, 194);
+            servicesFlowPanel.TabIndex = 18;
+            servicesFlowPanel.Text = "flowPanel1";
             // 
             // panel1
             // 
@@ -76,27 +84,66 @@
             lblService.TabIndex = 0;
             lblService.Text = "lblService";
             // 
+            // eventsFlowPanel
+            // 
+            eventsFlowPanel.Align = AntdUI.TAlignFlow.Left;
+            eventsFlowPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            eventsFlowPanel.AutoScroll = true;
+            eventsFlowPanel.BackColor = SystemColors.GradientActiveCaption;
+            eventsFlowPanel.Controls.Add(panel2);
+            eventsFlowPanel.Location = new Point(57, 349);
+            eventsFlowPanel.Name = "eventsFlowPanel";
+            eventsFlowPanel.Size = new Size(978, 213);
+            eventsFlowPanel.TabIndex = 19;
+            eventsFlowPanel.Text = "flowPanel1";
+            // 
+            // panel2
+            // 
+            panel2.Controls.Add(label1);
+            panel2.Location = new Point(3, 3);
+            panel2.Name = "panel2";
+            panel2.Shadow = 5;
+            panel2.Size = new Size(348, 142);
+            panel2.TabIndex = 0;
+            panel2.Text = "panel2";
+            // 
+            // label1
+            // 
+            label1.BackColor = Color.Transparent;
+            label1.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label1.Location = new Point(44, 21);
+            label1.Name = "label1";
+            label1.Size = new Size(75, 23);
+            label1.TabIndex = 0;
+            label1.Text = "label1";
+            // 
             // ServicesPage
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.InactiveBorder;
             ClientSize = new Size(1094, 712);
-            Controls.Add(flowPanel);
+            Controls.Add(eventsFlowPanel);
+            Controls.Add(servicesFlowPanel);
             Controls.Add(lblServices);
             FormBorderStyle = FormBorderStyle.None;
             Name = "ServicesPage";
             Text = "ServicesPage";
-            flowPanel.ResumeLayout(false);
+            servicesFlowPanel.ResumeLayout(false);
             panel1.ResumeLayout(false);
+            eventsFlowPanel.ResumeLayout(false);
+            panel2.ResumeLayout(false);
             ResumeLayout(false);
         }
 
         #endregion
 
         private AntdUI.Label lblServices;
-        private AntdUI.FlowPanel flowPanel;
+        private AntdUI.FlowPanel servicesFlowPanel;
         private AntdUI.Panel panel1;
         private AntdUI.Label lblService;
+        private AntdUI.FlowPanel eventsFlowPanel;
+        private AntdUI.Panel panel2;
+        private AntdUI.Label label1;
     }
 }

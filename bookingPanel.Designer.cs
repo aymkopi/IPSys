@@ -57,7 +57,7 @@
             label8 = new AntdUI.Label();
             inputNumber = new AntdUI.InputNumber();
             label9 = new AntdUI.Label();
-            label10 = new AntdUI.Label();
+            reccomendedRate = new AntdUI.Label();
             label11 = new AntdUI.Label();
             segmentPayment = new AntdUI.Segmented();
             divider1 = new AntdUI.Divider();
@@ -124,6 +124,7 @@
             selectEventType.Size = new Size(152, 40);
             selectEventType.TabIndex = 2;
             selectEventType.SelectedIndexChanged += selectEventType_SelectedIndexChanged;
+            selectEventType.TextChanged += UpdateRecommendedPrice_TextChanged;
             // 
             // selectMultiplePackageInclusion
             // 
@@ -133,6 +134,7 @@
             selectMultiplePackageInclusion.Size = new Size(260, 40);
             selectMultiplePackageInclusion.TabIndex = 1;
             selectMultiplePackageInclusion.SelectedValueChanged += bookingsInputSelectMultiple_SelectedValueChanged;
+            selectMultiplePackageInclusion.SelectedValueChanged += UpdateRecommendedPrice_TextChanged;
             // 
             // label3
             // 
@@ -211,6 +213,7 @@
             selectMultipleEmployeesAssigned.Size = new Size(292, 40);
             selectMultipleEmployeesAssigned.TabIndex = 7;
             selectMultipleEmployeesAssigned.SelectedValueChanged += bookingsInputSelectMultiple_SelectedValueChanged;
+            selectMultipleEmployeesAssigned.SelectedValueChanged += UpdateRecommendedPrice_TextChanged;
             // 
             // createBookingBtn
             // 
@@ -288,7 +291,7 @@
             datePickerRange.Name = "datePickerRange";
             datePickerRange.Size = new Size(220, 40);
             datePickerRange.TabIndex = 3;
-            datePickerRange.TextChanged += bookingsInput_TextChanged;
+            datePickerRange.TextChanged += UpdateRecommendedPrice_TextChanged;
             // 
             // label8
             // 
@@ -328,17 +331,17 @@
             label9.Text = "Recommended Rate";
             label9.TextAlign = ContentAlignment.MiddleRight;
             // 
-            // label10
+            // reccomendedRate
             // 
-            label10.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            label10.Font = new Font("Poppins", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label10.ForeColor = SystemColors.ButtonShadow;
-            label10.Location = new Point(809, 473);
-            label10.Name = "label10";
-            label10.Size = new Size(137, 23);
-            label10.TabIndex = 30;
-            label10.Text = "0.00";
-            label10.TextAlign = ContentAlignment.MiddleRight;
+            reccomendedRate.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            reccomendedRate.Font = new Font("Poppins", 9.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            reccomendedRate.ForeColor = SystemColors.ButtonShadow;
+            reccomendedRate.Location = new Point(809, 473);
+            reccomendedRate.Name = "reccomendedRate";
+            reccomendedRate.Size = new Size(137, 23);
+            reccomendedRate.TabIndex = 30;
+            reccomendedRate.Text = "0.00";
+            reccomendedRate.TextAlign = ContentAlignment.MiddleRight;
             // 
             // label11
             // 
@@ -375,7 +378,7 @@
             segmentedItem2.BadgeOffsetY = 0;
             segmentedItem2.BadgeSize = 0.6F;
             segmentedItem2.BadgeSvg = null;
-            segmentedItem2.Text = "Partial";
+            segmentedItem2.Text = "Half";
             segmentedItem3.Badge = null;
             segmentedItem3.BadgeAlign = AntdUI.TAlignFrom.TR;
             segmentedItem3.BadgeBack = null;
@@ -455,7 +458,7 @@
             Controls.Add(divider1);
             Controls.Add(segmentPayment);
             Controls.Add(label11);
-            Controls.Add(label10);
+            Controls.Add(reccomendedRate);
             Controls.Add(label9);
             Controls.Add(inputNumber);
             Controls.Add(label8);
@@ -519,7 +522,7 @@
         private AntdUI.Label label8;
         private AntdUI.InputNumber inputNumber;
         private AntdUI.Label label9;
-        private AntdUI.Label label10;
+        private AntdUI.Label reccomendedRate;
         private AntdUI.Label label11;
         private AntdUI.Segmented segmentPayment;
         private AntdUI.Divider divider1;

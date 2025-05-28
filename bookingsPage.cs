@@ -33,7 +33,7 @@ namespace IPSys
         public void GeneratePanelsForSelectedDate(DateTime selectedDate)
         {
             string query = @"
-                SELECTv
+                SELECT
                     b.Event_Name,
                     c.Client_Name,
                     b.DateFrom,
@@ -381,7 +381,6 @@ namespace IPSys
 
                     OnOk = config =>
                     {
-                        Thread.Sleep(2000);
                         try
                         {
                             // SQL query to drop the column

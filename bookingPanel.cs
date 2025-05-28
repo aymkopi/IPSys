@@ -19,7 +19,6 @@ namespace IPSys
         private Form bookingsPage;
         private string connectionString = MainPage.ConnectionString();
         private int? editingBookingID = null; // Track if we are editing
-        
 
         public bookingPanel(Form bookingsPage)
         {
@@ -27,7 +26,7 @@ namespace IPSys
             InitializeComponent();
             ApplyRoundedCorners(7);
             InitializeInputItems();
-    
+
 
             if (bookingsPage is IPSys.bookingsPage bp)
             {
@@ -35,7 +34,7 @@ namespace IPSys
                 if (bp.DateChosen != default)
                 {
                     // If your date picker is a range, set both start and end to DateChosen
-                    datePickerRange.Value = new DateTime[] {bp.DateChosen, bp.DateChosen};
+                    datePickerRange.Value = new DateTime[] { bp.DateChosen, bp.DateChosen };
                 }
             }
 
@@ -73,23 +72,28 @@ namespace IPSys
             {
                 Console.WriteLine($"An error occurred fetching {columnName}: {ex.Message}");
             }
+
             return result;
         }
+
         public void InitializeInputItems()
         {
             // Fetch data for dropdowns
-            var packageNames = FetchListFromDB("SELECT Package_Type FROM Packages", "Package_Type");
-            var eventTypes = FetchListFromDB("SELECT Event_Type FROM Events", "Event_Type");
+            var packageNames = FetchListFromDB("SELECT Package_Type FROM Packages WHERE IsActive = 1", "Package_Type");
+            var eventTypes = FetchListFromDB("SELECT Event_Type FROM Events WHERE IsActive = 1", "Event_Type");
             var clientNames = FetchListFromDB("SELECT Client_Name FROM Clients", "Client_Name");
-            var employeeNames = FetchListFromDB("SELECT Employee_Name FROM Employees WHERE IsActive = 1", "Employee_Name");
+            var employeeNames =
+                FetchListFromDB("SELECT Employee_Name FROM Employees WHERE IsActive = 1", "Employee_Name");
 
             // Populate UI controls
             selectMultiplePackageInclusion.Items.AddRange(packageNames.ToArray());
             selectEventType.Items.AddRange(eventTypes.ToArray());
             selectMultipleEmployeesAssigned.Items.AddRange(employeeNames.ToArray());
         }
+
         public void SubmitBookingToDB()
         {
+
             var Booking = new Booking
             {
                 EventName = inputEventName.Text,
@@ -180,12 +184,15 @@ namespace IPSys
                         }
 
                         // Clean up old relations
-                        using (SqlCommand cmd = new SqlCommand("DELETE FROM Bookings_Services WHERE Booking_ID = @BookingID", conn))
+                        using (SqlCommand cmd =
+                               new SqlCommand("DELETE FROM Bookings_Services WHERE Booking_ID = @BookingID", conn))
                         {
                             cmd.Parameters.AddWithValue("@BookingID", bookingID);
                             cmd.ExecuteNonQuery();
                         }
-                        using (SqlCommand cmd = new SqlCommand("DELETE FROM Bookings_Employees WHERE Booking_ID = @BookingID", conn))
+
+                        using (SqlCommand cmd =
+                               new SqlCommand("DELETE FROM Bookings_Employees WHERE Booking_ID = @BookingID", conn))
                         {
                             cmd.Parameters.AddWithValue("@BookingID", bookingID);
                             cmd.ExecuteNonQuery();
@@ -254,6 +261,7 @@ namespace IPSys
                         }
                     }
                 }
+
                 if (bookingsPage is bookingsPage bp)
                 {
                     if (bp.InvokeRequired)
@@ -323,7 +331,8 @@ namespace IPSys
         {
             Boolean closeBookingPanel = false;
 
-            AntdUI.Modal.open(new AntdUI.Modal.Config(this, "Confirmation", "Kindly check your booking details. If all the information is correct, please confirm to proceed.")
+            AntdUI.Modal.open(new AntdUI.Modal.Config(this, "Confirmation",
+                "Kindly check your booking details. If all the information is correct, please confirm to proceed.")
             {
                 Icon = TType.Info,
                 Font = new Font("Poppins", 9, FontStyle.Regular),
@@ -332,10 +341,11 @@ namespace IPSys
                 OkFont = new Font("Poppins", 9, FontStyle.Bold),
                 OnOk = config =>
                 {
-                    
                     Thread.Sleep(2000);
                     SubmitBookingToDB();
-                    AntdUI.Notification.success(bookingsPage, "Booking Created", "Your booking has been successfully created! Check your booking details below or go to your dashboard for more info.", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
+                    AntdUI.Notification.success(bookingsPage, "Booking Created",
+                        "Your booking has been successfully created! Check your booking details below or go to your dashboard for more info.",
+                        autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
                     closeBookingPanel = true;
                     return true;
                 },
@@ -397,7 +407,8 @@ namespace IPSys
             }
             else inputClientName.Status = TType.None;
 
-            if (string.IsNullOrWhiteSpace(inputContactNum?.Text) || inputContactNum.Text.Any(char.IsAsciiLetter) || inputContactNum.Text.Length != 11 || !inputContactNum.Text.StartsWith("09"))
+            if (string.IsNullOrWhiteSpace(inputContactNum?.Text) || inputContactNum.Text.Any(char.IsAsciiLetter) ||
+                inputContactNum.Text.Length != 11 || !inputContactNum.Text.StartsWith("09"))
             {
                 isCreateBookingBtnEnabled = false;
                 inputContactNum.Status = TType.Error;
@@ -473,7 +484,8 @@ namespace IPSys
                         {
                             inputEventName.Text = reader["Event_Name"].ToString();
                             selectEventType.SelectedValue = reader["Event_Type"].ToString();
-                            datePickerRange.Value = new DateTime[] {
+                            datePickerRange.Value = new DateTime[]
+                            {
                                 Convert.ToDateTime(reader["DateFrom"]),
                                 Convert.ToDateTime(reader["DateTo"])
                             };
@@ -507,6 +519,7 @@ namespace IPSys
                             packageList.Add(reader["Package_Type"].ToString());
                         }
                     }
+
                     selectMultiplePackageInclusion.SelectedValue = packageList.ToArray();
                 }
 
@@ -528,6 +541,7 @@ namespace IPSys
                             empList.Add(reader["Employee_Name"].ToString());
                         }
                     }
+
                     selectMultipleEmployeesAssigned.SelectedValue = empList.ToArray();
                 }
             }
@@ -541,12 +555,134 @@ namespace IPSys
         {
             // Reserved for future use
         }
+
+        private void CalculateRecommendedCost(int days, decimal eventCost, int totalEmpRate, int totalPkgCost)
+        {
+            decimal total = days * (totalEmpRate + (totalPkgCost * eventCost));
+            reccomendedRate.Text = total.ToString();
+            inputNumber.Value = total;
+        }
+
+        private void UpdateRecommendedPrice_TextChanged(object sender, EventArgs e)
+        {
+            int days = 0;
+            decimal eventCost = 0;
+            int totalEmployeeRate = 0;
+            int totalPackageCost = 0;
+            string eventType = selectEventType.Text;
+            List<string> employeeNames = new List<string>();
+            List<string> packageInclusions = new List<string>();
+            employeeNames.Clear();
+            packageInclusions.Clear();
+
+            // Calculating days difference
+            if (datePickerRange.Value != null && datePickerRange.Value.Length >= 2 &&
+            datePickerRange.Value[1] != null && datePickerRange.Value[0] != null)
+            {
+                days = (datePickerRange.Value[1] - datePickerRange.Value[0]).Days + 1;
+            }
+
+            // Get selected package inclusions
+            if (selectMultiplePackageInclusion.SelectedValue != null)
+            {
+                foreach (var item in selectMultiplePackageInclusion.SelectedValue)
+                {
+                    packageInclusions.Add(item.ToString());
+                }
+
+                // SQL query for getting total package cost
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string sql = @"SELECT Cost FROM Packages WHERE Package_Type = @PackageType";
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        foreach (string packageType in packageInclusions)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.Parameters.AddWithValue("@PackageType", packageType);
+
+                            using (SqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                if (reader.Read())
+                                {
+                                    int cost = reader.GetInt32(reader.GetOrdinal("Cost"));
+                                    totalPackageCost += cost;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Get selected employee names
+            if (selectMultipleEmployeesAssigned.SelectedValue != null)
+            {
+                foreach (var item in selectMultipleEmployeesAssigned.SelectedValue)
+                {
+                    employeeNames.Add(item.ToString());
+                }
+
+                // SQL query for getting total employee rate
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string sql = @"SELECT er.Rate
+                           FROM Employees e
+                           JOIN EmployeeRole er ON e.E_Role_ID = er.E_Role_ID
+                           WHERE e.Employee_Name = @EmployeeName";
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        foreach (string employeeName in employeeNames)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.Parameters.AddWithValue("@EmployeeName", employeeName);
+
+                            using (SqlDataReader reader = cmd.ExecuteReader())
+                            {
+                                if (reader.Read())
+                                {
+                                    int rate = reader.GetInt32(reader.GetOrdinal("Rate"));
+                                    totalEmployeeRate += rate;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Get event cost based on eventType
+            if (!string.IsNullOrEmpty(eventType))
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string sql = @"SELECT Cost FROM Events WHERE Event_Type = @Event_Type";
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.Clear();
+                        cmd.Parameters.AddWithValue("@Event_Type", eventType);
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                              
+                                eventCost = reader.GetDecimal(reader.GetOrdinal("Cost"));
+                            }
+                        }
+                    }
+                }
+            }
+
+            CalculateRecommendedCost(days, eventCost, totalEmployeeRate, totalPackageCost);
+        }
     }
 
     /// <summary>
-    /// Booking data model.
-    /// </summary>
-    internal class Booking
+        /// Booking data model.
+        /// </summary>
+        internal class Booking
     {
         public string EventName { get; set; }
         public string EventType { get; set; }
@@ -570,3 +706,5 @@ namespace IPSys
         }
     }
 }
+
+

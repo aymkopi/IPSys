@@ -89,7 +89,6 @@ namespace IPSys
                 {
                     Call= (value,record, i_row, i_col) =>{
                         // Perform time-consuming operation
-                        Thread.Sleep(2000);
                         AntdUI.Notification.success(this, "Changes Saved.", "", autoClose: 5, align: TAlignFrom.TR, font: new Font("Poppins", 9, FontStyle.Regular));
                         UpdateEmployeeStatus(value, record);
                         return value;
@@ -97,7 +96,6 @@ namespace IPSys
                 },
             };
         }
-
         private void UpdateEmployeeStatus(bool value, object? record)
         {
             string sql = @"
