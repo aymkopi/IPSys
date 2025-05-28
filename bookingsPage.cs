@@ -33,7 +33,7 @@ namespace IPSys
         public void GeneratePanelsForSelectedDate(DateTime selectedDate)
         {
             string query = @"
-                SELECT
+                SELECTv
                     b.Event_Name,
                     c.Client_Name,
                     b.DateFrom,

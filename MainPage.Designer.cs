@@ -35,7 +35,7 @@ namespace IPSys
             NavigationBarPanel = new AntdUI.Panel();
             reviewsBtn = new AntdUI.Button();
             employeesBtn = new AntdUI.Button();
-            earningsBtn = new AntdUI.Button();
+            servicesBtn = new AntdUI.Button();
             clientsBtn = new AntdUI.Button();
             bookingsBtn = new AntdUI.Button();
             dashboardBtn = new AntdUI.Button();
@@ -50,7 +50,7 @@ namespace IPSys
             NavigationBarPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             NavigationBarPanel.Controls.Add(reviewsBtn);
             NavigationBarPanel.Controls.Add(employeesBtn);
-            NavigationBarPanel.Controls.Add(earningsBtn);
+            NavigationBarPanel.Controls.Add(servicesBtn);
             NavigationBarPanel.Controls.Add(clientsBtn);
             NavigationBarPanel.Controls.Add(bookingsBtn);
             NavigationBarPanel.Controls.Add(dashboardBtn);
@@ -65,7 +65,7 @@ namespace IPSys
             // reviewsBtn
             // 
             reviewsBtn.Anchor = AnchorStyles.Top;
-            reviewsBtn.Location = new Point(65, 474);
+            reviewsBtn.Location = new Point(65, 465);
             reviewsBtn.Name = "reviewsBtn";
             reviewsBtn.Shape = TShape.Round;
             reviewsBtn.Size = new Size(165, 39);
@@ -86,22 +86,22 @@ namespace IPSys
             employeesBtn.ToggleType = TTypeMini.Primary;
             employeesBtn.Click += employeesBtn_Click;
             // 
-            // earningsBtn
+            // servicesBtn
             // 
-            earningsBtn.Anchor = AnchorStyles.Top;
-            earningsBtn.Location = new Point(65, 336);
-            earningsBtn.Name = "earningsBtn";
-            earningsBtn.Shape = TShape.Round;
-            earningsBtn.Size = new Size(165, 39);
-            earningsBtn.TabIndex = 4;
-            earningsBtn.Text = "Earnings";
-            earningsBtn.ToggleType = TTypeMini.Primary;
-            earningsBtn.Click += earningsBtn_Click;
+            servicesBtn.Anchor = AnchorStyles.Top;
+            servicesBtn.Location = new Point(65, 401);
+            servicesBtn.Name = "servicesBtn";
+            servicesBtn.Shape = TShape.Round;
+            servicesBtn.Size = new Size(165, 39);
+            servicesBtn.TabIndex = 4;
+            servicesBtn.Text = "Services";
+            servicesBtn.ToggleType = TTypeMini.Primary;
+            servicesBtn.Click += servicesBtn_Click;
             // 
             // clientsBtn
             // 
             clientsBtn.Anchor = AnchorStyles.Top;
-            clientsBtn.Location = new Point(65, 403);
+            clientsBtn.Location = new Point(65, 336);
             clientsBtn.Name = "clientsBtn";
             clientsBtn.Shape = TShape.Round;
             clientsBtn.Size = new Size(165, 39);
@@ -190,7 +190,7 @@ namespace IPSys
         private AntdUI.Panel NavigationBarPanel;
         private AntdUI.Button reviewsBtn;
         private AntdUI.Button employeesBtn;
-        private AntdUI.Button earningsBtn;
+        private AntdUI.Button servicesBtn;
         private AntdUI.Button clientsBtn;
         private AntdUI.Button bookingsBtn;
         private AntdUI.Button dashboardBtn;

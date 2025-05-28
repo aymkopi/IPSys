@@ -154,9 +154,35 @@ namespace IPSys
             }
         }
 
-        public void DeleteClientInDatabase(Client clientID)
+        public void DeleteClientInDatabase(string ClientID)
         {
-           
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    // 2. Delete bookings
+                    string deleteBookings = "DELETE FROM Bookings WHERE Client_ID = @ClientID";
+                    using (SqlCommand cmd = new SqlCommand(deleteBookings, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@ClientID", ClientID);
+                        cmd.ExecuteNonQuery();
+                    }
+                    // 3. Delete client
+                    string deleteClient = "DELETE FROM Clients WHERE Client_ID = @ClientID";
+                    using (SqlCommand cmd = new SqlCommand(deleteClient, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@ClientID",ClientID);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                AntdUI.Notification.success(this, "Success", "Client and associated bookings deleted successfully.", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
+
+            }
+            catch (Exception ex)
+            {
+                AntdUI.Notification.error(this, "Error", $"An error occurred: {ex.Message}", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
+            }
         }
 
         private void clientTable_CellButtonClick(object sender, TableButtonEventArgs e)
@@ -187,58 +213,54 @@ namespace IPSys
                         
                         break;
                     case "Delete":
-                        AntdUI.Modal.open(new AntdUI.Modal.Config(this, "Confirmation", "Are you sure you want to delete this client?")
+                        // 1. Fetch bookings for this client
+                        List<string> bookingList = new List<string>();
+                        using (SqlConnection conn = new SqlConnection(connectionString))
                         {
-                            Icon = TType.Info,
+                            conn.Open();
+                            string sql = "SELECT Event_Name, DateFrom FROM Bookings WHERE Client_ID = @ClientID";
+                            using (SqlCommand cmd = new SqlCommand(sql, conn))
+                            {
+                                cmd.Parameters.AddWithValue("@ClientID", client.ClientID);
+                                using (SqlDataReader reader = cmd.ExecuteReader())
+                                {
+                                    while (reader.Read())
+                                    {
+                                        bookingList.Add($"Event Name: {reader["Event_Name"]}\n, Date: {reader["DateFrom"]}");
+                                    }
+                                }
+                            }
+                        }
+
+                        string bookingsMessage = bookingList.Count > 0
+                            ? "The following bookings will also be deleted:\n\n" + string.Join("\n", bookingList)
+                            : "This client has no bookings. Proceed with deletion?";
+
+                        AntdUI.Modal.open(new AntdUI.Modal.Config(this, "Delete Client", bookingsMessage)
+                        {
+                            Icon = TType.Warn,
                             Font = new Font("Poppins", 9, FontStyle.Regular),
                             Padding = new Size(24, 20),
                             Mask = false,
-
                             CancelFont = new Font("Poppins", 9, FontStyle.Bold),
                             OkFont = new Font("Poppins", 9, FontStyle.Bold),
                             OkText = "Delete",
                             OnOk = config =>
                             {
-                                Thread.Sleep(2000);
-                                try
-                                {
-                                    // SQL query to drop the column
-                                    string query = $"DELETE FROM Clients WHERE ClientID = {client.ClientID}";
-
-                                    // Execute the SQL query
-                                    using (SqlConnection conn = new SqlConnection(MainPage.ConnectionString()))
-                                    {
-                                        conn.Open();
-                                        using (SqlCommand cmd = new SqlCommand(query, conn))
-                                        {
-                                            cmd.ExecuteNonQuery();
-                                            AntdUI.Notification.success(this, "Success", "Client Deleted Successfully.", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
-                                        }
-                                    }
-
-                                    clientTable.Refresh();
-                                }
-                                catch (Exception ex)
-                                {
-                                    // Handle any exceptions (e.g., column does not exist)
-                                    AntdUI.Notification.error(this, "Error", $"An error occurred while deleting the column: {ex.Message}", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
-                                }
+                                DeleteClientInDatabase(client.ClientID);
                                 clientList.Remove(client);
                                 return true;
-                            },
-                        });
-                        
-                        
-
+                            }
+                });
                         break;
-                    //case "AntdUI":
-                    //    // Hyperlink content
-                    //    AntdUI.Message.info(window, user.CellLinks.FirstOrDefault().Id, autoClose: 1);
-                    //    break;
-                    //case "View Image":
-                    //    // Using clone can prevent the image in the table from being modified
-                    //    Preview.open(new Preview.Config(window, (Image)curUser.CellImages[0].Image.Clone()));
-                    //    break;
+                        //case "AntdUI":
+                        //    // Hyperlink content
+                        //    AntdUI.Message.info(window, user.CellLinks.FirstOrDefault().Id, autoClose: 1);
+                        //    break;
+                        //case "View Image":
+                        //    // Using clone can prevent the image in the table from being modified
+                        //    Preview.open(new Preview.Config(window, (Image)curUser.CellImages[0].Image.Clone()));
+                        //    break;
                 }
             }
         }

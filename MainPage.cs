@@ -60,7 +60,7 @@ namespace IPSys
         }
         private void ToggleButton(AntdUI.Button selectedBtn)
         {
-            var buttons = new List<AntdUI.Button> { dashboardBtn, bookingsBtn, clientsBtn, earningsBtn, employeesBtn, reviewsBtn };
+            var buttons = new List<AntdUI.Button> { dashboardBtn, bookingsBtn, clientsBtn, servicesBtn, employeesBtn, reviewsBtn };
 
             foreach (var btn in buttons)
             {
@@ -96,9 +96,10 @@ namespace IPSys
             ToggleButton(clientsBtn);
             LoadForm(new ClientPage());
         }
-        private void earningsBtn_Click(object sender, EventArgs e)
+        private void servicesBtn_Click(object sender, EventArgs e)
         {
-            ToggleButton(earningsBtn);
+            ToggleButton(servicesBtn);
+
         }
         
         private void reviewsBtn_Click(object sender, EventArgs e)
