@@ -133,7 +133,6 @@
             selectMultiplePackageInclusion.Name = "selectMultiplePackageInclusion";
             selectMultiplePackageInclusion.Size = new Size(260, 40);
             selectMultiplePackageInclusion.TabIndex = 1;
-            selectMultiplePackageInclusion.SelectedValueChanged += bookingsInputSelectMultiple_SelectedValueChanged;
             selectMultiplePackageInclusion.SelectedValueChanged += UpdateRecommendedPrice_TextChanged;
             // 
             // label3
@@ -212,7 +211,6 @@
             selectMultipleEmployeesAssigned.Name = "selectMultipleEmployeesAssigned";
             selectMultipleEmployeesAssigned.Size = new Size(292, 40);
             selectMultipleEmployeesAssigned.TabIndex = 7;
-            selectMultipleEmployeesAssigned.SelectedValueChanged += bookingsInputSelectMultiple_SelectedValueChanged;
             selectMultipleEmployeesAssigned.SelectedValueChanged += UpdateRecommendedPrice_TextChanged;
             // 
             // createBookingBtn
@@ -369,7 +367,7 @@
             segmentedItem1.BadgeOffsetY = 0;
             segmentedItem1.BadgeSize = 0.6F;
             segmentedItem1.BadgeSvg = null;
-            segmentedItem1.Text = "Unpaid";
+            segmentedItem1.Text = "Cash";
             segmentedItem2.Badge = null;
             segmentedItem2.BadgeAlign = AntdUI.TAlignFrom.TR;
             segmentedItem2.BadgeBack = null;
@@ -378,7 +376,7 @@
             segmentedItem2.BadgeOffsetY = 0;
             segmentedItem2.BadgeSize = 0.6F;
             segmentedItem2.BadgeSvg = null;
-            segmentedItem2.Text = "Half";
+            segmentedItem2.Text = "Credit/Debit";
             segmentedItem3.Badge = null;
             segmentedItem3.BadgeAlign = AntdUI.TAlignFrom.TR;
             segmentedItem3.BadgeBack = null;
@@ -387,13 +385,12 @@
             segmentedItem3.BadgeOffsetY = 0;
             segmentedItem3.BadgeSize = 0.6F;
             segmentedItem3.BadgeSvg = null;
-            segmentedItem3.Text = "Full";
+            segmentedItem3.Text = "Gcash/Maya";
             segmentPayment.Items.Add(segmentedItem1);
             segmentPayment.Items.Add(segmentedItem2);
             segmentPayment.Items.Add(segmentedItem3);
             segmentPayment.Location = new Point(353, 381);
             segmentPayment.Name = "segmentPayment";
-            segmentPayment.SelectIndex = 0;
             segmentPayment.Size = new Size(282, 32);
             segmentPayment.TabIndex = 8;
             segmentPayment.Text = "segmented1";

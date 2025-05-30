@@ -19,14 +19,14 @@ namespace IPSys
         private string connectionString = MainPage.ConnectionString();
 
         AntList<Client> clientList;
-        AntList<Client> filteredEmpList;
+        AntList<Client> filteredClientList;
 
         public ClientPage()
         {
             InitializeComponent();
             InitializeTableColumns();
             LoadClientData();
-            
+
         }
 
         private void InitializeTableColumns()
@@ -111,8 +111,7 @@ namespace IPSys
 
                     while (reader.Read())
                     {
-                        clientList.Add(new Client
-                        {
+                        var clientRow = new Client{
                             Selected = false,
                             ClientID = reader["ClientID"].ToString(),
                             ClientName = reader["ClientName"].ToString(),
@@ -121,8 +120,8 @@ namespace IPSys
                             TotalBookings = Convert.ToInt32(reader["TotalBookings"]),
                             Enabled = Convert.ToBoolean(reader["Enabled"]),
                             BtnsCellLinks = new CellLink[] { new CellButton(Guid.NewGuid().ToString(), "Edit", TTypeMini.Default), new CellButton(Guid.NewGuid().ToString(), "Delete", TTypeMini.Primary), }
-                        }
-                        );
+                        };
+                        clientList.Add(clientRow);
                     }
                 }
             }
@@ -172,7 +171,7 @@ namespace IPSys
                     string deleteClient = "DELETE FROM Clients WHERE Client_ID = @ClientID";
                     using (SqlCommand cmd = new SqlCommand(deleteClient, conn))
                     {
-                        cmd.Parameters.AddWithValue("@ClientID",ClientID);
+                        cmd.Parameters.AddWithValue("@ClientID", ClientID);
                         cmd.ExecuteNonQuery();
                     }
                 }
@@ -194,7 +193,7 @@ namespace IPSys
                 {
                     // Does not currently support entering full-row editing, only supports editing specific cells. It is recommended to use a modal or drawer for full-row editing.
                     case "Edit":
-                        var form = new ClientEdit(this, client) { Size = new Size(350, 300),};
+                        var form = new ClientEdit(this, client) { Size = new Size(350, 300), };
                         AntdUI.Drawer.open(new AntdUI.Drawer.Config(ActiveForm, form)
                         {
                             OnLoad = () =>
@@ -206,11 +205,11 @@ namespace IPSys
                                 UpdateClientInDatabase(client);
                                 clientTable.Refresh();
                                 AntdUI.Message.info(this, "Edit finished", autoClose: 1);
-                               
+
                             }
-                            
+
                         });
-                        
+
                         break;
                     case "Delete":
                         // 1. Fetch bookings for this client
@@ -251,7 +250,7 @@ namespace IPSys
                                 clientList.Remove(client);
                                 return true;
                             }
-                });
+                        });
                         break;
                         //case "AntdUI":
                         //    // Hyperlink content
@@ -263,6 +262,33 @@ namespace IPSys
                         //    break;
                 }
             }
+        }
+
+        private void SearchBar_TextChanged(object sender, EventArgs e)
+        {
+            string searchText = SearchBar.Text?.ToLower() ?? "";
+
+            // Filter client list based on the search text
+            filteredClientList = new AntList<Client>(
+                clientList.Where(cli =>
+                    cli.ClientName.ToLower().Contains(searchText) ||
+                    cli.ClientContact.ToLower().Contains(searchText) ||
+                    cli.ClientEmail.ToLower().Contains(searchText) ||
+                    cli.ClientID.ToLower().Contains(searchText)
+                ).ToList()
+            );
+
+            if (SearchBar.Text == "")
+            {
+                clientTable.Binding(clientList);
+            }
+            else
+            {
+                // Re-bind the filtered list to the table
+                clientTable.Binding(filteredClientList);
+            }
+
+            clientTable.Refresh();
         }
     }
 }

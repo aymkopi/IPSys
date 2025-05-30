@@ -82,8 +82,7 @@ namespace IPSys
             var packageNames = FetchListFromDB("SELECT Package_Type FROM Packages WHERE IsActive = 1", "Package_Type");
             var eventTypes = FetchListFromDB("SELECT Event_Type FROM Events WHERE IsActive = 1", "Event_Type");
             var clientNames = FetchListFromDB("SELECT Client_Name FROM Clients", "Client_Name");
-            var employeeNames =
-                FetchListFromDB("SELECT Employee_Name FROM Employees WHERE IsActive = 1", "Employee_Name");
+            var employeeNames = FetchListFromDB("SELECT Employee_Name FROM Employees WHERE IsActive = 1", "Employee_Name");
 
             // Populate UI controls
             selectMultiplePackageInclusion.Items.AddRange(packageNames.ToArray());
@@ -315,6 +314,8 @@ namespace IPSys
         {
             CreateButtonStatus();
         }
+
+
 
         /// <summary>
         /// Closes the booking panel.
@@ -565,6 +566,7 @@ namespace IPSys
 
         private void UpdateRecommendedPrice_TextChanged(object sender, EventArgs e)
         {
+            CreateButtonStatus();
             int days = 0;
             decimal eventCost = 0;
             int totalEmployeeRate = 0;

@@ -117,9 +117,9 @@
             label4.Font = new Font("Poppins", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label4.Location = new Point(22, 22);
             label4.Name = "label4";
-            label4.Size = new Size(176, 23);
+            label4.Size = new Size(220, 23);
             label4.TabIndex = 8;
-            label4.Text = "Client Details";
+            label4.Text = "Client Profile";
             // 
             // saveButton
             // 

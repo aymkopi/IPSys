@@ -5,27 +5,77 @@ namespace IPSys
 {
     public partial class MainPage : Form
     {
+        // Preloaded forms
+        private dashboardPage dashboardForm;
+        private bookingsPage bookingsForm;
+        private EmployeesPage employeesForm;
+        private ClientPage clientsForm;
+        private ServicesPage servicesForm;
+        private ProjectsPage projectsForm;
+        private EarningsPage earningsForm;
+
         public MainPage()
         {
             InitializeComponent();
-            LoadForm(new dashboardPage());
-            TestConnection();
 
+            // Preload all forms
+            dashboardForm = new dashboardPage();
+            bookingsForm = new bookingsPage();
+            employeesForm = new EmployeesPage();
+            clientsForm = new ClientPage();
+            servicesForm = new ServicesPage();
+            projectsForm = new ProjectsPage();
+            earningsForm = new EarningsPage();
+
+            // Set forms as non-top-level and docked
+            PreloadForm(dashboardForm);
+            PreloadForm(bookingsForm);
+            PreloadForm(employeesForm);
+            PreloadForm(clientsForm);
+            PreloadForm(servicesForm);
+            PreloadForm(projectsForm);
+            PreloadForm(earningsForm);
+
+            // Show dashboard by default
+            ShowForm(dashboardForm);
+
+            TestConnection();
             this.DoubleBuffered = true;
+        }
+
+        private void PreloadForm(Form form)
+        {
+            form.TopLevel = false;
+            form.Dock = DockStyle.Fill;
+            form.FormBorderStyle = FormBorderStyle.None;
+            form.Visible = false;
+            mainPanel.Controls.Add(form);
+        }
+
+        private void ShowForm(Form formToShow)
+        {
+            foreach (Control ctrl in mainPanel.Controls)
+            {
+                if (ctrl is Form frm)
+                {
+                    frm.Visible = (frm == formToShow);
+                }
+            }
+            mainPanel.Tag = formToShow;
         }
 
         public static void TestConnection()
         {
             SqlConnection conn = new SqlConnection(
                 @"Data Source = DESKTOP-0IG0ARM\SQLEXPRESS;
-                  Initial Catalog = owlie;
-                  Integrated Security = True;
-                  Trust Server Certificate = True"
+                      Initial Catalog = owlie;
+                      Integrated Security = True;
+                      Trust Server Certificate = True"
             );
             try
             {
                 conn.Open();
-               // MessageBox.Show("Connected!");
+                // MessageBox.Show("Connected!");
             }
             catch (Exception ex)
             {
@@ -41,71 +91,55 @@ namespace IPSys
                    "Trust Server Certificate=True";
         }
 
-        private void LoadForm(object Form)
-        {
-            if (mainPanel.Controls.Count > 0)
-                mainPanel.Controls.RemoveAt(0);
-            Form f = Form as Form;
-            f.TopLevel = false;
-            f.Dock = DockStyle.Fill;
-            mainPanel.Controls.Add(f);
-            mainPanel.Tag = f;
-            f.Show();
-            
-        }
-
         private void logoutBtn_Click(object sender, EventArgs e)
         {
             this.Close(); // When MainPage closes, Program.cs will re-show login
         }
+
         private void ToggleButton(AntdUI.Button selectedBtn)
         {
-            var buttons = new List<AntdUI.Button> { dashboardBtn, bookingsBtn, clientsBtn, servicesBtn, employeesBtn, projectsBtn };
+            var buttons = new List<AntdUI.Button> { dashboardBtn, bookingsBtn, clientsBtn, servicesBtn, employeesBtn, projectsBtn, earningsBtn };
 
             foreach (var btn in buttons)
             {
-                if (btn == selectedBtn)
-                {
-                    // Toggle ON the clicked button
-                    btn.Toggle = true;
-                }
-                else
-                {
-                    // Toggle OFF the others
-                    btn.Toggle = false;
-                }
+                btn.Toggle = (btn == selectedBtn);
             }
         }
+
         private void dashboardBtn_Click(object sender, EventArgs e)
         {
             ToggleButton(dashboardBtn);
-            LoadForm(new dashboardPage());
+            ShowForm(dashboardForm);
         }
         private void bookingsBtn_Click(object sender, EventArgs e)
         {
             ToggleButton(bookingsBtn);
-            LoadForm(new bookingsPage());
+            ShowForm(bookingsForm);
         }
         private void employeesBtn_Click(object sender, EventArgs e)
         {
             ToggleButton(employeesBtn);
-            LoadForm(new EmployeesPage());
+            ShowForm(employeesForm);
         }
         private void clientsBtn_Click(object sender, EventArgs e)
         {
             ToggleButton(clientsBtn);
-            LoadForm(new ClientPage());
+            ShowForm(clientsForm);
         }
         private void servicesBtn_Click(object sender, EventArgs e)
         {
             ToggleButton(servicesBtn);
-            LoadForm(new ServicesPage());
+            ShowForm(servicesForm);
         }
-        
-        private void reviewsBtn_Click(object sender, EventArgs e)
+        private void projectsBtn_Click(object sender, EventArgs e)
         {
             ToggleButton(projectsBtn);
-            LoadForm(new ProjectsPage());
+            ShowForm(projectsForm);
+        }
+        private void earningsBtn_Click(object sender, EventArgs e)
+        {
+            ToggleButton(earningsBtn);
+            ShowForm(earningsForm);
         }
 
         private void NavigationBarPanel_Click(object sender, EventArgs e)

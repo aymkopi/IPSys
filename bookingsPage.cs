@@ -20,7 +20,7 @@ namespace IPSys
         private DateTime dateNow = DateTime.Now.Date;
         private DateTime dateTimeNow = DateTime.Now;
         public DateTime DateChosen;
-        
+
         public bookingsPage()
         {
             InitializeComponent();
@@ -361,6 +361,9 @@ namespace IPSys
 
             // Refresh the panels after closing the booking form
             PopulateBadgesOnDates();
+
+            EarningsPage ep = new EarningsPage();
+            ep.UpdateEarningsData(); // Update earnings data after creating a booking
         }
         private void DeleteEventButton_Click(object sender, EventArgs e)
         {

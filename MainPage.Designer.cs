@@ -42,12 +42,14 @@ namespace IPSys
             logoutBtn = new AntdUI.Button();
             mainPanel = new Panel();
             pageHeader1 = new PageHeader();
+            earningsBtn = new AntdUI.Button();
             NavigationBarPanel.SuspendLayout();
             SuspendLayout();
             // 
             // NavigationBarPanel
             // 
             NavigationBarPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            NavigationBarPanel.Controls.Add(earningsBtn);
             NavigationBarPanel.Controls.Add(projectsBtn);
             NavigationBarPanel.Controls.Add(employeesBtn);
             NavigationBarPanel.Controls.Add(servicesBtn);
@@ -72,7 +74,7 @@ namespace IPSys
             projectsBtn.TabIndex = 6;
             projectsBtn.Text = "Projects";
             projectsBtn.ToggleType = TTypeMini.Primary;
-            projectsBtn.Click += reviewsBtn_Click;
+            projectsBtn.Click += projectsBtn_Click;
             // 
             // employeesBtn
             // 
@@ -163,6 +165,18 @@ namespace IPSys
             pageHeader1.TabIndex = 0;
             pageHeader1.Text = "HH Production Booking and Management System";
             // 
+            // earningsBtn
+            // 
+            earningsBtn.Anchor = AnchorStyles.Top;
+            earningsBtn.Location = new Point(65, 533);
+            earningsBtn.Name = "earningsBtn";
+            earningsBtn.Shape = TShape.Round;
+            earningsBtn.Size = new Size(165, 39);
+            earningsBtn.TabIndex = 7;
+            earningsBtn.Text = "Earnings";
+            earningsBtn.ToggleType = TTypeMini.Primary;
+            earningsBtn.Click += earningsBtn_Click;
+            // 
             // MainPage
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -197,5 +211,6 @@ namespace IPSys
         private AntdUI.Button logoutBtn;
         private Panel mainPanel;
         private PageHeader pageHeader1;
+        private AntdUI.Button earningsBtn;
     }
 }
