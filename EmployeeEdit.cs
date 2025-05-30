@@ -23,11 +23,11 @@ namespace IPSys
         string connectionString = MainPage.ConnectionString();
 
         List<string> roleNames = new List<string>();
+
         public EmployeeEdit()
         {
             InitializeComponent();
             InitEmpRoleContents();
-            flowPanel.Visible = false;
             inputEmpID.Text = "Auto-Generated"; // Placeholder for new employee
             inputEmpID.Enabled = false;
             isAdd = true;
@@ -60,21 +60,26 @@ namespace IPSys
             inputEmpRole.Items.AddRange(roleNames.ToArray());
 
         }
-
-        public EmployeeEdit(Form form, Employee employee)
+        
+        public EmployeeEdit(Form form, Employee employee, TableButtonEventArgs e)
         {
             this.form = form;
             this.employee = employee;
+
             InitializeComponent();
 
-            editBtn.Visible = true;
-            deleteBtn.Visible = true;
+            var buttontext = e.Btn.Text;
+            if (buttontext.Equals("View"))
+            {
+                editBtn.Visible = true;
 
-            inputEmpID.Enabled = false;
-            inputEmpName.Enabled = false;
-            inputEmpRole.Enabled = false;
-            inputEmpAddress.Enabled = false;
-            inputEmpContact.Enabled = false;
+                IsActiveSwitch.Enabled = false;
+                inputEmpID.Enabled = false;
+                inputEmpName.Enabled = false;
+                inputEmpRole.Enabled = false;
+                inputEmpAddress.Enabled = false;
+                inputEmpContact.Enabled = false;
+            }
 
             InitEmpRoleContents();
 
@@ -85,6 +90,7 @@ namespace IPSys
             inputEmpContact.Text = employee.EmpContact;
             IsActiveSwitch.Checked = employee.IsActive;
         }
+
         private void saveButton_Click(object sender, EventArgs e)
         {
             if (!isAdd)
@@ -158,39 +164,13 @@ namespace IPSys
 
         private void editBtn_Click(object sender, EventArgs e)
         {
+            IsActiveSwitch.Enabled = true;
             inputEmpName.Enabled = true;
             inputEmpRole.Enabled = true;
             inputEmpAddress.Enabled = true;
             inputEmpContact.Enabled = true;
         }
 
-        private void deleteBtn_Click(object sender, EventArgs e)
-        {
-            bool isClosed = false;
-            AntdUI.Modal.open(new AntdUI.Modal.Config(new EmployeesPage(), "Remove Employee?", "")
-            {
-                Icon = TType.Warn,
-                Font = new Font("Poppins", 9, FontStyle.Regular),
-                Padding = new Size(24, 20),
-                Mask = false,
-                CancelFont = new Font("Poppins", 9, FontStyle.Bold),
-                OkFont = new Font("Poppins", 9, FontStyle.Bold),
-                OkText = "Yes",
-                OnOk = config =>
-                {
-                    ep.DeleteEmployeeFromDatabase(employee);
-                    ep.LoadEmployeeData();
-                    ep.Refresh();
-                    isClosed = true;
-                    return true;
-                }
-            });
-            if (isClosed)
-            {
-                this.Close();
-            }
-            
-        }
 
         private void closeBtn_Click(object sender, EventArgs e)
         {

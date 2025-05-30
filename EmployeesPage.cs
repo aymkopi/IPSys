@@ -24,6 +24,7 @@ namespace IPSys
 
         public EmployeesPage()
         {
+
             InitializeComponent();
             InitializeTableColumns();
             LoadEmployeeData();
@@ -169,7 +170,11 @@ namespace IPSys
                             BookingNum = Convert.ToInt32(reader["BookingNum"]),
                             IsActive = Convert.ToBoolean(reader["IsActive"]),
                             BtnsCellLinks = new CellLink[]
-                                { new CellButton(Guid.NewGuid().ToString(), "Go", TTypeMini.Default) }
+                            {
+                                new CellButton(Guid.NewGuid().ToString(), "View", TTypeMini.Primary),
+                                new CellButton(Guid.NewGuid().ToString(), "Edit", TTypeMini.Warn),
+                                new CellButton(Guid.NewGuid().ToString(), "Delete", TTypeMini.Error)
+                            }
                         };
                         empList.Add(empRow);
                     }
@@ -234,7 +239,7 @@ namespace IPSys
             }
         }
 
-        public void DeleteEmployeeFromDatabase(Employee employee)
+        private void DeleteEmployeeFromDatabase(Employee employee)
         {
             string query = @"
             DELETE FROM Employees
@@ -246,33 +251,71 @@ namespace IPSys
                 conn.Open();
                 cmd.ExecuteNonQuery();
             }
+
         }
 
         private void empTable_CellButtonClick(object sender, TableButtonEventArgs e)
         {
             var buttontext = e.Btn.Text;
+            Form form = null;
+
             if (e.Record is Employee employee)
             {
                 switch (buttontext)
                 {
-                    case "Go":
-                        var form = new EmployeeEdit(this, employee) { Size = new Size(350, 300), };
+
+                    case "View":
+                        form = new EmployeeEdit(this, employee, e) { Size = new Size(350, 300), };
                         AntdUI.Drawer.open(new AntdUI.Drawer.Config(ActiveForm, form)
                         {
-                            OnLoad = () => { AntdUI.Message.info(this, "Entering edit", autoClose: 1); },
+                            OnLoad = () => { AntdUI.Message.info(this, "Viewing Employee", autoClose: 1); },
                             OnClose = () =>
                             {
                                 UpdateEmployeeInDatabase(employee);
                                 empTable.Refresh();
-                                AntdUI.Message.info(this, "Edit finished", autoClose: 1);
-
                             }
-
+                        });
+                        break;
+                    case "Edit":
+                        form = new EmployeeEdit(this, employee, e) { Size = new Size(350, 300), };
+                        AntdUI.Drawer.open(new AntdUI.Drawer.Config(ActiveForm, form)
+                        {
+                            OnLoad = () => { AntdUI.Message.info(this, "Editing Employee", autoClose: 1); },
+                            OnClose = () =>
+                            {
+                                UpdateEmployeeInDatabase(employee);
+                                empTable.Refresh();
+                            }
+                        });
+                        break;
+                    case "Delete":
+                        AntdUI.Modal.open(new AntdUI.Modal.Config(this, "Confirmation", "Do you want to remove this employee?")
+                        {
+                            Icon = TType.Warn,
+                            Font = new Font("Poppins", 9, FontStyle.Regular),
+                            Padding = new Size(24, 20),
+                            Mask = false,
+                            CancelFont = new Font("Poppins", 9, FontStyle.Bold),
+                            OkFont = new Font("Poppins", 9, FontStyle.Bold),
+                            OkText = "Delete",
+                            OnOk = config =>
+                            {
+                                DeleteEmployeeFromDatabase(employee);
+                                LoadEmployeeData();
+                                empTable.Refresh();
+                                AntdUI.Notification.success(this, "Employee Deleted",
+                                    "The employee has been successfully removed.",
+                                    autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
+                                return true;
+                            }
                         });
                         break;
                 }
             }
         }
+
+
+
 
         private void AddEmployeeBtn_Click(object sender, EventArgs e)
         {
