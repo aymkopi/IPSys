@@ -61,10 +61,11 @@
             // empTable
             // 
             empTable.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            empTable.BackColor = Color.LightGray;
-            empTable.ColumnBack = Color.Gainsboro;
+            empTable.AutoSizeColumnsMode = AntdUI.ColumnsMode.Fill;
+            empTable.BackColor = Color.Transparent;
             empTable.ColumnFont = new Font("Poppins", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             empTable.Empty = false;
+            empTable.EnableHeaderResizing = true;
             empTable.Font = new Font("Poppins", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             empTable.Location = new Point(25, 29);
             empTable.Name = "empTable";
@@ -103,6 +104,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.InactiveBorder;
+            BackgroundImage = Properties.Resources.Untitled_design;
             ClientSize = new Size(1084, 719);
             Controls.Add(AddEmployeeBtn);
             Controls.Add(SearchBar);

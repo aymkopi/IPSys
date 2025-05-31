@@ -1,4 +1,6 @@
-﻿using System;
+﻿using AntdUI;
+using Microsoft.Data.SqlClient;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,10 +9,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using AntdUI;
-using Microsoft.Data.SqlClient;
-using System.Windows.Shell;
 using System.Windows.Input;
+using System.Windows.Shell;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace IPSys
 {
@@ -47,24 +48,20 @@ namespace IPSys
                 new Column("ClientName", "Name")
                 {
                     Align = ColumnAlign.Center,
-                    Width = "300",
-                    Fixed = true,
+                    //Width = "300",
+                   // Fixed = true,
                 },
                 new Column("ClientContact", "Contact Number")
                 {
                     Align = ColumnAlign.Center,
-                    Width = "150",
-                    Fixed = true
+                    //Width = "150",
+                    //Fixed = true
                 },
                 new Column("ClientEmail", "Email")
                 {
                     Align = ColumnAlign.Center,
-                    Width = "300",
-                    Fixed = true,
-                },
-                new Column("ClientAddress", "Address")
-                {
-                    Align = ColumnAlign.Center
+                  //  Width = "300",
+                   // Fixed = true,
                 },
                 new Column("TotalBookings", "Bookings")
                 {
@@ -111,7 +108,8 @@ namespace IPSys
 
                     while (reader.Read())
                     {
-                        var clientRow = new Client{
+                        var clientRow = new Client
+                        {
                             Selected = false,
                             ClientID = reader["ClientID"].ToString(),
                             ClientName = reader["ClientName"].ToString(),
@@ -119,7 +117,12 @@ namespace IPSys
                             ClientEmail = reader["ClientEmail"].ToString(),
                             TotalBookings = Convert.ToInt32(reader["TotalBookings"]),
                             Enabled = Convert.ToBoolean(reader["Enabled"]),
-                            BtnsCellLinks = new CellLink[] { new CellButton(Guid.NewGuid().ToString(), "Edit", TTypeMini.Default), new CellButton(Guid.NewGuid().ToString(), "Delete", TTypeMini.Primary), }
+                            BtnsCellLinks = new CellLink[]
+                            {
+                                new CellButton(Guid.NewGuid().ToString(), "View", TTypeMini.Primary),
+                                new CellButton(Guid.NewGuid().ToString(), "Edit", TTypeMini.Warn),
+                                new CellButton(Guid.NewGuid().ToString(), "Delete", TTypeMini.Error)
+                            }
                         };
                         clientList.Add(clientRow);
                     }
@@ -191,15 +194,22 @@ namespace IPSys
             {
                 switch (buttontext)
                 {
+                    case "View":
+                        // Display client details in a modal or drawer
+                        var viewForm = new ClientEdit(this, client, e) { Size = new Size(350, 300), };
+                        AntdUI.Drawer.open(new AntdUI.Drawer.Config(ActiveForm, viewForm)
+                        {
+                            OnLoad = () => { AntdUI.Message.info(this, "Viewing client details", autoClose: 1); },
+                            OnClose = () => { AntdUI.Message.info(this, "View finished", autoClose: 1); }
+                        });
+                        break;
+
                     // Does not currently support entering full-row editing, only supports editing specific cells. It is recommended to use a modal or drawer for full-row editing.
                     case "Edit":
-                        var form = new ClientEdit(this, client) { Size = new Size(350, 300), };
+                        var form = new ClientEdit(this, client, e) { Size = new Size(350, 300), };
                         AntdUI.Drawer.open(new AntdUI.Drawer.Config(ActiveForm, form)
                         {
-                            OnLoad = () =>
-                            {
-                                AntdUI.Message.info(this, "Entering edit", autoClose: 1);
-                            },
+                            OnLoad = () => { AntdUI.Message.info(this, "Entering edit", autoClose: 1); },
                             OnClose = () =>
                             {
                                 UpdateClientInDatabase(client);
@@ -225,7 +235,8 @@ namespace IPSys
                                 {
                                     while (reader.Read())
                                     {
-                                        bookingList.Add($"Event Name: {reader["Event_Name"]}\n, Date: {reader["DateFrom"]}");
+                                        bookingList.Add(
+                                            $"Event Name: {reader["Event_Name"]}\n, Date: {reader["DateFrom"]}");
                                     }
                                 }
                             }
@@ -252,14 +263,6 @@ namespace IPSys
                             }
                         });
                         break;
-                        //case "AntdUI":
-                        //    // Hyperlink content
-                        //    AntdUI.Message.info(window, user.CellLinks.FirstOrDefault().Id, autoClose: 1);
-                        //    break;
-                        //case "View Image":
-                        //    // Using clone can prevent the image in the table from being modified
-                        //    Preview.open(new Preview.Config(window, (Image)curUser.CellImages[0].Image.Clone()));
-                        //    break;
                 }
             }
         }
@@ -289,6 +292,39 @@ namespace IPSys
             }
 
             clientTable.Refresh();
+        }
+
+        public void InsertClientToDatabase(Client client)
+        {
+            string query = @"
+                INSERT INTO Clients 
+                    (Client_Name, Contact_Num, Client_Email)
+                VALUES
+                    (@ClientName, @ClientContact, @ClientEmail);";
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@ClientName", client.ClientName);
+                cmd.Parameters.AddWithValue("@ClientContact", client.ClientContact);
+                cmd.Parameters.AddWithValue("@ClientEmail", client.ClientEmail);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+        private void AddEmployeeBtn_Click(object sender, EventArgs e)
+        {
+            Client client = new Client();
+            AntdUI.Drawer.open(new Drawer.Config(ActiveForm, new ClientEdit())
+            {
+                OnLoad = () => { AntdUI.Message.info(this, "Entering Menu", autoClose: 1); },
+                OnClose = () =>
+                {
+                    LoadClientData(); // Refresh data to show new changes
+                    clientTable.Refresh();
+                }
+            });
         }
     }
 }

@@ -68,6 +68,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackgroundImage = Properties.Resources.Untitled_design;
             ClientSize = new Size(1094, 712);
             Controls.Add(panel1);
             Controls.Add(label8);

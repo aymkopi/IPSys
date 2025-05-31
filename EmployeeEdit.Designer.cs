@@ -50,6 +50,7 @@
             // 
             // inputEmpID
             // 
+            inputEmpID.Enabled = false;
             inputEmpID.Font = new Font("Poppins", 9.75F);
             inputEmpID.Location = new Point(31, 88);
             inputEmpID.Name = "inputEmpID";
@@ -123,7 +124,7 @@
             // 
             saveButton.Enabled = false;
             saveButton.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            saveButton.Location = new Point(96, 3);
+            saveButton.Location = new Point(96, 46);
             saveButton.Name = "saveButton";
             saveButton.Size = new Size(109, 37);
             saveButton.TabIndex = 9;
@@ -159,6 +160,7 @@
             // 
             // IsActiveSwitch
             // 
+            IsActiveSwitch.Checked = true;
             IsActiveSwitch.Location = new Point(252, 90);
             IsActiveSwitch.Name = "IsActiveSwitch";
             IsActiveSwitch.Size = new Size(65, 36);
@@ -166,6 +168,7 @@
             // 
             // inputEmpRole
             // 
+            inputEmpRole.Font = new Font("Poppins", 9.75F);
             inputEmpRole.Location = new Point(31, 229);
             inputEmpRole.Name = "inputEmpRole";
             inputEmpRole.Size = new Size(290, 40);
@@ -177,17 +180,19 @@
             editBtn.Ghost = true;
             editBtn.Icon = Properties.Resources.edit;
             editBtn.IconGap = 0F;
-            editBtn.Location = new Point(41, 3);
+            editBtn.Location = new Point(99, 3);
             editBtn.Margin = new Padding(3, 3, 0, 3);
             editBtn.Name = "editBtn";
-            editBtn.Size = new Size(52, 37);
+            editBtn.Size = new Size(109, 37);
             editBtn.TabIndex = 21;
             editBtn.Type = AntdUI.TTypeMini.Warn;
-            editBtn.Visible = false;
             editBtn.Click += editBtn_Click;
             // 
             // closeBtn
             // 
+            closeBtn.Icon = Properties.Resources.close_100dp_000000_FILL0_wght400_GRAD0_opsz48;
+            closeBtn.IconGap = -0.5F;
+            closeBtn.IconRatio = 1F;
             closeBtn.Location = new Point(297, 12);
             closeBtn.Name = "closeBtn";
             closeBtn.Size = new Size(38, 38);
@@ -200,7 +205,7 @@
             flowPanel.Align = AntdUI.TAlignFlow.Right;
             flowPanel.Controls.Add(saveButton);
             flowPanel.Controls.Add(editBtn);
-            flowPanel.Location = new Point(115, 421);
+            flowPanel.Location = new Point(113, 428);
             flowPanel.Name = "flowPanel";
             flowPanel.Size = new Size(208, 45);
             flowPanel.TabIndex = 25;

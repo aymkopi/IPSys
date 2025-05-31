@@ -33,7 +33,7 @@ namespace IPSys
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainPage));
             NavigationBarPanel = new AntdUI.Panel();
-            projectsBtn = new AntdUI.Button();
+            pictureBox1 = new PictureBox();
             employeesBtn = new AntdUI.Button();
             servicesBtn = new AntdUI.Button();
             clientsBtn = new AntdUI.Button();
@@ -42,15 +42,14 @@ namespace IPSys
             logoutBtn = new AntdUI.Button();
             mainPanel = new Panel();
             pageHeader1 = new PageHeader();
-            earningsBtn = new AntdUI.Button();
             NavigationBarPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
             // NavigationBarPanel
             // 
             NavigationBarPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            NavigationBarPanel.Controls.Add(earningsBtn);
-            NavigationBarPanel.Controls.Add(projectsBtn);
+            NavigationBarPanel.Controls.Add(pictureBox1);
             NavigationBarPanel.Controls.Add(employeesBtn);
             NavigationBarPanel.Controls.Add(servicesBtn);
             NavigationBarPanel.Controls.Add(clientsBtn);
@@ -62,27 +61,27 @@ namespace IPSys
             NavigationBarPanel.Shadow = 10;
             NavigationBarPanel.Size = new Size(298, 658);
             NavigationBarPanel.TabIndex = 2;
-            NavigationBarPanel.Click += NavigationBarPanel_Click;
             // 
-            // projectsBtn
+            // pictureBox1
             // 
-            projectsBtn.Anchor = AnchorStyles.Top;
-            projectsBtn.Location = new Point(65, 465);
-            projectsBtn.Name = "projectsBtn";
-            projectsBtn.Shape = TShape.Round;
-            projectsBtn.Size = new Size(165, 39);
-            projectsBtn.TabIndex = 6;
-            projectsBtn.Text = "Projects";
-            projectsBtn.ToggleType = TTypeMini.Primary;
-            projectsBtn.Click += projectsBtn_Click;
+            pictureBox1.BackColor = Color.Transparent;
+            pictureBox1.BackgroundImageLayout = ImageLayout.Zoom;
+            pictureBox1.Image = Properties.Resources._1635765441091;
+            pictureBox1.Location = new Point(71, 64);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new Size(142, 51);
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox1.TabIndex = 6;
+            pictureBox1.TabStop = false;
             // 
             // employeesBtn
             // 
             employeesBtn.Anchor = AnchorStyles.Top;
-            employeesBtn.Location = new Point(65, 275);
+            employeesBtn.Font = new Font("Poppins", 11.25F, FontStyle.Bold);
+            employeesBtn.Location = new Point(41, 290);
             employeesBtn.Name = "employeesBtn";
             employeesBtn.Shape = TShape.Round;
-            employeesBtn.Size = new Size(165, 39);
+            employeesBtn.Size = new Size(207, 63);
             employeesBtn.TabIndex = 5;
             employeesBtn.Text = "Employees";
             employeesBtn.ToggleType = TTypeMini.Primary;
@@ -91,10 +90,11 @@ namespace IPSys
             // servicesBtn
             // 
             servicesBtn.Anchor = AnchorStyles.Top;
-            servicesBtn.Location = new Point(65, 401);
+            servicesBtn.Font = new Font("Poppins", 11.25F, FontStyle.Bold);
+            servicesBtn.Location = new Point(41, 430);
             servicesBtn.Name = "servicesBtn";
             servicesBtn.Shape = TShape.Round;
-            servicesBtn.Size = new Size(165, 39);
+            servicesBtn.Size = new Size(207, 63);
             servicesBtn.TabIndex = 4;
             servicesBtn.Text = "Services";
             servicesBtn.ToggleType = TTypeMini.Primary;
@@ -103,10 +103,11 @@ namespace IPSys
             // clientsBtn
             // 
             clientsBtn.Anchor = AnchorStyles.Top;
-            clientsBtn.Location = new Point(65, 336);
+            clientsBtn.Font = new Font("Poppins", 11.25F, FontStyle.Bold);
+            clientsBtn.Location = new Point(41, 360);
             clientsBtn.Name = "clientsBtn";
             clientsBtn.Shape = TShape.Round;
-            clientsBtn.Size = new Size(165, 39);
+            clientsBtn.Size = new Size(207, 63);
             clientsBtn.TabIndex = 3;
             clientsBtn.Text = "Clients";
             clientsBtn.ToggleType = TTypeMini.Primary;
@@ -115,10 +116,11 @@ namespace IPSys
             // bookingsBtn
             // 
             bookingsBtn.Anchor = AnchorStyles.Top;
-            bookingsBtn.Location = new Point(65, 213);
+            bookingsBtn.Font = new Font("Poppins", 11.25F, FontStyle.Bold);
+            bookingsBtn.Location = new Point(41, 220);
             bookingsBtn.Name = "bookingsBtn";
             bookingsBtn.Shape = TShape.Round;
-            bookingsBtn.Size = new Size(165, 39);
+            bookingsBtn.Size = new Size(207, 63);
             bookingsBtn.TabIndex = 2;
             bookingsBtn.Text = "Bookings";
             bookingsBtn.Click += bookingsBtn_Click;
@@ -126,10 +128,11 @@ namespace IPSys
             // dashboardBtn
             // 
             dashboardBtn.Anchor = AnchorStyles.Top;
-            dashboardBtn.Location = new Point(65, 154);
+            dashboardBtn.Font = new Font("Poppins", 11.25F, FontStyle.Bold);
+            dashboardBtn.Location = new Point(41, 150);
             dashboardBtn.Name = "dashboardBtn";
             dashboardBtn.Shape = TShape.Round;
-            dashboardBtn.Size = new Size(165, 39);
+            dashboardBtn.Size = new Size(207, 63);
             dashboardBtn.TabIndex = 1;
             dashboardBtn.Text = "Dashboard";
             dashboardBtn.Toggle = true;
@@ -138,11 +141,14 @@ namespace IPSys
             // 
             // logoutBtn
             // 
-            logoutBtn.Location = new Point(71, 616);
+            logoutBtn.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            logoutBtn.BackActive = Color.Red;
+            logoutBtn.Icon = Properties.Resources.logout_100dp_000000_FILL0_wght400_GRAD0_opsz48;
+            logoutBtn.IconRatio = 1F;
+            logoutBtn.Location = new Point(22, 586);
             logoutBtn.Name = "logoutBtn";
-            logoutBtn.Size = new Size(96, 30);
+            logoutBtn.Size = new Size(60, 50);
             logoutBtn.TabIndex = 0;
-            logoutBtn.Text = "Log out";
             logoutBtn.Click += logoutBtn_Click;
             // 
             // mainPanel
@@ -165,18 +171,6 @@ namespace IPSys
             pageHeader1.TabIndex = 0;
             pageHeader1.Text = "HH Production Booking and Management System";
             // 
-            // earningsBtn
-            // 
-            earningsBtn.Anchor = AnchorStyles.Top;
-            earningsBtn.Location = new Point(65, 533);
-            earningsBtn.Name = "earningsBtn";
-            earningsBtn.Shape = TShape.Round;
-            earningsBtn.Size = new Size(165, 39);
-            earningsBtn.TabIndex = 7;
-            earningsBtn.Text = "Earnings";
-            earningsBtn.ToggleType = TTypeMini.Primary;
-            earningsBtn.Click += earningsBtn_Click;
-            // 
             // MainPage
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -197,12 +191,12 @@ namespace IPSys
             Text = "HH Production Booking System";
             WindowState = FormWindowState.Maximized;
             NavigationBarPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
         private AntdUI.Panel NavigationBarPanel;
-        private AntdUI.Button projectsBtn;
         private AntdUI.Button employeesBtn;
         private AntdUI.Button servicesBtn;
         private AntdUI.Button clientsBtn;
@@ -211,6 +205,6 @@ namespace IPSys
         private AntdUI.Button logoutBtn;
         private Panel mainPanel;
         private PageHeader pageHeader1;
-        private AntdUI.Button earningsBtn;
+        private PictureBox pictureBox1;
     }
 }

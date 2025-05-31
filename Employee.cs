@@ -17,6 +17,8 @@ namespace IPSys
         public string EmpContact { get; set; }
         public int BookingNum { get; set; }
         public bool IsActive { get; set; }
+        public string UpcomingBookings { get; set; }
+        public int TotalBookings { get; set; }
 
         public CellLink[] BtnsCellLinks { get; set; }
     }

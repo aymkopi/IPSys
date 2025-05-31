@@ -28,8 +28,8 @@ namespace IPSys
         {
             InitializeComponent();
             InitEmpRoleContents();
+            editBtn.Visible = false;
             inputEmpID.Text = "Auto-Generated"; // Placeholder for new employee
-            inputEmpID.Enabled = false;
             isAdd = true;
 
             if (employee == null)
@@ -40,7 +40,7 @@ namespace IPSys
 
         private void InitEmpRoleContents()
         {
-            string query = "SELECT Role_Name FROM EmployeeRole";
+            string query = "SELECT Role_Name FROM EmployeeRole WHERE IsActive = 1";
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
@@ -71,7 +71,7 @@ namespace IPSys
             var buttontext = e.Btn.Text;
             if (buttontext.Equals("View"))
             {
-                editBtn.Visible = true;
+                saveButton.Visible = false;
 
                 IsActiveSwitch.Enabled = false;
                 inputEmpID.Enabled = false;
@@ -80,8 +80,13 @@ namespace IPSys
                 inputEmpAddress.Enabled = false;
                 inputEmpContact.Enabled = false;
             }
+            else
+            {
+                editBtn.Visible = false; // Hide edit button in edit mode
+                saveButton.Visible = true; // Enable save button for edit mode
+            }
 
-            InitEmpRoleContents();
+                InitEmpRoleContents();
 
             inputEmpID.Text = employee.EmpID;
             inputEmpName.Text = employee.EmpName;
@@ -164,6 +169,8 @@ namespace IPSys
 
         private void editBtn_Click(object sender, EventArgs e)
         {
+            editBtn.Visible = false;
+            saveButton.Visible = true;
             IsActiveSwitch.Enabled = true;
             inputEmpName.Enabled = true;
             inputEmpRole.Enabled = true;

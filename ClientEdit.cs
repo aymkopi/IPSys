@@ -15,19 +15,44 @@ namespace IPSys
     {
         private Form form;
         private Client client;
-
+        private bool isAdd;
+        private ClientPage cp = new ClientPage();
 
 
         public ClientEdit()
         {
             InitializeComponent();
+            inputClientID.Text = "Auto-Generated"; // Placeholder for new employee
+            editBtn.Visible = false;
+            isAdd = true;
+            if (client == null)
+            {
+                client = new Client();
+            }
         }
 
-        public ClientEdit(Form form, Client client)
+        public ClientEdit(Form form, Client client, TableButtonEventArgs e)
         {
             this.form = form;
             this.client = client;
             InitializeComponent();
+
+            var buttontext = e.Btn.Text;
+
+            if (buttontext.Equals("View"))
+            {
+                saveButton.Visible = false; // Disable save button for view mode
+                inputClientID.Enabled = false;
+                inputClientName.Enabled = false;
+                inputClientContact.Enabled = false;
+                inputClientEmail.Enabled = false;
+            }
+            else
+            {
+                editBtn.Visible = false; // Hide edit button in edit mode
+                saveButton.Visible = true; // Enable save button for edit mode
+            }
+
             inputClientID.Text = client.ClientID;
             inputClientName.Text = client.ClientName;
             inputClientContact.Text = client.ClientContact;
@@ -36,11 +61,23 @@ namespace IPSys
 
         private void saveButton_Click(object sender, EventArgs e)
         {
-            client.ClientID = inputClientID.Text;
+            if (!isAdd)
+            {
+                client.ClientID = inputClientID.Text;
+            }
             client.ClientName = inputClientName.Text;
             client.ClientContact = inputClientContact.Text;
             client.ClientEmail = inputClientEmail.Text;
+
+
+            if (isAdd)
+            {
+                cp.InsertClientToDatabase(client);
+                cp.Refresh();
+            }
+
             this.Close();
+
         }
 
         private void inputClientName_TextChanged(object sender, EventArgs e)
@@ -58,7 +95,9 @@ namespace IPSys
                 inputClientName.Status = TType.None;
             }
 
-            if (string.IsNullOrWhiteSpace(inputClientContact?.Text) || inputClientContact.Text.Any(char.IsAsciiLetter) || inputClientContact.Text.Length != 11 || !inputClientContact.Text.StartsWith("09"))
+            if (string.IsNullOrWhiteSpace(inputClientContact?.Text) ||
+                inputClientContact.Text.Any(char.IsAsciiLetter) || inputClientContact.Text.Length != 11 ||
+                !inputClientContact.Text.StartsWith("09"))
             {
                 saveButton.Enabled = false;
                 inputClientContact.Status = TType.Error;
@@ -74,6 +113,7 @@ namespace IPSys
                 inputClientContact.Status = TType.None;
                 this.Focus();
             }
+
             if (string.IsNullOrWhiteSpace(inputClientEmail?.Text))
             {
                 inputClientEmail.Status = TType.Error;
@@ -84,6 +124,21 @@ namespace IPSys
                 inputClientEmail.Status = TType.None;
             }
 
+        }
+
+        private void editBtn_Click(object sender, EventArgs e)
+        {
+            editBtn.Visible = false; // Hide edit button in edit mode
+            saveButton.Visible = true; // Enable save button for edit mode
+            inputClientID.Enabled = false; // Disable Client ID input field
+            inputClientName.Enabled = true;
+            inputClientContact.Enabled = true;
+            inputClientEmail.Enabled = true;
+        }
+
+        private void closeBtn_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

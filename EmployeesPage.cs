@@ -21,7 +21,8 @@ namespace IPSys
         // Assume you have an AntList<Employee> and a reference to your AntdUI table control
         AntList<Employee> empList;
         AntList<Employee> filteredEmpList;
-
+        List<string> upcomingBookings = new List<string>();
+        List<string> pastBookings = new List<string>();
         public EmployeesPage()
         {
 
@@ -84,6 +85,16 @@ namespace IPSys
                     //Width = "120",
                     Align = ColumnAlign.Center,
                 },
+                new Column("UpcomingBookings", "Active Bookings")
+                {
+                    //Width = "120",
+                    Align = ColumnAlign.Center,
+                },
+                new Column("TotalBookings", "Total Bookings")
+                {
+                    //Width = "120",
+                    Align = ColumnAlign.Center,
+                },
 
                 new ColumnSwitch("IsActive", "Active", ColumnAlign.Center)
                 {
@@ -124,57 +135,95 @@ namespace IPSys
 
         public void LoadEmployeeData()
         {
-            // Define your Employee class to match your table columns
             empList = new AntList<Employee>();
 
-            string sql = @"
-                SELECT 
-                    e.Employee_ID AS EmpID,
-                    e.Employee_Name AS EmpName,
-                    er.Role_Name AS EmpRole,
-                    e.Employee_Address AS EmpAddress,
-                    e.Employee_Contact AS EmpContact,
-                    COUNT(be.Booking_ID) AS BookingNum,
-                    e.IsActive AS IsActive
-                FROM 
-                    Employees e
-                INNER JOIN 
-                    EmployeeRole er ON e.E_Role_ID = er.E_Role_ID
-                LEFT JOIN 
-                    Bookings_Employees be ON e.Employee_ID = be.Employee_ID
-                GROUP BY 
-                    e.Employee_ID, e.Employee_Name, er.Role_Name, e.IsActive, e.Employee_Address, e.Employee_Contact
-                ORDER BY 
-                    e.Employee_ID;
-            ";
+            string employeeSql = @"
+    SELECT 
+        e.Employee_ID AS EmpID,
+        e.Employee_Name AS EmpName,
+        er.Role_Name AS EmpRole,
+        e.Employee_Address AS EmpAddress,
+        e.Employee_Contact AS EmpContact,
+        COUNT(be.Booking_ID) AS BookingNum,
+        e.IsActive AS IsActive
+    FROM 
+        Employees e
+    INNER JOIN 
+        EmployeeRole er ON e.E_Role_ID = er.E_Role_ID
+    LEFT JOIN 
+        Bookings_Employees be ON e.Employee_ID = be.Employee_ID
+    GROUP BY 
+        e.Employee_ID, e.Employee_Name, er.Role_Name, e.IsActive, e.Employee_Address, e.Employee_Contact
+    ORDER BY 
+        e.Employee_ID;
+";
 
             using (SqlConnection conn = new SqlConnection(connectionString))
-            using (SqlCommand cmd = new SqlCommand(sql, conn))
+            using (SqlCommand cmd = new SqlCommand(employeeSql, conn))
             {
                 conn.Open();
                 using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    // Clear any existing data in the table
-                    //empTable.Empty = true; // Method name may differ depending on your control
-
                     while (reader.Read())
                     {
+                        var empID = reader["EmpID"].ToString();
+
+                        // Prepare to fetch booking details for this employee
+                        upcomingBookings = new List<string>();
+                        pastBookings = new List<string>();
+                        int totalBookings = 0;
+
+                        string bookingSql = @"
+                SELECT b.Event_Name, b.DateFrom
+                FROM Bookings b
+                INNER JOIN Bookings_Employees be ON b.Booking_id = be.Booking_id
+                WHERE be.Employee_ID = @EmployeeID
+                ORDER BY b.DateFrom";
+
+                        using (SqlConnection bookingConn = new SqlConnection(connectionString))
+                        using (SqlCommand bookingCmd = new SqlCommand(bookingSql, bookingConn))
+                        {
+                            bookingCmd.Parameters.AddWithValue("@EmployeeID", empID);
+                            bookingConn.Open();
+                            using (SqlDataReader bookingReader = bookingCmd.ExecuteReader())
+                            {
+                                while (bookingReader.Read())
+                                {
+                                    DateTime bookingDate = Convert.ToDateTime(bookingReader["DateFrom"]);
+                                    string info = $"Event Name: {bookingReader["Event_Name"]}\nDate: {bookingDate:yyyy-MM-dd}";
+                                    if (bookingDate >= DateTime.Now.Date)
+                                    {
+                                        upcomingBookings.Add(info);
+                                    }
+                                    else
+                                    {
+                                        pastBookings.Add(info);
+                                    }
+                                    totalBookings++;
+                                }
+                            }
+                        }
+
                         var empRow = new Employee
                         {
-                            Selected = false, // Checkbox default unchecked
-                            EmpID = reader["EmpID"].ToString(),
+                            Selected = false,
+                            EmpID = empID,
                             EmpName = reader["EmpName"].ToString(),
                             EmpRole = reader["EmpRole"].ToString(),
                             EmpAddress = reader["EmpAddress"].ToString(),
                             EmpContact = reader["EmpContact"].ToString(),
                             BookingNum = Convert.ToInt32(reader["BookingNum"]),
+                            // New fields
+                            UpcomingBookings = upcomingBookings.Count.ToString(),
+                            TotalBookings = totalBookings,
                             IsActive = Convert.ToBoolean(reader["IsActive"]),
                             BtnsCellLinks = new CellLink[]
                             {
-                                new CellButton(Guid.NewGuid().ToString(), "View", TTypeMini.Primary),
-                                new CellButton(Guid.NewGuid().ToString(), "Edit", TTypeMini.Warn),
-                                new CellButton(Guid.NewGuid().ToString(), "Delete", TTypeMini.Error)
+                    new CellButton(Guid.NewGuid().ToString(), "View", TTypeMini.Primary),
+                    new CellButton(Guid.NewGuid().ToString(), "Edit", TTypeMini.Warn),
+                    new CellButton(Guid.NewGuid().ToString(), "Delete", TTypeMini.Error)
                             }
+                            
                         };
                         empList.Add(empRow);
                     }
@@ -239,19 +288,41 @@ namespace IPSys
             }
         }
 
-        private void DeleteEmployeeFromDatabase(Employee employee)
+        private void DeleteEmployeeInDatabase(Employee employee)
         {
-            string query = @"
-            DELETE FROM Employees
-            WHERE Employee_ID = @EmpID;";
             using (SqlConnection conn = new SqlConnection(connectionString))
-            using (SqlCommand cmd = new SqlCommand(query, conn))
             {
-                cmd.Parameters.AddWithValue("@EmpID", employee.EmpID);
                 conn.Open();
-                cmd.ExecuteNonQuery();
-            }
+                using (SqlTransaction transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // Delete from Bookings_Employees
+                        string deleteFromBookingsEmployees = "DELETE FROM Bookings_Employees WHERE Employee_ID = @EmployeeID";
+                        using (SqlCommand cmd = new SqlCommand(deleteFromBookingsEmployees, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@EmployeeID", employee.EmpID);
+                            cmd.ExecuteNonQuery();
+                        }
 
+                        // Delete from Employees
+                        string deleteFromEmployees = "DELETE FROM Employees WHERE Employee_ID = @EmployeeID";
+                        using (SqlCommand cmd = new SqlCommand(deleteFromEmployees, conn, transaction))
+                        {
+                            cmd.Parameters.AddWithValue("@EmployeeID", employee.EmpID);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        transaction.Commit();
+                        AntdUI.Notification.success(this, "Success", "Employee deleted successfully.", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        AntdUI.Notification.error(this, "Error", $"An error occurred while deleting the employee: {ex.Message}", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
+                    }
+                }
+            }
         }
 
         private void empTable_CellButtonClick(object sender, TableButtonEventArgs e)
@@ -289,26 +360,73 @@ namespace IPSys
                         });
                         break;
                     case "Delete":
-                        AntdUI.Modal.open(new AntdUI.Modal.Config(this, "Confirmation", "Do you want to remove this employee?")
+                        
+                        using (SqlConnection conn = new SqlConnection(connectionString))
                         {
-                            Icon = TType.Warn,
-                            Font = new Font("Poppins", 9, FontStyle.Regular),
-                            Padding = new Size(24, 20),
-                            Mask = false,
-                            CancelFont = new Font("Poppins", 9, FontStyle.Bold),
-                            OkFont = new Font("Poppins", 9, FontStyle.Bold),
-                            OkText = "Delete",
-                            OnOk = config =>
+                            conn.Open();
+                            string sql = @"
+                        SELECT b.Event_Name, b.DateFrom
+                        FROM Bookings b
+                        INNER JOIN Bookings_Employees be ON b.Booking_id = be.Booking_id
+                        WHERE be.Employee_ID = @EmployeeID
+                        ORDER BY b.DateFrom";
+                            using (SqlCommand cmd = new SqlCommand(sql, conn))
                             {
-                                DeleteEmployeeFromDatabase(employee);
-                                LoadEmployeeData();
-                                empTable.Refresh();
-                                AntdUI.Notification.success(this, "Employee Deleted",
-                                    "The employee has been successfully removed.",
-                                    autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
-                                return true;
+                                cmd.Parameters.AddWithValue("@EmployeeID", employee.EmpID);
+                                using (SqlDataReader reader = cmd.ExecuteReader())
+                                {
+                                    while (reader.Read())
+                                    {
+                                        DateTime bookingDate = Convert.ToDateTime(reader["DateFrom"]);
+                                        string info = $"Event Name: {reader["Event_Name"]}\nDate: {bookingDate:yyyy-MM-dd}";
+                                        if (bookingDate >= DateTime.Now.Date)
+                                        {
+                                            upcomingBookings.Add(info);
+                                        }
+                                        else
+                                        {
+                                            pastBookings.Add(info);
+                                        }
+                                    }
+                                }
                             }
-                        });
+                        }
+
+                        if (upcomingBookings.Count > 0)
+                        {
+                            string message = "Cannot delete this employee. The following upcoming bookings are assigned to this employee:\n\n" + string.Join("\n", upcomingBookings);
+                            AntdUI.Modal.open(new AntdUI.Modal.Config(ActiveForm, "Delete Employee", message)
+                            {
+                                Icon = TType.Warn,
+                                Font = new Font("Poppins", 9, FontStyle.Regular),
+                                Padding = new Size(24, 20),
+                                OkFont = new Font("Poppins", 9, FontStyle.Bold),
+                                CancelFont = new Font("Poppins", 9, FontStyle.Bold),
+                                OkText = "OK",
+                                OnOk = config => true
+                            });
+                        }
+                        else
+                        {
+                            string message = pastBookings.Count > 0
+                                ? "The following bookings were previously assigned to this employee:\n\n" + string.Join("\n", pastBookings) + "\n\nDo you want to proceed with deletion?"
+                                : "This employee has no assigned bookings. Proceed with deletion?";
+                            AntdUI.Modal.open(new AntdUI.Modal.Config(ActiveForm, "Delete Employee", message)
+                            {
+                                Icon = TType.Warn,
+                                Font = new Font("Poppins", 9, FontStyle.Regular),
+                                Padding = new Size(24, 20),
+                                OkFont = new Font("Poppins", 9, FontStyle.Bold),
+                                CancelFont = new Font("Poppins", 9, FontStyle.Bold),
+                                OkText = "Delete",
+                                OnOk = config =>
+                                {
+                                    DeleteEmployeeInDatabase(employee);
+                                    empList.Remove(employee);
+                                    return true;
+                                }
+                            });
+                        }
                         break;
                 }
             }
@@ -322,12 +440,11 @@ namespace IPSys
             Employee employee = new Employee();
             AntdUI.Drawer.open(new Drawer.Config(ActiveForm, new EmployeeEdit())
             {
-                OnLoad = () => { AntdUI.Message.info(this, "Entering edit", autoClose: 1); },
+                OnLoad = () => { AntdUI.Message.info(this, "Entering Menu", autoClose: 1); },
                 OnClose = () =>
                 {
                     LoadEmployeeData(); // Refresh data to show new changes
                     empTable.Refresh();
-                    AntdUI.Message.info(this, "Edit finished", autoClose: 1);
                 }
             });
         }

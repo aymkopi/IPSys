@@ -28,10 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ClientPage));
             label8 = new AntdUI.Label();
             panel1 = new AntdUI.Panel();
             clientTable = new AntdUI.Table();
             SearchBar = new AntdUI.Input();
+            AddEmployeeBtn = new AntdUI.Button();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -59,10 +61,12 @@
             // clientTable
             // 
             clientTable.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            clientTable.BackColor = Color.LightGray;
-            clientTable.ColumnBack = Color.Gainsboro;
+            clientTable.AutoSizeColumnsMode = AntdUI.ColumnsMode.Fill;
+            clientTable.BackColor = Color.Transparent;
             clientTable.ColumnFont = new Font("Poppins", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             clientTable.Empty = false;
+            clientTable.EnableHeaderResizing = true;
+            clientTable.FixedHeader = false;
             clientTable.Font = new Font("Poppins", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             clientTable.Location = new Point(25, 25);
             clientTable.Name = "clientTable";
@@ -74,18 +78,35 @@
             // 
             SearchBar.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             SearchBar.Font = new Font("Poppins", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            SearchBar.Location = new Point(770, 67);
+            SearchBar.Location = new Point(684, 67);
             SearchBar.Name = "SearchBar";
             SearchBar.PlaceholderText = "   Search";
             SearchBar.Size = new Size(284, 45);
             SearchBar.TabIndex = 20;
             SearchBar.TextChanged += SearchBar_TextChanged;
             // 
+            // AddEmployeeBtn
+            // 
+            AddEmployeeBtn.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            AddEmployeeBtn.Icon = (Image)resources.GetObject("AddEmployeeBtn.Icon");
+            AddEmployeeBtn.IconGap = 0F;
+            AddEmployeeBtn.IconPosition = AntdUI.TAlignMini.Bottom;
+            AddEmployeeBtn.IconRatio = 1F;
+            AddEmployeeBtn.Location = new Point(987, 55);
+            AddEmployeeBtn.Name = "AddEmployeeBtn";
+            AddEmployeeBtn.Shape = AntdUI.TShape.Circle;
+            AddEmployeeBtn.Size = new Size(67, 57);
+            AddEmployeeBtn.TabIndex = 24;
+            AddEmployeeBtn.Type = AntdUI.TTypeMini.Primary;
+            AddEmployeeBtn.Click += AddEmployeeBtn_Click;
+            // 
             // ClientPage
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackgroundImage = Properties.Resources.Untitled_design;
             ClientSize = new Size(1084, 719);
+            Controls.Add(AddEmployeeBtn);
             Controls.Add(SearchBar);
             Controls.Add(panel1);
             Controls.Add(label8);
@@ -103,5 +124,6 @@
         private AntdUI.Panel panel1;
         private AntdUI.Table clientTable;
         private AntdUI.Input SearchBar;
+        private AntdUI.Button AddEmployeeBtn;
     }
 }

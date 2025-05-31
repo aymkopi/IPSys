@@ -1,69 +1,58 @@
 using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 using Microsoft.Data.SqlClient;
 
 namespace IPSys
 {
     public partial class MainPage : Form
     {
-        // Preloaded forms
-        private dashboardPage dashboardForm;
-        private bookingsPage bookingsForm;
-        private EmployeesPage employeesForm;
-        private ClientPage clientsForm;
-        private ServicesPage servicesForm;
-        private ProjectsPage projectsForm;
-        private EarningsPage earningsForm;
-
         public MainPage()
         {
             InitializeComponent();
-
-            // Preload all forms
-            dashboardForm = new dashboardPage();
-            bookingsForm = new bookingsPage();
-            employeesForm = new EmployeesPage();
-            clientsForm = new ClientPage();
-            servicesForm = new ServicesPage();
-            projectsForm = new ProjectsPage();
-            earningsForm = new EarningsPage();
-
-            // Set forms as non-top-level and docked
-            PreloadForm(dashboardForm);
-            PreloadForm(bookingsForm);
-            PreloadForm(employeesForm);
-            PreloadForm(clientsForm);
-            PreloadForm(servicesForm);
-            PreloadForm(projectsForm);
-            PreloadForm(earningsForm);
-
-            // Show dashboard by default
-            ShowForm(dashboardForm);
-
+            ShowForm("dashboard");
             TestConnection();
             this.DoubleBuffered = true;
         }
 
-        private void PreloadForm(Form form)
+        private void ShowForm(string formKey)
         {
-            form.TopLevel = false;
-            form.Dock = DockStyle.Fill;
-            form.FormBorderStyle = FormBorderStyle.None;
-            form.Visible = false;
-            mainPanel.Controls.Add(form);
-        }
-
-        private void ShowForm(Form formToShow)
-        {
+            // Remove previous forms
             foreach (Control ctrl in mainPanel.Controls)
             {
                 if (ctrl is Form frm)
                 {
-                    frm.Visible = (frm == formToShow);
+                    mainPanel.Controls.Remove(frm);
+                    frm.Dispose();
                 }
             }
-            mainPanel.Tag = formToShow;
-        }
 
+            Form formToShow = formKey switch
+            {
+                "dashboard" => new dashboardPage(),
+                "bookings" => new bookingsPage(),
+                "employees" => new EmployeesPage(),
+                "clients" => new ClientPage(),
+                "services" => new ServicesPage(),
+                "projects" => new ProjectsPage(),
+                "earnings" => new EarningsPage(),
+                _ => null,
+            };
+
+            if (formToShow != null)
+            {
+                // Load data before displaying (if method exists)
+                // You can use reflection or explicit interface
+                (formToShow as ILoadableForm)?.LoadData();
+
+                formToShow.TopLevel = false;
+                formToShow.Dock = DockStyle.Fill;
+                formToShow.FormBorderStyle = FormBorderStyle.None;
+                mainPanel.Controls.Add(formToShow);
+                formToShow.Show();
+                mainPanel.Tag = formToShow;
+            }
+        }
         public static void TestConnection()
         {
             SqlConnection conn = new SqlConnection(
@@ -98,53 +87,43 @@ namespace IPSys
 
         private void ToggleButton(AntdUI.Button selectedBtn)
         {
-            var buttons = new List<AntdUI.Button> { dashboardBtn, bookingsBtn, clientsBtn, servicesBtn, employeesBtn, projectsBtn, earningsBtn };
+            var buttons = new List<AntdUI.Button> { dashboardBtn, bookingsBtn, clientsBtn, servicesBtn, employeesBtn};
 
             foreach (var btn in buttons)
             {
                 btn.Toggle = (btn == selectedBtn);
             }
         }
-
         private void dashboardBtn_Click(object sender, EventArgs e)
         {
             ToggleButton(dashboardBtn);
-            ShowForm(dashboardForm);
+            ShowForm("dashboard");
         }
         private void bookingsBtn_Click(object sender, EventArgs e)
         {
             ToggleButton(bookingsBtn);
-            ShowForm(bookingsForm);
+            ShowForm("bookings");
         }
         private void employeesBtn_Click(object sender, EventArgs e)
         {
             ToggleButton(employeesBtn);
-            ShowForm(employeesForm);
+            ShowForm("employees");
         }
         private void clientsBtn_Click(object sender, EventArgs e)
         {
             ToggleButton(clientsBtn);
-            ShowForm(clientsForm);
+            ShowForm("clients");
         }
         private void servicesBtn_Click(object sender, EventArgs e)
         {
             ToggleButton(servicesBtn);
-            ShowForm(servicesForm);
+            ShowForm("services");
         }
-        private void projectsBtn_Click(object sender, EventArgs e)
-        {
-            ToggleButton(projectsBtn);
-            ShowForm(projectsForm);
-        }
-        private void earningsBtn_Click(object sender, EventArgs e)
-        {
-            ToggleButton(earningsBtn);
-            ShowForm(earningsForm);
-        }
+    }
 
-        private void NavigationBarPanel_Click(object sender, EventArgs e)
-        {
-
-        }
+    // Interface for forms that support data loading
+    public interface ILoadableForm
+    {
+        void LoadData();
     }
 }
