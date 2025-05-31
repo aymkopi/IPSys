@@ -117,27 +117,39 @@ namespace IPSys
                 {
                     conn.Open();
 
-                    // 1. Check if client exists or insert new
                     int clientID;
-                    string checkClientQuery = @"
-                        SELECT Client_ID FROM Clients WHERE Client_Name = @ClientName AND Contact_Num = @ContactNum AND Client_Email = @ClientEmail";
-                    using (SqlCommand checkCmd = new SqlCommand(checkClientQuery, conn))
+                    // Check if the booking exists
+                    string checkBookingQuery = @"
+            SELECT Client_ID FROM Bookings WHERE Booking_ID = @BookingID";
+                    using (SqlCommand checkBookingCmd = new SqlCommand(checkBookingQuery, conn))
                     {
-                        checkCmd.Parameters.AddWithValue("@ClientName", Booking.ClientName);
-                        checkCmd.Parameters.AddWithValue("@ContactNum", Booking.ContactNum);
-                        checkCmd.Parameters.AddWithValue("@ClientEmail", Booking.ClientEmail);
+                        checkBookingCmd.Parameters.AddWithValue("@BookingID", editingBookingID.Value);
 
-                        object result = checkCmd.ExecuteScalar();
+                        object result = checkBookingCmd.ExecuteScalar();
                         if (result != null && result != DBNull.Value)
                         {
+                            // Booking exists, update client details for the found Client_ID
                             clientID = Convert.ToInt32(result);
+                            string updateClientQuery = @"
+                    UPDATE Clients
+                    SET Client_Name = @ClientName, Contact_Num = @ContactNum, Client_Email = @ClientEmail
+                    WHERE Client_ID = @ClientID";
+                            using (SqlCommand updateCmd = new SqlCommand(updateClientQuery, conn))
+                            {
+                                updateCmd.Parameters.AddWithValue("@ClientID", clientID);
+                                updateCmd.Parameters.AddWithValue("@ClientName", Booking.ClientName);
+                                updateCmd.Parameters.AddWithValue("@ContactNum", Booking.ContactNum);
+                                updateCmd.Parameters.AddWithValue("@ClientEmail", Booking.ClientEmail);
+                                updateCmd.ExecuteNonQuery();
+                            }
                         }
                         else
                         {
+                            // Booking does not exist, insert new client
                             string insertClientQuery = @"
-                                INSERT INTO Clients (Client_Name, Contact_Num, Client_Email)
-                                VALUES (@ClientName, @ContactNum, @ClientEmail);
-                                SELECT SCOPE_IDENTITY();";
+                    INSERT INTO Clients (Client_Name, Contact_Num, Client_Email)
+                    VALUES (@ClientName, @ContactNum, @ClientEmail);
+                    SELECT SCOPE_IDENTITY();";
                             using (SqlCommand insertClientCmd = new SqlCommand(insertClientQuery, conn))
                             {
                                 insertClientCmd.Parameters.AddWithValue("@ClientName", Booking.ClientName);
@@ -306,15 +318,6 @@ namespace IPSys
         {
             CreateButtonStatus();
         }
-
-        /// <summary>
-        /// Handles selection change in multi-selects to update button status.
-        /// </summary>s
-        private void bookingsInputSelectMultiple_SelectedValueChanged(object sender, AntdUI.ObjectsEventArgs e)
-        {
-            CreateButtonStatus();
-        }
-
 
 
         /// <summary>

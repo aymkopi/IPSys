@@ -48,6 +48,7 @@
             label2 = new AntdUI.Label();
             label1 = new AntdUI.Label();
             divider1 = new AntdUI.Divider();
+            select = new AntdUI.Select();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             stackPanel1.SuspendLayout();
@@ -91,6 +92,7 @@
             // panel2
             // 
             panel2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            panel2.Controls.Add(select);
             panel2.Controls.Add(CreateBookingButton);
             panel2.Controls.Add(stackPanel1);
             panel2.Controls.Add(label1);
@@ -282,6 +284,19 @@
             divider1.TextPadding = 0F;
             divider1.Thickness = 1.5F;
             // 
+            // select
+            // 
+            select.Font = new Font("Poppins", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            select.Items.AddRange(new object[] { "Today", "All" });
+            select.Location = new Point(322, 107);
+            select.Name = "select";
+            select.SelectedIndex = 0;
+            select.SelectedValue = "Today";
+            select.Size = new Size(100, 40);
+            select.TabIndex = 23;
+            select.Text = "Today";
+            select.SelectedIndexChanged += select_SelectedIndexChanged;
+            // 
             // bookingsPage
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -323,5 +338,6 @@
         private AntdUI.Label client;
         private AntdUI.Label eventName;
         private AntdUI.Label label2;
+        private AntdUI.Select select;
     }
 }

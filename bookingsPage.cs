@@ -29,7 +29,7 @@ namespace IPSys
 
             this.DoubleBuffered = true;
         }
-        
+
         public void GeneratePanelsForSelectedDate(DateTime selectedDate)
         {
             string query = @"
@@ -203,7 +203,7 @@ namespace IPSys
                                 };
 
 
-                               
+
                                 AntdUI.Button editEventButton = new Button()
                                 {
 
@@ -218,7 +218,7 @@ namespace IPSys
                                     Size = new Size(50, 35),
                                     TabIndex = 19,
                                     Type = AntdUI.TTypeMini.Warn,
-                                    };
+                                };
                                 if (reader.GetDateTime(2) < dateNow)
                                 {
                                     editEventButton.Enabled = false;
@@ -273,16 +273,16 @@ namespace IPSys
                                 Size = new Size(380, 40), // Adjust size as necessary
                                 Text = "No bookings. Add new.",
                                 TextAlign = ContentAlignment.BottomCenter,
-                                
+
                             };
 
                             stackPanel1.Controls.Add(dayLabel);
-                            
+
                         }
 
                         // Resume layout updates after panel update
                         stackPanel1.ResumeLayout();
-                       
+
                     }
                 }
             }
@@ -351,11 +351,11 @@ namespace IPSys
             DateChosen = calendar.Value; // Update DateChosen when the date changes
         }
         private void CreateBookingButton_Click(object sender, EventArgs e)
-        { 
+        {
             DateChosen = calendar.Value;
             // Create a new instance of the bookingPanel form
             bookingPanel bookingForm = new bookingPanel(this);
-           
+
             // Display it as a modal dialog
             bookingForm.ShowDialog();
 
@@ -406,7 +406,7 @@ namespace IPSys
                             AntdUI.Notification.error(this, "Error", $"An error occurred while deleting the column: {ex.Message}", autoClose: 5, align: TAlignFrom.BR, font: new Font("Poppins", 10, FontStyle.Regular));
                         }
 
-                        
+
 
 
                         return true;
@@ -451,6 +451,18 @@ namespace IPSys
         {
             MessageBox.Show("Go to Event Details button clicked!");
             // Add your logic to navigate to event details
+        }
+
+        private void select_SelectedIndexChanged(object sender, IntEventArgs e)
+        {
+            if (select.SelectedIndex == 0)
+            {
+                GeneratePanelsForSelectedDate(dateNow);
+            }
+            else
+            {
+                GeneratePanelsForSelectedDate(new DateTime(2000, 1, 1, 0, 0, 0));
+            }
         }
     }
 }
